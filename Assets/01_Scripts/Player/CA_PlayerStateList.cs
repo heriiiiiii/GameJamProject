@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CA_PlayerStateList : MonoBehaviour
 {
-    public bool jumping=false;
+    public bool jumping = false;
     public bool dashing = false;
+    public bool recoillingX, recoillingY;
+    public bool lookingRight;
 }

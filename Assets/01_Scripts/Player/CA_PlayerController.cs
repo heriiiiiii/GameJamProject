@@ -1,5 +1,6 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CA_PlayerController : MonoBehaviour
@@ -7,7 +8,7 @@ public class CA_PlayerController : MonoBehaviour
     [Header("Movimiento Horizontal")]
     private Rigidbody2D rb;
     [SerializeField] private float walkSpeed = 1;
-    private float xAxis;
+    private float xAxis, yAxis;
 
     [Header("Ground Check Settings")]
     [SerializeField] private float jumpForce = 45;
@@ -41,10 +42,28 @@ public class CA_PlayerController : MonoBehaviour
     [SerializeField] private float wallSlidingSpeed = 2f;  // Velocidad de deslizamiento
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private Transform wallCheck;
-    private bool isWallSliding;  // Si está deslizándose por la pared
+    private bool isWallSliding;  // Si estÃ¡ deslizÃ¡ndose por la pared
 
     public static CA_PlayerController Instance;
     CA_PlayerStateList pState;
+
+    //ATTACKPLAYER
+    bool attack = false;
+    float timeBetweenAttack, timeSinceAttack;
+    [Header("Attacking")]
+    [SerializeField] Transform SideAttackTransform, UpAttackTransform, DownAttackTransform;
+    [SerializeField] Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
+    [SerializeField] LayerMask attackableLayer;
+    [SerializeField] float damage;
+    [Space(5)]
+    [Header("Recoil")]
+    [SerializeField] int recoilXSteps = 5;
+    [SerializeField] int recoilYSteps = 5;
+    [SerializeField] float recoilXSpeed = 100;
+    [SerializeField] float recoilYSpeed = 100;
+    int stepsXRecoiled, stepsYRecoiled;
+    [SerializeField] float recoilDuration = 0.15f; // duraciÃ³n del recoil
+    float recoilTimer = 0f;
 
     private float gravity;
     private bool isFacingRight = true;
@@ -68,15 +87,22 @@ public class CA_PlayerController : MonoBehaviour
 
         gravity = rb.gravityScale;
     }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(SideAttackTransform.position, SideAttackArea);
+        Gizmos.DrawWireCube(UpAttackTransform.position, UpAttackArea);
+        Gizmos.DrawWireCube(DownAttackTransform.position, DownAttackArea);
+    }
 
     void Update()
     {
         GetInputs();
         UpdateJumpVariables();
 
-        if (pState.dashing) return;  // Si está en estado de dash, no actualizamos movimiento
+        if (pState.dashing) return;  // Si estÃ¡ en estado de dash, no actualizamos movimiento
 
-        if (!isWallSliding)  // Si no estamos deslizándonos por la pared, continuamos con el movimiento normal
+        if (!isWallSliding)  // Si no estamos deslizÃ¡ndonos por la pared, continuamos con el movimiento normal
         {
             Flip();
         }
@@ -87,12 +113,17 @@ public class CA_PlayerController : MonoBehaviour
 
         WallSlide();  // Deslizarse por la pared
         WallJump();   // Salto en la pared
+        Attack();
+        Recoil();
     }
 
     void GetInputs()
     {
-        xAxis = Input.GetAxisRaw("Horizontal");  // Obtener la entrada horizontal (teclas de dirección)
+        xAxis = Input.GetAxisRaw("Horizontal");  // Obtener la entrada horizontal (teclas de direcciÃ³n)
+        yAxis = Input.GetAxisRaw("Vertical");
+        attack = Input.GetKeyDown(KeyCode.X);
     }
+
 
     private void Move()
     {
@@ -116,18 +147,102 @@ public class CA_PlayerController : MonoBehaviour
     IEnumerator Dash()
     {
         canDash = false;  // Deshabilitar el dash temporalmente
-        pState.dashing = true;  // Establecer que está en dash
+        pState.dashing = true;  // Establecer que estÃ¡ en dash
         rb.gravityScale = 0;  // Eliminar la gravedad durante el dash
-        rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);  // Desplazarse en la dirección del jugador
+        rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);  // Desplazarse en la direcciÃ³n del jugador
 
-        yield return new WaitForSeconds(dashTime);  // Esperar el tiempo de duración del dash
+        yield return new WaitForSeconds(dashTime);  // Esperar el tiempo de duraciÃ³n del dash
 
         rb.gravityScale = gravity;  // Restaurar la gravedad
         pState.dashing = false;  // Terminar el estado de dash
 
         yield return new WaitForSeconds(dashCooldown);  // Esperar el cooldown
 
-        canDash = true;  // Habilitar el dash nuevamente después del cooldown
+        canDash = true;  // Habilitar el dash nuevamente despuÃ©s del cooldown
+    }
+
+    //New Script Attack
+    void Attack()
+    {
+        timeSinceAttack += Time.deltaTime;
+        if (attack && timeSinceAttack >= timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            //Colocar Anim Attack
+            if (yAxis == 0 || yAxis < 0 && Grounded())
+            {
+                Hit(SideAttackTransform, SideAttackArea, ref pState.recoillingX, recoilXSpeed);
+            }
+            else if (yAxis > 0)
+            {
+                Hit(UpAttackTransform, UpAttackArea, ref pState.recoillingY, recoilYSpeed);
+            }
+            else if (yAxis < 0 && !Grounded())
+            {
+                Hit(DownAttackTransform, DownAttackArea, ref pState.recoillingY, recoilYSpeed);
+            }
+        }
+    }
+    void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
+    {
+        Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
+
+        if (objectsToHit.Length > 0)
+        {
+            _recoilDir = true;
+        }
+
+        for (int i = 0; i < objectsToHit.Length; i++)
+        {
+            if (objectsToHit[i].GetComponent<CA_RecolEnemy>() != null)
+            {
+                objectsToHit[i].GetComponent<CA_RecolEnemy>().EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
+            }
+
+            // âœ… NUEVO: Detectar enemigos de rebote
+            if (objectsToHit[i].GetComponent<EnemigoRebote>() != null)
+            {
+                objectsToHit[i].GetComponent<EnemigoRebote>().RecibirAtaque();
+            }
+        }
+    }
+    void Recoil()
+    {
+        // Si no estÃ¡ en recoil, no hacemos nada
+        if (!pState.recoillingX && !pState.recoillingY) return;
+
+        // Aplicar fuerza de retroceso
+        if (pState.recoillingX)
+        {
+            float direction = isFacingRight ? -1f : 1f;
+            rb.velocity = new Vector2(direction * 5f, rb.velocity.y);
+        }
+
+        if (pState.recoillingY)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 8f);
+        }
+
+        // ?? Limitar duraciÃ³n del recoil
+        recoilTimer += Time.deltaTime;
+        if (recoilTimer >= recoilDuration)
+        {
+            // Desactivar recoil despuÃ©s del tiempo
+            pState.recoillingX = false;
+            pState.recoillingY = false;
+            recoilTimer = 0;
+        }
+    }
+
+    void StopRecoilX()
+    {
+        stepsXRecoiled = 0;
+        pState.recoillingX = false;
+    }
+    void StopRecoilY()
+    {
+        stepsXRecoiled = 0;
+        pState.recoillingY = false;
     }
 
     public bool Grounded()
@@ -156,7 +271,7 @@ public class CA_PlayerController : MonoBehaviour
         if (IsWalled() && !Grounded() && xAxis != 0f)
         {
             isWallSliding = true;
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));  // Limitar la velocidad de caída
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));  // Limitar la velocidad de caÃ­da
             rb.gravityScale = 0;  // Eliminar la gravedad durante el deslizamiento
         }
         else
@@ -171,7 +286,7 @@ public class CA_PlayerController : MonoBehaviour
         if (isWallSliding)
         {
             isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;  // Determina la dirección del salto dependiendo de la pared
+            wallJumpingDirection = -transform.localScale.x;  // Determina la direcciÃ³n del salto dependiendo de la pared
             wallJumpingCounter = wallJumpingTime;
 
             CancelInvoke(nameof(StopWallJumping));
@@ -181,14 +296,14 @@ public class CA_PlayerController : MonoBehaviour
             wallJumpingCounter -= Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
+        if (Input.GetKeyDown(KeyCode.Z) && wallJumpingCounter > 0f)
         {
             isWallJumping = true;
-            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);  // Salto en la dirección opuesta
+            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);  // Salto en la direcciÃ³n opuesta
 
             wallJumpingCounter = 0f;
 
-            // Cambiar la dirección del personaje
+            // Cambiar la direcciÃ³n del personaje
             if (transform.localScale.x != wallJumpingDirection)
             {
                 isFacingRight = !isFacingRight;
@@ -211,16 +326,18 @@ public class CA_PlayerController : MonoBehaviour
         if (xAxis < 0)
         {
             transform.localScale = new Vector2(-1, transform.localScale.y);
+            pState.lookingRight = false;
         }
         else if (xAxis > 0)
         {
             transform.localScale = new Vector2(1, transform.localScale.y);
+            pState.lookingRight = true;
         }
     }
 
     void Jump()
     {
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        if (Input.GetKeyDown(KeyCode.Z) && rb.velocity.y > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
             pState.jumping = false;
@@ -233,7 +350,7 @@ public class CA_PlayerController : MonoBehaviour
                 rb.velocity = new Vector3(rb.velocity.x, jumpForce);
                 pState.jumping = true;
             }
-            else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
+            else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetKeyDown(KeyCode.Z))
             {
                 pState.jumping = true;
                 airJumpCounter++;
@@ -246,7 +363,7 @@ public class CA_PlayerController : MonoBehaviour
     {
         if (Grounded())
         {
-            pState.jumping = false;  // El jugador no está saltando si está en el suelo
+            pState.jumping = false;  // El jugador no estÃ¡ saltando si estÃ¡ en el suelo
             coyoteTimeCounter = coyoteTime;
             airJumpCounter = 0;
         }
@@ -255,13 +372,13 @@ public class CA_PlayerController : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             jumpBufferCounter = jumpBufferFrames;  // Se restablece el contador cuando se presiona el salto
         }
         else if (jumpBufferCounter > 0)
         {
             jumpBufferCounter--;  // Solo decrementa si el contador es mayor que 0
-        }
+ Â Â Â Â Â Â Â }
     }
 }
