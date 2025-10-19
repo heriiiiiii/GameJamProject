@@ -1,74 +1,146 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using TMPro;
 
-public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class ButtonHoverEffect : MonoBehaviour,
+    IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler,
+    ISelectHandler, IDeselectHandler
 {
     [Header("Íconos laterales")]
-    public RectTransform leftIcon;
-    public RectTransform rightIcon;
+    public GameObject leftIcon;
+    public GameObject rightIcon;
 
     [Header("Texto del botón")]
     public TextMeshProUGUI buttonText;
     public Color normalColor = Color.white;
-    public Color glowColor = Color.cyan;
+    public Color glowColor = new Color(0.7f, 1f, 0.7f);
     public float glowSpeed = 3f;
 
-    [Header("Movimiento de íconos")]
-    public float moveDistance = 5f;
-    public float moveSpeed = 1f;
+    [Header("Movimiento de iconos")]
+    public float moveDistance = 10f;
+    public float moveSpeed = 2f;
 
     [Header("Sonidos")]
-    public AudioClip hoverSound;
-    public AudioClip clickSound;
+    public AudioClip hoverSound;   // 🔹 Nuevo: sonido al navegar con flechas
+    public AudioClip clickSound;   // 🔹 Sonido al confirmar
 
-    private Vector3 leftStartPos, rightStartPos;
-    private bool isHovered = false;
+    private Vector3 leftStartPos;
+    private Vector3 rightStartPos;
+    private bool isHovered;
+    private bool wasSelected;
 
     void Start()
     {
-        if (leftIcon) leftStartPos = leftIcon.anchoredPosition;
-        if (rightIcon) rightStartPos = rightIcon.anchoredPosition;
+        if (leftIcon) leftStartPos = leftIcon.transform.localPosition;
+        if (rightIcon) rightStartPos = rightIcon.transform.localPosition;
+
+        if (leftIcon) leftIcon.SetActive(false);
+        if (rightIcon) rightIcon.SetActive(false);
+        if (buttonText) buttonText.color = normalColor;
     }
 
     void Update()
     {
-        // Efecto de color
-        if (buttonText)
+        // 🔹 Detectar navegación con teclado (cuando el botón se selecciona)
+        GameObject current = EventSystem.current.currentSelectedGameObject;
+        bool selected = current == gameObject;
+
+        if (selected && !wasSelected)
         {
-            Color targetColor = isHovered ? glowColor : normalColor;
-            buttonText.color = Color.Lerp(buttonText.color, targetColor, Time.deltaTime * glowSpeed);
+            wasSelected = true;
+            PlayHoverSound();
+            ActivateHover(true);
+        }
+        else if (!selected && wasSelected)
+        {
+            wasSelected = false;
+            ActivateHover(false);
         }
 
-        // Movimiento de iconos
-        if (leftIcon && rightIcon)
+        // 🔹 Animación visual cuando está activo
+        if (isHovered)
         {
-            Vector3 leftTarget = leftStartPos + (isHovered ? Vector3.left * moveDistance : Vector3.zero);
-            Vector3 rightTarget = rightStartPos + (isHovered ? Vector3.right * moveDistance : Vector3.zero);
+            float offset = Mathf.Sin(Time.time * moveSpeed) * moveDistance;
 
-            leftIcon.anchoredPosition = Vector3.Lerp(leftIcon.anchoredPosition, leftTarget, Time.deltaTime * moveSpeed);
-            rightIcon.anchoredPosition = Vector3.Lerp(rightIcon.anchoredPosition, rightTarget, Time.deltaTime * moveSpeed);
+            if (leftIcon)
+                leftIcon.transform.localPosition = leftStartPos + new Vector3(offset, 0, 0);
+            if (rightIcon)
+                rightIcon.transform.localPosition = rightStartPos - new Vector3(offset, 0, 0);
+
+            if (buttonText)
+            {
+                float t = (Mathf.Sin(Time.time * glowSpeed) + 1f) / 2f;
+                buttonText.color = Color.Lerp(normalColor, glowColor, t);
+            }
+
+            // 🔹 Confirmar con Enter o Espacio
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            {
+                PlayClickSound();
+
+                // Ejecuta el evento OnClick real del botón
+                Button btn = GetComponent<Button>();
+                if (btn != null)
+                    btn.onClick.Invoke();
+            }
         }
     }
 
-    // 👉 Sonido y animación al pasar el mouse
+    // === EVENTOS DEL MOUSE ===
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovered = true;
-
-        if (hoverSound)
-            AudioManager.Instance.PlaySFX(hoverSound);
+        PlayHoverSound();
+        ActivateHover(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        isHovered = false;
+        ActivateHover(false);
     }
 
-    // 👉 Sonido al hacer clic (por si querés mantenerlo)
     public void OnPointerClick(PointerEventData eventData)
     {
+        PlayClickSound();
+    }
+
+    // === EVENTOS DEL TECLADO ===
+    public void OnSelect(BaseEventData eventData)
+    {
+        PlayHoverSound();
+        ActivateHover(true);
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        ActivateHover(false);
+    }
+
+    // === FUNCIONES INTERNAS ===
+    private void ActivateHover(bool active)
+    {
+        isHovered = active;
+
+        if (leftIcon) leftIcon.SetActive(active);
+        if (rightIcon) rightIcon.SetActive(active);
+
+        if (!active)
+        {
+            if (buttonText) buttonText.color = normalColor;
+            if (leftIcon) leftIcon.transform.localPosition = leftStartPos;
+            if (rightIcon) rightIcon.transform.localPosition = rightStartPos;
+        }
+    }
+
+    private void PlayHoverSound()
+    {
+        if (hoverSound)
+            AudioManager.Instance?.PlaySFX(hoverSound);
+    }
+
+    private void PlayClickSound()
+    {
         if (clickSound)
-            AudioManager.Instance.PlaySFX(clickSound);
+            AudioManager.Instance?.PlaySFX(clickSound);
     }
 }
