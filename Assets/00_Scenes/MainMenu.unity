@@ -6152,7 +6152,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'SALIR
+  m_text: 'QUIT
 
 '
   m_isRightToLeft: 0
@@ -7165,6 +7165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presentationScene: Presentacion
+  delay: 1.5
 --- !u!4 &1348102314
 Transform:
   m_ObjectHideFlags: 0

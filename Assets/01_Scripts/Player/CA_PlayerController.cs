@@ -37,6 +37,7 @@ public class CA_PlayerController : MonoBehaviour
     [SerializeField] private float dashCooldown;
     private bool canDash = true;  // Asegurarnos de que puede hacer dash desde el principio
     private bool dashed;
+    [SerializeField] GameObject dashEffect;
 
     [Header("Wall Mechanics")]
     [SerializeField] private float wallSlidingSpeed = 2f;  // Velocidad de deslizamiento
@@ -48,22 +49,27 @@ public class CA_PlayerController : MonoBehaviour
     CA_PlayerStateList pState;
 
     //ATTACKPLAYER
-    bool attack = false;
-    float timeBetweenAttack, timeSinceAttack;
+
+    float timeSinceAttack;
     [Header("Attacking")]
     [SerializeField] Transform SideAttackTransform, UpAttackTransform, DownAttackTransform;
     [SerializeField] Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
     [SerializeField] LayerMask attackableLayer;
     [SerializeField] float damage;
+    bool canAttack = true;
+    bool attackPressed = false;
+    [SerializeField] GameObject slashEffect;
+    [SerializeField] float timeBetweenAttack = 0.3f;
     [Space(5)]
     [Header("Recoil")]
-    [SerializeField] int recoilXSteps = 5;
-    [SerializeField] int recoilYSteps = 5;
+    //[SerializeField] int recoilXSteps = 5;
+    //[SerializeField] int recoilYSteps = 5;
     [SerializeField] float recoilXSpeed = 100;
     [SerializeField] float recoilYSpeed = 100;
     int stepsXRecoiled, stepsYRecoiled;
     [SerializeField] float recoilDuration = 0.15f; // duración del recoil
     float recoilTimer = 0f;
+    private float lastRecoilDirection = 0f;
 
     private float gravity;
     private bool isFacingRight = true;
@@ -119,10 +125,16 @@ public class CA_PlayerController : MonoBehaviour
 
     void GetInputs()
     {
-        xAxis = Input.GetAxisRaw("Horizontal");  // Obtener la entrada horizontal (teclas de dirección)
+        xAxis = Input.GetAxisRaw("Horizontal");
         yAxis = Input.GetAxisRaw("Vertical");
-        attack = Input.GetKeyDown(KeyCode.X);
+
+        // Solo marca que se presionó el botón (una vez)
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            attackPressed = true;
+        }
     }
+
 
 
     private void Move()
@@ -150,7 +162,8 @@ public class CA_PlayerController : MonoBehaviour
         pState.dashing = true;  // Establecer que está en dash
         rb.gravityScale = 0;  // Eliminar la gravedad durante el dash
         rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);  // Desplazarse en la dirección del jugador
-
+        //if (Grounded()) Instantiate(dashEffect, transform);
+        Instantiate(dashEffect, transform);
         yield return new WaitForSeconds(dashTime);  // Esperar el tiempo de duración del dash
 
         rb.gravityScale = gravity;  // Restaurar la gravedad
@@ -164,25 +177,51 @@ public class CA_PlayerController : MonoBehaviour
     //New Script Attack
     void Attack()
     {
-        timeSinceAttack += Time.deltaTime;
-        if (attack && timeSinceAttack >= timeBetweenAttack)
+        // Si no presionó ataque o aún está en cooldown, no hace nada
+        if (!attackPressed || !canAttack) return;
+
+        // Consumimos la entrada
+        attackPressed = false;
+        canAttack = false;
+
+        // --- Ataque lateral ---
+        if (yAxis == 0 || (yAxis < 0 && Grounded()))
         {
-            timeSinceAttack = 0;
-            //Colocar Anim Attack
-            if (yAxis == 0 || yAxis < 0 && Grounded())
-            {
-                Hit(SideAttackTransform, SideAttackArea, ref pState.recoillingX, recoilXSpeed);
-            }
-            else if (yAxis > 0)
-            {
-                Hit(UpAttackTransform, UpAttackArea, ref pState.recoillingY, recoilYSpeed);
-            }
-            else if (yAxis < 0 && !Grounded())
-            {
-                Hit(DownAttackTransform, DownAttackArea, ref pState.recoillingY, recoilYSpeed);
-            }
+            Hit(SideAttackTransform, SideAttackArea, ref pState.recoillingX, recoilXSpeed);
+            Instantiate(slashEffect, SideAttackTransform);
         }
+        // --- Ataque hacia arriba ---
+        else if (yAxis > 0)
+        {
+            // ⚠️ En ataques hacia arriba no aplicamos recoil vertical
+            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(UpAttackTransform.position, UpAttackArea, 0, attackableLayer);
+            foreach (Collider2D obj in hitObjects)
+            {
+                if (obj.GetComponent<CA_RecolEnemy>() != null)
+                    obj.GetComponent<CA_RecolEnemy>().EnemyHit(damage, (transform.position - obj.transform.position).normalized, recoilYSpeed);
+            }
+
+            SlashEffectAtAngle(slashEffect, 80, UpAttackTransform, true);
+        }
+        // --- Ataque hacia abajo ---
+        else if (yAxis < 0 && !Grounded())
+        {
+            Hit(DownAttackTransform, DownAttackArea, ref pState.recoillingY, recoilYSpeed);
+            SlashEffectAtAngle(slashEffect, -80, DownAttackTransform, true);
+        }
+
+        // ⏳ Esperar el cooldown antes de volver a permitir ataques
+        StartCoroutine(ResetAttackCooldown());
     }
+
+
+    IEnumerator ResetAttackCooldown()
+    {
+        yield return new WaitForSeconds(timeBetweenAttack);
+        canAttack = true;
+    }
+
+
     void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
     {
         Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
@@ -190,60 +229,88 @@ public class CA_PlayerController : MonoBehaviour
         if (objectsToHit.Length > 0)
         {
             _recoilDir = true;
+
+            // ⚡ Si el ataque fue hacia abajo, restaurar el doble salto
+            if (yAxis < 0 && !Grounded())
+            {
+                airJumpCounter = 0;
+                rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(rb.velocity.y, 8f));
+            }
+
+            // ✅ Guardar dirección de recoil en base al enemigo golpeado
+            float hitDirection = Mathf.Sign(transform.position.x - objectsToHit[0].transform.position.x);
+            lastRecoilDirection = hitDirection; // 🔹 Guardamos esta variable global para usarla en Recoil()
         }
 
         for (int i = 0; i < objectsToHit.Length; i++)
         {
-            if (objectsToHit[i].GetComponent<CA_RecolEnemy>() != null)
+            CA_RecolEnemy enemy = objectsToHit[i].GetComponent<CA_RecolEnemy>();
+            if (enemy != null)
             {
-                objectsToHit[i].GetComponent<CA_RecolEnemy>().EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
-            }
-
-            // ✅ NUEVO: Detectar enemigos de rebote
-            if (objectsToHit[i].GetComponent<EnemigoRebote>() != null)
-            {
-                objectsToHit[i].GetComponent<EnemigoRebote>().RecibirAtaque();
+                enemy.EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
             }
         }
     }
+
+
+    void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform, bool resetScale = false)
+    {
+        GameObject effectInstance = Instantiate(_slashEffect, _attackTransform.position, Quaternion.identity, _attackTransform);
+        effectInstance.transform.eulerAngles = new Vector3(0, 0, _effectAngle);
+
+        if (resetScale)
+        {
+            // 🔹 Usa la escala original que me mostraste
+            effectInstance.transform.localScale = new Vector3(0.3f, 0.26f, 0.26f);
+        }
+        else
+        {
+            // 🔹 Mantiene la dirección del personaje (izquierda/derecha)
+            effectInstance.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
+        }
+    }
+
     void Recoil()
     {
-        // Si no está en recoil, no hacemos nada
         if (!pState.recoillingX && !pState.recoillingY) return;
 
-        // Aplicar fuerza de retroceso
+        // --- Recoil lateral ---
         if (pState.recoillingX)
         {
-            float direction = isFacingRight ? -1f : 1f;
+            // ✅ Usamos la dirección real del último enemigo golpeado
+            float direction = lastRecoilDirection != 0 ? lastRecoilDirection : (isFacingRight ? -1f : 1f);
             rb.velocity = new Vector2(direction * 5f, rb.velocity.y);
         }
 
-        if (pState.recoillingY)
+        // --- Recoil vertical solo si fue un ataque hacia abajo ---
+        if (pState.recoillingY && yAxis < 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 8f);
         }
 
-        // ?? Limitar duración del recoil
+        // ⏳ Duración del recoil
         recoilTimer += Time.deltaTime;
         if (recoilTimer >= recoilDuration)
         {
-            // Desactivar recoil después del tiempo
             pState.recoillingX = false;
             pState.recoillingY = false;
             recoilTimer = 0;
+            lastRecoilDirection = 0f; // ✅ Reiniciar dirección
         }
     }
 
-    void StopRecoilX()
-    {
-        stepsXRecoiled = 0;
-        pState.recoillingX = false;
-    }
-    void StopRecoilY()
-    {
-        stepsXRecoiled = 0;
-        pState.recoillingY = false;
-    }
+
+
+    //void StopRecoilX()
+    //{
+    //    stepsXRecoiled = 0;
+    //    pState.recoillingX = false;
+    //}
+    //void StopRecoilY()
+    //{
+    //    stepsXRecoiled = 0;
+    //    pState.recoillingY = false;
+    //}
 
     public bool Grounded()
     {
@@ -296,7 +363,7 @@ public class CA_PlayerController : MonoBehaviour
             wallJumpingCounter -= Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) && wallJumpingCounter > 0f)
+        if (Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
         {
             isWallJumping = true;
             rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);  // Salto en la dirección opuesta
@@ -337,24 +404,26 @@ public class CA_PlayerController : MonoBehaviour
 
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Z) && rb.velocity.y > 0)
+        // ✳️ Si suelta el botón mientras sigue subiendo, se corta el salto
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
             pState.jumping = false;
         }
 
+        // ✳️ Inicio del salto (desde suelo o salto aéreo)
         if (!pState.jumping)
         {
             if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
             {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 pState.jumping = true;
             }
-            else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetKeyDown(KeyCode.Z))
+            else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
             {
-                pState.jumping = true;
                 airJumpCounter++;
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                pState.jumping = true;
             }
         }
     }
@@ -363,7 +432,7 @@ public class CA_PlayerController : MonoBehaviour
     {
         if (Grounded())
         {
-            pState.jumping = false;  // El jugador no está saltando si está en el suelo
+            pState.jumping = false;
             coyoteTimeCounter = coyoteTime;
             airJumpCounter = 0;
         }
@@ -372,13 +441,14 @@ public class CA_PlayerController : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetButtonDown("Jump"))
         {
-            jumpBufferCounter = jumpBufferFrames;  // Se restablece el contador cuando se presiona el salto
+            jumpBufferCounter = jumpBufferFrames;
         }
         else if (jumpBufferCounter > 0)
         {
-            jumpBufferCounter--;  // Solo decrementa si el contador es mayor que 0
-        }
+            jumpBufferCounter--;
+        }
     }
+
 }
