@@ -48,8 +48,16 @@ public class CA_PlayerController : MonoBehaviour
     public static CA_PlayerController Instance;
     CA_PlayerStateList pState;
 
-    //ATTACKPLAYER
+    // 🔒 Lock tras wall-jump y bloqueo de regrapheo
+    [SerializeField] private float wallJumpInputLock = 0.14f; // tiempo corto para recuperar control
+    [SerializeField] private float wallRegrabBlock = 0.10f;   // bloqueo breve para re-agarrar misma pared
+    private float wallJumpLockTimer = 0f;                     // bloquea input horizontal/flip tras wall-jump
+    private float wallRegrabBlockTimer = 0f;                  // evita re-agarrar pared inmediatamente
+    private int lastWallSide = 0;                             // -1 izquierda, +1 derecha, 0 desconocido
 
+    private bool wallJumpArmed = true;
+    private bool wasWallSliding = false;
+    //ATTACKPLAYER
     float timeSinceAttack;
     [Header("Attacking")]
     [SerializeField] Transform SideAttackTransform, UpAttackTransform, DownAttackTransform;
@@ -60,10 +68,9 @@ public class CA_PlayerController : MonoBehaviour
     bool attackPressed = false;
     [SerializeField] GameObject slashEffect;
     [SerializeField] float timeBetweenAttack = 0.3f;
+
     [Space(5)]
     [Header("Recoil")]
-    //[SerializeField] int recoilXSteps = 5;
-    //[SerializeField] int recoilYSteps = 5;
     [SerializeField] float recoilXSpeed = 100;
     [SerializeField] float recoilYSpeed = 100;
     int stepsXRecoiled, stepsYRecoiled;
@@ -73,6 +80,18 @@ public class CA_PlayerController : MonoBehaviour
 
     private float gravity;
     private bool isFacingRight = true;
+
+    // --- VFX: Climb / Wall-Jump Burst ---
+    [Header("VFX Climb")]
+    [SerializeField] private ParticleSystem climbGrabBurst;   // tu Particle System (Stretched Billboard)
+    [SerializeField] private Transform burstAnchor;           // punto (mano/pecho) donde sale el chorro
+    [SerializeField] private Vector2 volXRange = new Vector2(2.4f, 3.6f); // empuje hacia atrás
+    [SerializeField] private Vector2 volYRange = new Vector2(0.8f, 1.4f); // leve lift hacia arriba
+    [SerializeField] private int burstCount = 14;
+
+    private NF_PlayerHealth playerHealthScript;
+    [SerializeField] private float invulnerabilityTime = 1f; // Tiempo en segundos sin recibir daño tras tocar obstáculo
+    private bool isInvulnerable = false;
 
     private void Awake()
     {
@@ -90,15 +109,16 @@ public class CA_PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         pState = GetComponent<CA_PlayerStateList>();
-
+        playerHealthScript = GetComponent<NF_PlayerHealth>();
         gravity = rb.gravityScale;
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(SideAttackTransform.position, SideAttackArea);
-        Gizmos.DrawWireCube(UpAttackTransform.position, UpAttackArea);
-        Gizmos.DrawWireCube(DownAttackTransform.position, DownAttackArea);
+        if (SideAttackTransform) Gizmos.DrawWireCube(SideAttackTransform.position, SideAttackArea);
+        if (UpAttackTransform) Gizmos.DrawWireCube(UpAttackTransform.position, UpAttackArea);
+        if (DownAttackTransform) Gizmos.DrawWireCube(DownAttackTransform.position, DownAttackArea);
     }
 
     void Update()
@@ -106,22 +126,49 @@ public class CA_PlayerController : MonoBehaviour
         GetInputs();
         UpdateJumpVariables();
 
-        if (pState.dashing) return;  // Si está en estado de dash, no actualizamos movimiento
+        if (pState.dashing) return;
 
-        if (!isWallSliding)  // Si no estamos deslizándonos por la pared, continuamos con el movimiento normal
-        {
-            Flip();
-        }
+        if (wallJumpLockTimer <= 0f)
+            Move();
 
-        Move();
-        Jump();
         StartDash();
 
-        WallSlide();  // Deslizarse por la pared
-        WallJump();   // Salto en la pared
+        // 1) Primero determinamos si estamos en pared
+        WallSlide();
+
+        // 2) Si suelta Jump estando en pared, armamos el wall-jump
+        if (isWallSliding && Input.GetButtonUp("Jump"))
+            wallJumpArmed = true;
+
+        // 3) Intento de wall-jump (requiere nueva pulsación + gate armado)
+        WallJump();
+
+        // 4) Recién ahora el salto normal/air (y adentro de Jump() ya bloqueamos si estamos en pared)
+        Jump();
+
+        if (!isWallSliding && wallJumpLockTimer <= 0f && !pState.recoillingX)
+            Flip();
+
         Attack();
         Recoil();
+
+        if (wallJumpLockTimer > 0f) wallJumpLockTimer -= Time.deltaTime;
+        if (wallRegrabBlockTimer > 0f) wallRegrabBlockTimer -= Time.deltaTime;
     }
+
+
+
+    private void FixedUpdate()
+    {
+        // ⛔ No sobrescribir velocidad mientras haya dash o recoil lateral
+        if (pState.dashing || pState.recoillingX) return;
+
+        if (!isWallSliding && wallJumpLockTimer <= 0f)
+        {
+            rb.velocity = new Vector2(xAxis * walkSpeed, rb.velocity.y);
+        }
+    }
+
 
     void GetInputs()
     {
@@ -135,12 +182,12 @@ public class CA_PlayerController : MonoBehaviour
         }
     }
 
-
-
     private void Move()
     {
+        if (pState.dashing || pState.recoillingX) return;
         rb.velocity = new Vector2(walkSpeed * xAxis, rb.velocity.y);
     }
+
 
     void StartDash()
     {
@@ -158,26 +205,26 @@ public class CA_PlayerController : MonoBehaviour
 
     IEnumerator Dash()
     {
-        canDash = false;  // Deshabilitar el dash temporalmente
-        pState.dashing = true;  // Establecer que está en dash
-        rb.gravityScale = 0;  // Eliminar la gravedad durante el dash
-        rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);  // Desplazarse en la dirección del jugador
-        //if (Grounded()) Instantiate(dashEffect, transform);
+        canDash = false;           // Deshabilitar el dash temporalmente
+        pState.dashing = true;     // Establecer que está en dash
+        rb.gravityScale = 0;       // Eliminar la gravedad durante el dash
+
+        // Dirección: usa input si hay, si no usa facing actual
+        rb.velocity = new Vector2(Mathf.Sign(xAxis == 0 ? transform.localScale.x : xAxis) * dashSpeed, 0);
+
         Instantiate(dashEffect, transform);
-        yield return new WaitForSeconds(dashTime);  // Esperar el tiempo de duración del dash
+        yield return new WaitForSeconds(dashTime);  // Duración del dash
 
         rb.gravityScale = gravity;  // Restaurar la gravedad
-        pState.dashing = false;  // Terminar el estado de dash
+        pState.dashing = false;     // Terminar el estado de dash
 
-        yield return new WaitForSeconds(dashCooldown);  // Esperar el cooldown
-
-        canDash = true;  // Habilitar el dash nuevamente después del cooldown
+        yield return new WaitForSeconds(dashCooldown);  // Cooldown
+        canDash = true;            // Habilitar el dash nuevamente
     }
 
-    //New Script Attack
+    // ====== Ataque ======
     void Attack()
     {
-        // Si no presionó ataque o aún está en cooldown, no hace nada
         if (!attackPressed || !canAttack) return;
 
         // Consumimos la entrada
@@ -193,14 +240,12 @@ public class CA_PlayerController : MonoBehaviour
         // --- Ataque hacia arriba ---
         else if (yAxis > 0)
         {
-            // ⚠️ En ataques hacia arriba no aplicamos recoil vertical
             Collider2D[] hitObjects = Physics2D.OverlapBoxAll(UpAttackTransform.position, UpAttackArea, 0, attackableLayer);
             foreach (Collider2D obj in hitObjects)
             {
                 if (obj.GetComponent<CA_RecolEnemy>() != null)
                     obj.GetComponent<CA_RecolEnemy>().EnemyHit(damage, (transform.position - obj.transform.position).normalized, recoilYSpeed);
             }
-
             SlashEffectAtAngle(slashEffect, 80, UpAttackTransform, true);
         }
         // --- Ataque hacia abajo ---
@@ -210,17 +255,14 @@ public class CA_PlayerController : MonoBehaviour
             SlashEffectAtAngle(slashEffect, -80, DownAttackTransform, true);
         }
 
-        // ⏳ Esperar el cooldown antes de volver a permitir ataques
         StartCoroutine(ResetAttackCooldown());
     }
-
 
     IEnumerator ResetAttackCooldown()
     {
         yield return new WaitForSeconds(timeBetweenAttack);
         canAttack = true;
     }
-
 
     void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
     {
@@ -239,7 +281,7 @@ public class CA_PlayerController : MonoBehaviour
 
             // ✅ Guardar dirección de recoil en base al enemigo golpeado
             float hitDirection = Mathf.Sign(transform.position.x - objectsToHit[0].transform.position.x);
-            lastRecoilDirection = hitDirection; // 🔹 Guardamos esta variable global para usarla en Recoil()
+            lastRecoilDirection = hitDirection;
         }
 
         for (int i = 0; i < objectsToHit.Length; i++)
@@ -252,7 +294,6 @@ public class CA_PlayerController : MonoBehaviour
         }
     }
 
-
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform, bool resetScale = false)
     {
         GameObject effectInstance = Instantiate(_slashEffect, _attackTransform.position, Quaternion.identity, _attackTransform);
@@ -260,12 +301,10 @@ public class CA_PlayerController : MonoBehaviour
 
         if (resetScale)
         {
-            // 🔹 Usa la escala original que me mostraste
             effectInstance.transform.localScale = new Vector3(0.3f, 0.26f, 0.26f);
         }
         else
         {
-            // 🔹 Mantiene la dirección del personaje (izquierda/derecha)
             effectInstance.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
         }
     }
@@ -295,37 +334,11 @@ public class CA_PlayerController : MonoBehaviour
             pState.recoillingX = false;
             pState.recoillingY = false;
             recoilTimer = 0;
-            lastRecoilDirection = 0f; // ✅ Reiniciar dirección
+            lastRecoilDirection = 0f;
         }
     }
 
-
-
-    //void StopRecoilX()
-    //{
-    //    stepsXRecoiled = 0;
-    //    pState.recoillingX = false;
-    //}
-    //void StopRecoilY()
-    //{
-    //    stepsXRecoiled = 0;
-    //    pState.recoillingY = false;
-    //}
-
-    public bool Grounded()
-    {
-        if (Physics2D.Raycast(groundChechPoint.position, Vector2.down, groundCheckY, whatIsGround) ||
-            Physics2D.Raycast(groundChechPoint.position + new Vector3(groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround) ||
-            Physics2D.Raycast(groundChechPoint.position + new Vector3(-groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
+    // ====== Pared / Wall ======
     private bool IsWalled()
     {
         // Verifica si estamos tocando una pared usando OverlapCircle
@@ -334,28 +347,54 @@ public class CA_PlayerController : MonoBehaviour
 
     void WallSlide()
     {
-        // Si estamos tocando la pared y no estamos en el suelo, podemos deslizar
-        if (IsWalled() && !Grounded() && xAxis != 0f)
+        bool enteringSlide = false;
+
+        // Bloquea re-grapheo de pared por un instante tras wall-jump
+        if (wallRegrabBlockTimer <= 0f && IsWalled() && !Grounded() && xAxis != 0f)
         {
+            if (!isWallSliding) enteringSlide = true;
+
+            // Determinar lado de la pared con raycasts cortos
+            Vector2 pos = transform.position;
+            float dist = 0.6f;
+
+            RaycastHit2D hitR = Physics2D.Raycast(pos, Vector2.right, dist, wallLayer);
+            RaycastHit2D hitL = Physics2D.Raycast(pos, Vector2.left, dist, wallLayer);
+
+            if (hitR.collider != null) lastWallSide = +1;     // pared a la derecha
+            else if (hitL.collider != null) lastWallSide = -1;// pared a la izquierda
+
             isWallSliding = true;
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));  // Limitar la velocidad de caída
+            rb.velocity = new Vector2(rb.velocity.x, -wallSlidingSpeed);
             rb.gravityScale = 0;  // Eliminar la gravedad durante el deslizamiento
+
+            // --- Gate del wall-jump al ENTRAR al slide ---
+            if (enteringSlide)
+            {
+                // Si entras con Jump apretado, desarma el wall-jump hasta que sueltes.
+                wallJumpArmed = !Input.GetButton("Jump");
+
+                // ❗ Limpia el buffer de salto para que no dispare un salto “fantasma”
+                jumpBufferCounter = 0;
+            }
+
         }
         else
         {
             isWallSliding = false;
             rb.gravityScale = gravity;  // Restaurar la gravedad cuando no estamos en la pared
         }
+
+        wasWallSliding = isWallSliding;
     }
+
 
     void WallJump()
     {
         if (isWallSliding)
         {
             isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;  // Determina la dirección del salto dependiendo de la pared
             wallJumpingCounter = wallJumpingTime;
-
             CancelInvoke(nameof(StopWallJumping));
         }
         else
@@ -363,23 +402,41 @@ public class CA_PlayerController : MonoBehaviour
             wallJumpingCounter -= Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
+        if (wallJumpArmed && Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
         {
-            isWallJumping = true;
-            rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);  // Salto en la dirección opuesta
+            // Asegurar que conocemos el lado de la pared
+            if (lastWallSide == 0)
+            {
+                float dx = wallCheck ? (wallCheck.position.x - transform.position.x) : 0f;
+                lastWallSide = (dx > 0f) ? +1 : -1;
+            }
 
+            isWallJumping = true;
+
+            // Efecto partículas: normal opuesta al lado de la pared
+            Vector2 wn = (lastWallSide == +1) ? Vector2.left : Vector2.right;
+            PlayClimbBurstForced(wn);
+
+            // Dirección de salto: SIEMPRE al lado contrario de la pared
+            float dir = -lastWallSide;
+
+            // Impulso del wall-jump
+            rb.velocity = new Vector2(dir * wallJumpingPower.x, wallJumpingPower.y);
             wallJumpingCounter = 0f;
 
-            // Cambiar la dirección del personaje
-            if (transform.localScale.x != wallJumpingDirection)
-            {
-                isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
+            // 🔒 Bloqueos cortos
+            wallJumpLockTimer = wallJumpInputLock;   // lock corto de input/flip
+            wallRegrabBlockTimer = wallRegrabBlock;  // evita re-agarrar pared de inmediato
 
-                Invoke(nameof(StopWallJumping), wallJumpingDuration);  // Detener el salto de pared
-            }
+            // Flip visual coherente con dir
+            Vector3 ls = transform.localScale;
+            ls.x = Mathf.Abs(ls.x) * (dir > 0 ? 1f : -1f);
+            transform.localScale = ls;
+            isFacingRight = dir > 0;
+
+            // Evitar reenganche inmediato
+            Invoke(nameof(StopWallJumping), wallJumpingDuration);
+            wallJumpArmed = false;
         }
     }
 
@@ -388,6 +445,7 @@ public class CA_PlayerController : MonoBehaviour
         isWallJumping = false;  // Detener el salto en la pared
     }
 
+    // ====== Utilidades varias ======
     void Flip()
     {
         if (xAxis < 0)
@@ -404,21 +462,25 @@ public class CA_PlayerController : MonoBehaviour
 
     void Jump()
     {
-        // ✳️ Si suelta el botón mientras sigue subiendo, se corta el salto
+        // 🚫 Nunca usar salto normal/air si estoy pegado a pared (aunque el flag aún no se haya puesto).
+        if (isWallSliding || IsWalled()) return;
+
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
             pState.jumping = false;
         }
 
-        // ✳️ Inicio del salto (desde suelo o salto aéreo)
         if (!pState.jumping)
         {
+            // Suelo con buffer + coyote
             if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 pState.jumping = true;
+                jumpBufferCounter = 0; // consumir buffer
             }
+            // Doble salto solo con nueva pulsación
             else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
             {
                 airJumpCounter++;
@@ -427,6 +489,8 @@ public class CA_PlayerController : MonoBehaviour
             }
         }
     }
+
+
 
     void UpdateJumpVariables()
     {
@@ -451,4 +515,114 @@ public class CA_PlayerController : MonoBehaviour
         }
     }
 
+    public bool Grounded()
+    {
+        if (Physics2D.Raycast(groundChechPoint.position, Vector2.down, groundCheckY, whatIsGround) ||
+            Physics2D.Raycast(groundChechPoint.position + new Vector3(groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround) ||
+            Physics2D.Raycast(groundChechPoint.position + new Vector3(-groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // ====== Burst util ======
+    bool TryGetWallNormal(out Vector2 wallNormal)
+    {
+        wallNormal = Vector2.zero;
+        float dist = 0.6f; // un poco más largo para no fallar
+        Vector2 pos = transform.position;
+
+        // derecha
+        var hitR = Physics2D.Raycast(pos, Vector2.right, dist, wallLayer);
+        if (hitR.collider != null) { wallNormal = hitR.normal; return true; }
+
+        // izquierda
+        var hitL = Physics2D.Raycast(pos, Vector2.left, dist, wallLayer);
+        if (hitL.collider != null) { wallNormal = hitL.normal; return true; }
+
+        // fallback por posición del wallCheck
+        if (wallCheck != null)
+        {
+            float dx = wallCheck.position.x - pos.x;
+            if (Mathf.Abs(dx) > 0.05f)
+            {
+                wallNormal = dx > 0 ? Vector2.left : Vector2.right;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int _lastBurstFrame = -999;
+
+    void PlayClimbBurstForced(Vector2 wallNormal)
+    {
+        if (!climbGrabBurst) { Debug.LogWarning("climbGrabBurst no asignado"); return; }
+        if (_lastBurstFrame == Time.frameCount) return;      // evita doble disparo en el mismo frame
+        _lastBurstFrame = Time.frameCount;
+
+        // Posición/orientación del sistema
+        var t = climbGrabBurst.transform;
+        t.position = burstAnchor ? burstAnchor.position : transform.position;
+        t.up = -wallNormal.normalized;
+
+        // Velocity over Lifetime OFF
+        var vol = climbGrabBurst.velocityOverLifetime;
+        vol.enabled = false;
+
+        // Limpia, arranca y emite N partículas con velocidad por-partícula
+        climbGrabBurst.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        climbGrabBurst.Play();
+
+        int count = Random.Range(burstCount - 2, burstCount + 2);
+
+        // Dirección base (opuesta a la pared)
+        Vector2 baseDir = (-wallNormal).normalized;
+
+        for (int i = 0; i < count; i++)
+        {
+            var ep = new ParticleSystem.EmitParams();
+            ep.applyShapeToPosition = true;
+            ep.position = t.position;
+
+            float back = Random.Range(volXRange.x, volXRange.y);  // 2.4–3.6
+            float lift = Random.Range(volYRange.x, volYRange.y);  // 0.8–1.4
+
+            Vector2 v = baseDir * back + Vector2.up * lift;
+            ep.velocity = v;
+            climbGrabBurst.Emit(ep, 1);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Obstacle") && !isInvulnerable)
+        {
+            StartCoroutine(HandleObstacleCollision());
+        }
+        else if (collision.CompareTag("CheckpointParkour"))
+        {
+            NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
+            gc.UpdateCheckpoint(collision.transform.position, "Parkour");
+        }
+    }
+
+    private IEnumerator HandleObstacleCollision()
+    {
+        isInvulnerable = true; // ✅ Evita recibir más daño por un momento
+        playerHealthScript.TakeDamage(1);
+
+        if (playerHealthScript.currentHealth > 0)
+        {
+            NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
+            StartCoroutine(gc.Respawn(0.5f, "Parkour"));
+        }
+
+        yield return new WaitForSeconds(invulnerabilityTime);
+        isInvulnerable = false; // ✅ Vuelve a permitir recibir daño
+    }
 }

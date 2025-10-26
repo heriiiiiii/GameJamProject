@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 6762526698614316268}
   - component: {fileID: 5966528966234621930}
   - component: {fileID: 117612409286495288}
-  - component: {fileID: 5491482594779395368}
   - component: {fileID: 2810484492190270165}
   - component: {fileID: 3042356108731516697}
   - component: {fileID: 2650810030480971659}
@@ -120,6 +119,11 @@ MonoBehaviour:
   recoilXSpeed: 100
   recoilYSpeed: 100
   recoilDuration: 0.15
+  climbGrabBurst: {fileID: 0}
+  burstAnchor: {fileID: 0}
+  volXRange: {x: 2.4, y: 3.6}
+  volYRange: {x: 0.8, y: 1.4}
+  burstCount: 14
 --- !u!114 &117612409286495288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,19 +141,6 @@ MonoBehaviour:
   recoillingX: 0
   recoillingY: 0
   lookingRight: 1
---- !u!114 &5491482594779395368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4795467754726888508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5126583328b3ac343ac4b3b1ffdcbe49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vida: 5
 --- !u!212 &2810484492190270165
 SpriteRenderer:
   m_ObjectHideFlags: 0
