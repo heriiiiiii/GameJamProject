@@ -115,8 +115,8 @@ ScriptedImporter:
     - name: boneSombrero
       guid: 8bd8a8e2ae217ab48bdda322d274dc17
       position: {x: 360.50256, y: -6.954651, z: 0}
-      rotation: {x: 0, y: 0, z: 0.7923607, w: 0.6100528}
-      length: 217.31062
+      rotation: {x: 0, y: 0, z: 0.7923607, w: 0.6100529}
+      length: 217.3106
       parentId: -1
       color:
         serializedVersion: 2
@@ -1923,8 +1923,8 @@ ScriptedImporter:
     - name: boneSombrero
       guid: 8bd8a8e2ae217ab48bdda322d274dc17
       position: {x: 360.50256, y: 195.04535, z: 0}
-      rotation: {x: 0, y: 0, z: 0.7923607, w: 0.6100528}
-      length: 217.31062
+      rotation: {x: 0, y: 0, z: 0.7923607, w: 0.6100529}
+      length: 217.3106
       parentId: -1
       color:
         serializedVersion: 2
@@ -3917,7 +3917,7 @@ ScriptedImporter:
         weight1: 0
         weight2: 0
         weight3: 0
-        boneIndex0: 1
+        boneIndex0: 2
         boneIndex1: 0
         boneIndex2: 0
         boneIndex3: 0
@@ -4027,7 +4027,7 @@ ScriptedImporter:
         weight1: 0
         weight2: 0
         weight3: 0
-        boneIndex0: 0
+        boneIndex0: 1
         boneIndex1: 0
         boneIndex2: 0
         boneIndex3: 0
@@ -4053,8 +4053,8 @@ ScriptedImporter:
         boneIndex3: 0
     - position: {x: 17.379997, y: 116.952}
       boneWeight:
-        weight0: 0.98
-        weight1: 0.02
+        weight0: 0.99
+        weight1: 0.01
         weight2: 0
         weight3: 0
         boneIndex0: 1
@@ -4635,7 +4635,7 @@ ScriptedImporter:
     - name: boneSombrero
       guid: 8bd8a8e2ae217ab48bdda322d274dc17
       position: {x: 89.78456, y: -0.00005936257, z: 0}
-      rotation: {x: 0, y: 0, z: 0.07602045, w: 0.9971063}
+      rotation: {x: 0, y: 0, z: 0.076020405, w: 0.9971063}
       length: 217.3106
       parentId: 2
       color:
