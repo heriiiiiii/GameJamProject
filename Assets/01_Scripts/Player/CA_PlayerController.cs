@@ -78,11 +78,12 @@ public class CA_PlayerController : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this;  // Asigna la instancia si es la primera vez
+            Instance = this;
+            DontDestroyOnLoad(gameObject);  
         }
         else if (Instance != this)
         {
-            Destroy(gameObject);  // Si ya existe una instancia, destruye este objeto
+            Destroy(gameObject);            
         }
     }
 
