@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!244 &-7141908499521650632
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 9027c8709c64bf84ea2cddba39f5ed43
+  m_EffectName: Highpass Simple
+  m_MixLevel: 26af5012bd4c1574ebedbda01962297d
+  m_Parameters:
+  - m_ParameterName: Cutoff freq
+    m_GUID: a33cb262b68db5e4da1d3c6260a254bb
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!243 &-2170331015963598005
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -34,7 +50,9 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 6f7c4ae6fc33c344b834176a9de96722
+    name: MasterVolume
   m_AudioMixerGroupViews:
   - guids:
     - 2af800294f37a9a479b90d07b45bf959
