@@ -81,6 +81,12 @@ public class CA_PlayerController : MonoBehaviour
     private float gravity;
     private bool isFacingRight = true;
 
+    [Header("Desbloqueo de habilidades")]
+    public bool canUseDash = false;
+    public bool canUseWallJump = false;
+    public bool canUseDoubleJump = false;
+
+
     // --- VFX: Climb / Wall-Jump Burst ---
     [Header("VFX Climb")]
     [SerializeField] private ParticleSystem climbGrabBurst;   // tu Particle System (Stretched Billboard)
@@ -93,16 +99,21 @@ public class CA_PlayerController : MonoBehaviour
     [SerializeField] private float invulnerabilityTime = 1f; // Tiempo en segundos sin recibir daño tras tocar obstáculo
     private bool isInvulnerable = false;
 
+    private Animator anim;
+    [SerializeField] private float landingMinAirTime = 0.08f; // tiempo mínimo en el aire para permitir landing
+    [SerializeField] private float fallThreshold = -0.05f;     // umbral para considerar que está cayendo
+    private bool wasGrounded = true;
+    private float airTime = 0f;
+    private bool prevGrounded = false;
     private void Awake()
     {
         if (Instance == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);  
+            Instance = this;  // Asigna la instancia si es la primera vez
         }
         else if (Instance != this)
         {
-            Destroy(gameObject);            
+            Destroy(gameObject);  // Si ya existe una instancia, destruye este objeto
         }
     }
 
@@ -111,6 +122,8 @@ public class CA_PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         pState = GetComponent<CA_PlayerStateList>();
         playerHealthScript = GetComponent<NF_PlayerHealth>();
+        anim = GetComponentInChildren<Animator>();
+
         gravity = rb.gravityScale;
     }
 
@@ -149,12 +162,78 @@ public class CA_PlayerController : MonoBehaviour
 
         if (!isWallSliding && wallJumpLockTimer <= 0f && !pState.recoillingX)
             Flip();
-
+        UpdateAnimatorState();
         Attack();
         Recoil();
 
         if (wallJumpLockTimer > 0f) wallJumpLockTimer -= Time.deltaTime;
         if (wallRegrabBlockTimer > 0f) wallRegrabBlockTimer -= Time.deltaTime;
+        anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
+        bool grounded = Grounded();
+        bool falling = !grounded && rb.velocity.y < -0.1f;
+        if (anim != null)
+        {
+            anim.SetBool("IsFalling", falling);
+        }
+
+        // 3) Aterrizaje (solo una vez cuando toca suelo)
+        if (anim != null && grounded && !wasGrounded)
+        {
+            anim.ResetTrigger("Jump");
+            anim.SetBool("IsFalling", false);
+            anim.SetTrigger("Land");
+        }
+        wasGrounded = grounded;
+
+    }
+    void UpdateAnimatorState()
+    {
+        if (anim == null) return;
+
+        anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
+        bool grounded = Grounded();
+
+        if (!grounded)
+        {
+            // 🪂 Si no está en el suelo, controla salto y caída
+            if (wasGrounded)
+            {
+                wasGrounded = false;
+                airTime = 0f;
+            }
+
+            airTime += Time.deltaTime;
+
+            if (rb.velocity.y < -0.05f && !anim.GetBool("IsFalling"))
+            {
+                anim.SetBool("IsFalling", true);
+            }
+        }
+        else
+        {
+            // ⬇️ Aterrizaje (solo si estaba en el aire antes)
+            if (!wasGrounded && airTime > 0.05f)
+            {
+                anim.SetBool("IsFalling", false);
+                anim.ResetTrigger("Jump");
+                anim.SetTrigger("Land");
+            }
+
+            // 🧍‍♂️ Si está en el suelo, decide entre idle o walk
+            if (Mathf.Abs(rb.velocity.x) < 0.05f)
+            {
+                // Detenido en el suelo = Idle0
+                anim.SetFloat("Speed", 0f);
+            }
+            else
+            {
+                // En movimiento = Idle (caminar)
+                anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
+            }
+
+            wasGrounded = true;
+            airTime = 0f;
+        }
     }
 
 
@@ -192,7 +271,7 @@ public class CA_PlayerController : MonoBehaviour
 
     void StartDash()
     {
-        if (Input.GetKeyDown(KeyCode.C) && canDash && !dashed && !isWallSliding)
+        if (canUseDash && Input.GetKeyDown(KeyCode.C) && canDash && !dashed && !isWallSliding)
         {
             StartCoroutine(Dash());
             dashed = true;
@@ -392,6 +471,8 @@ public class CA_PlayerController : MonoBehaviour
 
     void WallJump()
     {
+        if (!canUseWallJump) return;
+
         if (isWallSliding)
         {
             isWallJumping = false;
@@ -463,7 +544,6 @@ public class CA_PlayerController : MonoBehaviour
 
     void Jump()
     {
-        // 🚫 Nunca usar salto normal/air si estoy pegado a pared (aunque el flag aún no se haya puesto).
         if (isWallSliding || IsWalled()) return;
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
@@ -474,19 +554,41 @@ public class CA_PlayerController : MonoBehaviour
 
         if (!pState.jumping)
         {
-            // Suelo con buffer + coyote
+            // 🔹 Salto desde el suelo
             if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 pState.jumping = true;
-                jumpBufferCounter = 0; // consumir buffer
+                jumpBufferCounter = 0;
+
+                if (anim != null)
+                {
+                    anim.ResetTrigger("Land");
+                    anim.ResetTrigger("Jump");
+                    anim.SetTrigger("Jump");
+                    anim.SetBool("IsFalling", false);
+                }
+
+                wasGrounded = false;
+                airTime = 0f;
             }
-            // Doble salto solo con nueva pulsación
-            else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
+            // 🔹 Doble salto
+            else if (canUseDoubleJump && !Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
             {
                 airJumpCounter++;
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 pState.jumping = true;
+
+                if (anim != null)
+                {
+                    anim.ResetTrigger("Land");
+                    anim.ResetTrigger("Jump");
+                    anim.SetTrigger("Jump");
+                    anim.SetBool("IsFalling", false);
+                }
+
+                wasGrounded = false;
+                airTime = 0f;
             }
         }
     }

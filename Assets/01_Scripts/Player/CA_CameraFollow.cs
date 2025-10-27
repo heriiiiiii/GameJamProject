@@ -5,23 +5,17 @@ using UnityEngine;
 public class CA_CameraFollow : MonoBehaviour
 {
     [SerializeField] private float followSpeed = 0.1f;
-    [SerializeField] public Vector3 offtet;
+    [SerializeField] private Vector3 offtet;
 
-    private CA_PlayerController player; // referencia segura
-
+    // Start is called before the first frame update
     void Start()
     {
-        player = CA_PlayerController.Instance;
+
     }
 
+    // Update is called once per frame
     void Update()
     {
-        if (player == null)
-        {
-            player = CA_PlayerController.Instance;
-            if (player == null) return; // aún no existe ninguno
-        }
-        Vector3 targetPos = player.transform.position + offtet;
-        transform.position = Vector3.Lerp(transform.position, targetPos, followSpeed);
+        transform.position = Vector3.Lerp(transform.position, CA_PlayerController.Instance.transform.position + offtet, followSpeed);
     }
 }
