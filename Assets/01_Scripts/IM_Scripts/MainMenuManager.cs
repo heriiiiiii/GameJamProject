@@ -6,7 +6,8 @@ using System.Collections;
 public class MainMenuManager : MonoBehaviour
 {
     [Header("🎮 Escenas y Paneles")]
-    public string presentationScene = "PresentacionScene";
+    public string presentationScene = "00_Scenes/01_JZona1";
+
     public GameObject mainMenuPanel;
     public GameObject optionsPanel;
 
