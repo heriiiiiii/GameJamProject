@@ -9,13 +9,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 813406935495713615}
+  - component: {fileID: 3015787458459233891}
   - component: {fileID: 3452576351293477652}
   - component: {fileID: 7468544526489312205}
   - component: {fileID: 4404403105777482318}
   - component: {fileID: 5502804998250992264}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: EnemigoCircular
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -35,6 +36,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 1.496}
+--- !u!114 &3015787458459233891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 152754675369492798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33f2058bf6a1b03408f9ce52ba4687bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 2
+  recoilLength: 0
+  recoilFactor: 0
+  isRecoiling: 0
 --- !u!114 &3452576351293477652
 MonoBehaviour:
   m_ObjectHideFlags: 0
