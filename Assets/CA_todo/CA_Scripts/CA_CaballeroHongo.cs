@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CA_HongoCaballero : MonoBehaviour
@@ -7,8 +8,8 @@ public class CA_HongoCaballero : MonoBehaviour
     public Transform puntoA;
     public Transform puntoB;
     public float velocidad = 2f;
+    public float velocidadEstocada = 8f;
     private Vector3 destinoActual;
-    private Rigidbody2D rb;
     private Transform jugador;
     private bool mirandoDerecha = true;
 
@@ -19,40 +20,41 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public float tiempoEntreAtaques = 2f;
     public float duracionCorte = 0.3f;
-    public float fuerzaEstocada = 12f;
     public float tiempoRetirada = 1f;
+    public int cortesParaEstocada = 2;
+
+    [Header("Estocada Específico")]
+    public float alturaPreparacion = 3f;
+    public float tiempoPreparacion = 0.5f;
+    public float fuerzaEmpujePlayer = 10f;
 
     [Header("Daño")]
     public int danoCorte = 1;
     public int danoEstocada = 2;
 
     [Header("Efectos")]
-    public GameObject slashEfecto; // efecto visual del corte
-    public Transform puntoAtaque;  // donde aparecerá el efecto slash
-
-    [Header("Física")]
-    public float masa = 5f; // Para evitar que salga volando
+    public GameObject slashEfecto;
+    public GameObject estocadaEfecto;
+    public Transform puntoAtaque;
 
     private bool atacando;
-    private bool retrocediendo;
+    private bool enEstocada = false;
+    private bool retrocediendo = false;
     private Vector3 direccionEstocada;
     private Animator anim;
     private SpriteRenderer spriteRenderer;
+    private int contadorCortes = 0;
+    private bool puedeAtacar = true;
+    private Collider2D colisionador;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        colisionador = GetComponent<Collider2D>();
         jugador = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // Configurar física para evitar empujones excesivos
-        if (rb != null)
-        {
-            rb.mass = masa;
-            rb.drag = 3f; // Mayor resistencia al movimiento
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        }
+        
 
         destinoActual = puntoB.position;
         StartCoroutine(ControlarAtaques());
@@ -60,7 +62,7 @@ public class CA_HongoCaballero : MonoBehaviour
 
     void Update()
     {
-        if (!atacando && !retrocediendo)
+        if (!atacando && !enEstocada && !retrocediendo && puedeAtacar)
             Patrullar();
 
         ActualizarDireccion();
@@ -76,19 +78,16 @@ public class CA_HongoCaballero : MonoBehaviour
 
     void ActualizarDireccion()
     {
-        if (atacando || retrocediendo) return;
+        if (atacando || enEstocada || retrocediendo) return;
 
-        // Determinar dirección según movimiento o posición del jugador
         if (jugador != null && Vector2.Distance(transform.position, jugador.position) <= rangoDeteccion)
         {
-            // Mirar hacia el jugador cuando está cerca
             bool jugadorALaDerecha = jugador.position.x > transform.position.x;
             if (jugadorALaDerecha != mirandoDerecha)
                 Voltear();
         }
         else
         {
-            // Mirar según dirección de patrulla
             bool moviendoseDerecha = (destinoActual == puntoB.position);
             if (moviendoseDerecha != mirandoDerecha)
                 Voltear();
@@ -100,7 +99,6 @@ public class CA_HongoCaballero : MonoBehaviour
         mirandoDerecha = !mirandoDerecha;
         spriteRenderer.flipX = !mirandoDerecha;
 
-        // Ajustar punto de ataque si es necesario
         if (puntoAtaque != null)
         {
             Vector3 escalaAtaque = puntoAtaque.localScale;
@@ -113,16 +111,15 @@ public class CA_HongoCaballero : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(tiempoEntreAtaques);
+            yield return new WaitForSeconds(0.5f);
 
-            if (jugador != null && !atacando && !retrocediendo)
+            if (jugador != null && !atacando && !enEstocada && !retrocediendo && puedeAtacar)
             {
                 float distancia = Vector2.Distance(transform.position, jugador.position);
 
                 if (distancia <= rangoDeteccion)
                 {
-                    // 80% probabilidad de corte, 20% de estocada
-                    bool hacerEstocada = Random.value < 0.2f;
+                    bool hacerEstocada = contadorCortes >= cortesParaEstocada;
 
                     if (distancia <= rangoCorte && !hacerEstocada)
                     {
@@ -132,6 +129,10 @@ public class CA_HongoCaballero : MonoBehaviour
                     {
                         yield return StartCoroutine(IniciarEstocada());
                     }
+                    else if (distancia <= rangoCorte && hacerEstocada)
+                    {
+                        yield return StartCoroutine(IniciarCorte());
+                    }
                 }
             }
         }
@@ -140,27 +141,22 @@ public class CA_HongoCaballero : MonoBehaviour
     IEnumerator IniciarCorte()
     {
         atacando = true;
-        rb.velocity = Vector2.zero;
+        puedeAtacar = false;
 
-        // Animación de ataque
         if (anim != null)
             anim.SetTrigger("Atacar");
 
-        // Efecto slash visual con rotación correcta
         if (slashEfecto && puntoAtaque)
         {
             GameObject efecto = Instantiate(slashEfecto, puntoAtaque.position, puntoAtaque.rotation);
-
-            // Asegurar que el efecto mira en la dirección correcta
             SpriteRenderer efectoRenderer = efecto.GetComponent<SpriteRenderer>();
             if (efectoRenderer != null)
                 efectoRenderer.flipX = !mirandoDerecha;
+            Destroy(efecto, 1f);
         }
 
-        // Esperar un momento antes del daño para sincronizar con animación
         yield return new WaitForSeconds(duracionCorte * 0.3f);
 
-        // Área de golpe en forma de arco frente al personaje
         Vector2 puntoGolpe = (Vector2)transform.position + (mirandoDerecha ? Vector2.right : Vector2.left) * 1.2f;
         Collider2D[] hits = Physics2D.OverlapCircleAll(puntoGolpe, 1f);
 
@@ -172,79 +168,170 @@ public class CA_HongoCaballero : MonoBehaviour
                 if (vida != null)
                 {
                     vida.TakeDamage(danoCorte);
-                    // Aplicar pequeño empujón al jugador
-                    AplicarEmpujonJugador(hit.transform, 3f);
+                    // Empuje pequeño en el corte
+                    AplicarEmpujeAlPlayer(hit.transform, 5f);
                 }
             }
         }
 
         yield return new WaitForSeconds(duracionCorte * 0.7f);
+
+        contadorCortes++;
         atacando = false;
+
+        yield return new WaitForSeconds(0.5f);
+        puedeAtacar = true;
     }
 
     IEnumerator IniciarEstocada()
     {
         atacando = true;
-        rb.velocity = Vector2.zero;
+        enEstocada = true;
+        puedeAtacar = false;
 
-        // Animación de estocada
+        // FASE 1: PREPARACIÓN - Saltar hacia arriba
+        if (anim != null)
+            anim.SetTrigger("PrepararEstocada");
+
+        Vector3 posicionInicial = transform.position;
+        Vector3 posicionPreparacion = posicionInicial + Vector3.up * alturaPreparacion;
+
+        // Efecto visual de preparación
+        if (estocadaEfecto)
+        {
+            GameObject efectoPrep = Instantiate(estocadaEfecto, transform.position, Quaternion.identity);
+            efectoPrep.transform.localScale = Vector3.one * 1.5f;
+            Destroy(efectoPrep, tiempoPreparacion);
+        }
+
+        // Movimiento hacia arriba
+        float tiempoPrep = 0f;
+        while (tiempoPrep < tiempoPreparacion)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, posicionPreparacion,
+                (alturaPreparacion / tiempoPreparacion) * Time.deltaTime);
+            tiempoPrep += Time.deltaTime;
+            yield return null;
+        }
+
+        // FASE 2: ESTOCADA - Movimiento rápido hacia el jugador
         if (anim != null)
             anim.SetTrigger("Estocada");
 
-        // Dirección hacia el jugador
+        // Calcular dirección hacia el jugador
         direccionEstocada = (jugador.position - transform.position).normalized;
 
-        // Efecto visual
+        // Efecto visual durante la estocada
         if (slashEfecto && puntoAtaque)
         {
             GameObject efecto = Instantiate(slashEfecto, puntoAtaque.position, puntoAtaque.rotation);
             SpriteRenderer efectoRenderer = efecto.GetComponent<SpriteRenderer>();
             if (efectoRenderer != null)
                 efectoRenderer.flipX = !mirandoDerecha;
+            efecto.transform.localScale *= 2f;
+            Destroy(efecto, 0.8f);
         }
 
-        // Movimiento rápido hacia el jugador con física controlada
-        float tiempoEstocada = 0.3f;
+        // Movimiento de estocada (sin física)
+        float distanciaEstocada = 4f;
+        Vector3 posicionObjetivo = transform.position + (direccionEstocada * distanciaEstocada);
+        float tiempoEstocada = 0.5f;
         float tiempoTranscurrido = 0f;
+
+        // Lista para evitar empujar múltiples veces al mismo frame
+        HashSet<Collider2D> playersEmpujados = new HashSet<Collider2D>();
 
         while (tiempoTranscurrido < tiempoEstocada)
         {
-            // Usar MovePosition para mejor control físico
-            rb.MovePosition(rb.position + (Vector2)direccionEstocada * (fuerzaEstocada * 0.5f) * Time.fixedDeltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, posicionObjetivo,
+                velocidadEstocada * Time.deltaTime);
 
-            // Daño continuo durante la estocada
-            GolpearJugador(danoEstocada);
+            // Empujar players durante la estocada (solo una vez por colisión)
+            Collider2D[] players = Physics2D.OverlapCircleAll(transform.position, 2f);
+            foreach (Collider2D player in players)
+            {
+                if (player.CompareTag("Player") && !playersEmpujados.Contains(player))
+                {
+                    AplicarEmpujeAlPlayer(player.transform, fuerzaEmpujePlayer);
+                    playersEmpujados.Add(player);
+
+                    // También aplicar daño
+                    NF_PlayerHealth vida = player.GetComponent<NF_PlayerHealth>();
+                    if (vida != null)
+                    {
+                        vida.TakeDamage(danoEstocada);
+                    }
+                }
+            }
 
             tiempoTranscurrido += Time.deltaTime;
             yield return null;
         }
 
-        // Se detiene
-        rb.velocity = Vector2.zero;
-        yield return new WaitForSeconds(0.1f);
+        // FASE 3: CAER AL SUELO
+        Vector3 posicionSuelo = new Vector3(transform.position.x, posicionInicial.y, transform.position.z);
+        float tiempoCaida = 0.3f;
+        float tiempoCaidaTranscurrido = 0f;
 
-        // Retroceso
-        retrocediendo = true;
-        Vector3 puntoRetirada = transform.position - direccionEstocada * 2f;
-        float tiempo = 0f;
-
-        while (tiempo < tiempoRetirada)
+        while (tiempoCaidaTranscurrido < tiempoCaida)
         {
-            if (rb != null)
-                rb.MovePosition(Vector2.MoveTowards(transform.position, puntoRetirada, (velocidad + 1) * Time.fixedDeltaTime));
-
-            tiempo += Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, posicionSuelo,
+                (alturaPreparacion / tiempoCaida) * Time.deltaTime);
+            tiempoCaidaTranscurrido += Time.deltaTime;
             yield return null;
         }
 
+        // Asegurar posición exacta en el suelo
+        transform.position = posicionSuelo;
+
+        // FASE 4: RETROCESO
+        retrocediendo = true;
+        Vector3 puntoRetirada = transform.position - (direccionEstocada * 2f);
+        float tiempoRetiradaTranscurrido = 0f;
+
+        while (tiempoRetiradaTranscurrido < tiempoRetirada)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, puntoRetirada,
+                (velocidad + 2f) * Time.deltaTime);
+            tiempoRetiradaTranscurrido += Time.deltaTime;
+            yield return null;
+        }
+
+        // LIMPIAR ESTADOS
         retrocediendo = false;
+        enEstocada = false;
         atacando = false;
+        contadorCortes = 0;
+
+        // Permitir nuevos ataques
+        yield return new WaitForSeconds(1f);
+        puedeAtacar = true;
+    }
+
+    void AplicarEmpujeAlPlayer(Transform playerTransform, float fuerza)
+    {
+        Rigidbody2D rbPlayer = playerTransform.GetComponent<Rigidbody2D>();
+        if (rbPlayer != null)
+        {
+            // Calcular dirección del empuje (desde el enemigo hacia el player)
+            Vector2 direccionEmpuje = (playerTransform.position - transform.position).normalized;
+
+            // Asegurar que el empuje sea principalmente horizontal
+            direccionEmpuje.y = Mathf.Clamp(direccionEmpuje.y, -0.2f, 0.3f); // Un poco hacia arriba
+            direccionEmpuje.Normalize();
+
+            // Aplicar el empuje
+            rbPlayer.velocity = Vector2.zero; // Resetear velocidad primero
+            rbPlayer.AddForce(direccionEmpuje * fuerza, ForceMode2D.Impulse);
+
+            Debug.Log($"Empujando player con fuerza: {fuerza}, dirección: {direccionEmpuje}");
+        }
     }
 
     void GolpearJugador(int dano)
     {
         Vector2 puntoGolpe = (Vector2)transform.position + (mirandoDerecha ? Vector2.right : Vector2.left) * 1.5f;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(puntoGolpe, 1.2f);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(puntoGolpe, 1.5f);
 
         foreach (Collider2D hit in hits)
         {
@@ -254,31 +341,64 @@ public class CA_HongoCaballero : MonoBehaviour
                 if (vida != null)
                 {
                     vida.TakeDamage(dano);
-                    AplicarEmpujonJugador(hit.transform, 5f);
                 }
             }
         }
     }
 
-    void AplicarEmpujonJugador(Transform jugadorTransform, float fuerza)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Rigidbody2D rbJugador = jugadorTransform.GetComponent<Rigidbody2D>();
-        if (rbJugador != null)
+        // Si colisiona con paredes durante la estocada, detenerse
+        if (enEstocada && other.CompareTag("Ground"))
         {
-            Vector2 direccionEmpujon = (jugadorTransform.position - transform.position).normalized;
-            rbJugador.AddForce(direccionEmpujon * fuerza, ForceMode2D.Impulse);
+            StopAllCoroutines();
+            StartCoroutine(RecuperarDeColision());
+        }
+
+        // Empujar al player si colisiona durante la estocada
+        if (enEstocada && other.CompareTag("Player"))
+        {
+            AplicarEmpujeAlPlayer(other.transform, fuerzaEmpujePlayer * 1.2f); // Empuje extra por colisión directa
         }
     }
 
-    // Para evitar empujones excesivos del player
-    void OnCollisionEnter2D(Collision2D collision)
+    IEnumerator RecuperarDeColision()
     {
-        if (collision.gameObject.CompareTag("Player") && (atacando || retrocediendo))
+        // Caer al suelo rápidamente
+        Vector3 posicionSuelo = new Vector3(transform.position.x, FindSueloPosition(), transform.position.z);
+
+        float tiempoCaida = 0.2f;
+        float tiempoTranscurrido = 0f;
+
+        while (tiempoTranscurrido < tiempoCaida)
         {
-            // Reducir la fuerza de colisión durante ataques
-            if (rb != null)
-                rb.velocity *= 0.3f;
+            transform.position = Vector3.MoveTowards(transform.position, posicionSuelo,
+                10f * Time.deltaTime);
+            tiempoTranscurrido += Time.deltaTime;
+            yield return null;
         }
+
+        transform.position = posicionSuelo;
+
+        // Limpiar estados
+        retrocediendo = false;
+        enEstocada = false;
+        atacando = false;
+        contadorCortes = 0;
+
+        yield return new WaitForSeconds(1f);
+        puedeAtacar = true;
+    }
+
+    float FindSueloPosition()
+    {
+        // Buscar la posición del suelo debajo del enemigo
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 10f, LayerMask.GetMask("Ground"));
+        if (hit.collider != null)
+        {
+            return hit.point.y + colisionador.bounds.extents.y;
+        }
+        return transform.position.y;
     }
 
     void OnDrawGizmosSelected()
@@ -290,12 +410,11 @@ public class CA_HongoCaballero : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, rangoDeteccion);
 
-        // Mostrar área de ataque
-        if (Application.isPlaying)
+        // Mostrar área de empuje durante la estocada
+        if (Application.isPlaying && enEstocada)
         {
-            Gizmos.color = Color.green;
-            Vector2 puntoGolpe = (Vector2)transform.position + (mirandoDerecha ? Vector2.right : Vector2.left) * 1.2f;
-            Gizmos.DrawWireSphere(puntoGolpe, 1f);
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(transform.position, 2f);
         }
     }
 }
