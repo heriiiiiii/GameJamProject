@@ -1,0 +1,1896 @@
+fileFormatVersion: 2
+guid: dcbdb78eab3fcff4bab22648b0a5f784
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_0
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 1668
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d867433d97cb894fab7418a2882fe1d
+      internalID: 1785321258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_1
+      rect:
+        serializedVersion: 2
+        x: 551
+        y: 1285
+        width: 218
+        height: 404
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 561d7bced4d5a0749abc48a29b14f1f7
+      internalID: 1699120232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_2
+      rect:
+        serializedVersion: 2
+        x: 821
+        y: 1285
+        width: 198
+        height: 410
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eb051401ce4b5bc49a9c096b7312a75a
+      internalID: -855570472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_3
+      rect:
+        serializedVersion: 2
+        x: 1283
+        y: 1281
+        width: 413
+        height: 467
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f6763192e72ef9e4ebf0175dfb7af3d8
+      internalID: -674516764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_4
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 1561
+        width: 206
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a87dc728c43fef4cab861fcba8e7b5d
+      internalID: 1527446146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_5
+      rect:
+        serializedVersion: 2
+        x: 2156
+        y: 1632
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec71ce37f424db443a8cca605a3af4f2
+      internalID: 806590635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_6
+      rect:
+        serializedVersion: 2
+        x: 1806
+        y: 1521
+        width: 80
+        height: 111
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eca8e388c4631734ca636990ba0a518f
+      internalID: -1397384339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_7
+      rect:
+        serializedVersion: 2
+        x: 1924
+        y: 1592
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6669530007b9bc469b8860a1a87b2ac
+      internalID: -1228340336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_8
+      rect:
+        serializedVersion: 2
+        x: 1952
+        y: 1513
+        width: 91
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d5dad4eaaa02c944a93cc4929c876bf5
+      internalID: 940114112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_9
+      rect:
+        serializedVersion: 2
+        x: 2109
+        y: 1513
+        width: 78
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c51bbef316fbbe4bb48573eaab1fd97
+      internalID: -749058633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_10
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 1432
+        width: 202
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cf01cbdec1bb7b4ca7334a29c4f2cb6
+      internalID: -1026885933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_11
+      rect:
+        serializedVersion: 2
+        x: 1046
+        y: 1289
+        width: 193
+        height: 294
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f572e094ca2efbf4dad43409d021c965
+      internalID: -1019312053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_12
+      rect:
+        serializedVersion: 2
+        x: 2108
+        y: 1484
+        width: 5
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a91dfafdace85b24b912aed84471861d
+      internalID: -531627901
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_13
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 1464
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a8b75175f611c9f43be775bfa54fc23f
+      internalID: 1706136360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_14
+      rect:
+        serializedVersion: 2
+        x: 1814
+        y: 1362
+        width: 72
+        height: 113
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4687f889c12671c4f9b2e4e97f300c37
+      internalID: -1894999300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_15
+      rect:
+        serializedVersion: 2
+        x: 2101
+        y: 1361
+        width: 94
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf1ff1e04209e284993b8d945be869cb
+      internalID: -1540569048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_16
+      rect:
+        serializedVersion: 2
+        x: 532
+        y: 1460
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b854be293a35e434f96a4b0e1be9503d
+      internalID: -849546378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_17
+      rect:
+        serializedVersion: 2
+        x: 1957
+        y: 1365
+        width: 90
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: beccd7d05db643a498df8377eccce90b
+      internalID: 292690929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_18
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 1293
+        width: 206
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: adf0a37461430a04ea0e2fdec9683556
+      internalID: 33891150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_19
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 1368
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7bd45a7e62af43748bdf7e6134bde127
+      internalID: 981371070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_20
+      rect:
+        serializedVersion: 2
+        x: 1720
+        y: 1360
+        width: 5
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6027f4446dd554943848b4d0b122d989
+      internalID: 1892490852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_21
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1352
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 110262c10df786642ae9f8f35e9204b7
+      internalID: -386155542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_22
+      rect:
+        serializedVersion: 2
+        x: 380
+        y: 1348
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 10f2b09b227d5ae43a2e158f0460d0a4
+      internalID: -854779008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_23
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 1320
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e94ff4ba70af80942ab335dce21eea90
+      internalID: -526319923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_24
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 1280
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f1e32f4ff572f6f4d8b47aff2bb00fde
+      internalID: -849499857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_25
+      rect:
+        serializedVersion: 2
+        x: 1802
+        y: 1209
+        width: 101
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be5ebc6f7752a7f4197161ec1bfda1a1
+      internalID: -1994479708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_26
+      rect:
+        serializedVersion: 2
+        x: 1970
+        y: 1201
+        width: 73
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f09421a6a7ce9b74abe1f8ac914004fc
+      internalID: -239565878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_27
+      rect:
+        serializedVersion: 2
+        x: 2093
+        y: 1201
+        width: 94
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91c7e079d7dbd5e4e9651894b66861ea
+      internalID: 528398181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_28
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1268
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4e3e714e2426704d9ad7c67201de9c8
+      internalID: -1956056270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_29
+      rect:
+        serializedVersion: 2
+        x: 1552
+        y: 1251
+        width: 4
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a7f03c135189564438251c437860a012
+      internalID: -1094391777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_30
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 1216
+        width: 4
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a0b1b60f5894d84d9f7e104112d6635
+      internalID: -1441944803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_31
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 1006
+        width: 186
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f133cffdcd3a28443b0263b2f021b45a
+      internalID: -1877928961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_32
+      rect:
+        serializedVersion: 2
+        x: 1532
+        y: 769
+        width: 215
+        height: 474
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0efcb5570b414a547b40669637fbfb03
+      internalID: 357073672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_33
+      rect:
+        serializedVersion: 2
+        x: 1928
+        y: 1199
+        width: 4
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f003c4a54e76fa24ab8efb6357c8f5ea
+      internalID: -164369736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_34
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 853
+        width: 105
+        height: 338
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8db45165dbf4d5c4da737e3043d98e1f
+      internalID: -970499704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_35
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 1172
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5ec08f5f20216b45b146863effc8f76
+      internalID: -668905918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_36
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 849
+        width: 105
+        height: 338
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fb457ff24cef15c408162107d807bb13
+      internalID: -1902326014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_37
+      rect:
+        serializedVersion: 2
+        x: 1229
+        y: 834
+        width: 275
+        height: 357
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7057b6c7118dece4797d12e2504d23eb
+      internalID: -953589420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_38
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 1006
+        width: 254
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8f7dee48f0094a47b785c677ed72b29
+      internalID: -298101819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_39
+      rect:
+        serializedVersion: 2
+        x: 1813
+        y: 1038
+        width: 94
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe1a3e9240935d5439426aa2d949c3d4
+      internalID: 980808149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_40
+      rect:
+        serializedVersion: 2
+        x: 1880
+        y: 1144
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 79d53d3bb028334438b3dd1ab724a2a1
+      internalID: -1817307844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_41
+      rect:
+        serializedVersion: 2
+        x: 1965
+        y: 1041
+        width: 78
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86e98ebf5a1774c4aa12f8f54e3d9c68
+      internalID: -325164637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_42
+      rect:
+        serializedVersion: 2
+        x: 2105
+        y: 1045
+        width: 86
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be6de2398736a8d46880dc4c1eed46a8
+      internalID: -1699550424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_43
+      rect:
+        serializedVersion: 2
+        x: 1772
+        y: 1128
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49ba620789dba2e439ada4634800df36
+      internalID: -2107679241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_44
+      rect:
+        serializedVersion: 2
+        x: 556
+        y: 1092
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6747f58e7dbd14845b97994aadbd6bff
+      internalID: -1767802502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_45
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 880
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 826026752da0b3e468e63a6e7f02432a
+      internalID: -540017805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_46
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 770
+        width: 246
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8ba7eb1c197ead14e911bb6e6da12102
+      internalID: -1614019975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_47
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 705
+        width: 181
+        height: 262
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60a511b14f3752448a68812a5ac46d04
+      internalID: 1664525495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_48
+      rect:
+        serializedVersion: 2
+        x: 1768
+        y: 749
+        width: 147
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f808022ddf7fd55429da42177ad8dd18
+      internalID: -292817021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_49
+      rect:
+        serializedVersion: 2
+        x: 1990
+        y: 749
+        width: 248
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 479ec266b89e18a48851f42fb4532426
+      internalID: -1723395996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_50
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 824
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c29c57d291d76bf45b00d56382d9ab7c
+      internalID: -368489236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_51
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 661
+        width: 334
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df8c1f7d28fe1cc488131dac9596bf91
+      internalID: -1525340174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_52
+      rect:
+        serializedVersion: 2
+        x: 892
+        y: 748
+        width: 5
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0cc7096df72725344843bbe781d31385
+      internalID: 1305435091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_53
+      rect:
+        serializedVersion: 2
+        x: 932
+        y: 708
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fb1af7c1f8831c49bed8a9ce2fa64cf
+      internalID: -1660280689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_54
+      rect:
+        serializedVersion: 2
+        x: 1092
+        y: 494
+        width: 514
+        height: 249
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be06bc802d7529841ac6816a7cfbad2b
+      internalID: 1562565279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_55
+      rect:
+        serializedVersion: 2
+        x: 1056
+        y: 688
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4d8df0e2a08eee428a389855945e9e9
+      internalID: -1676540932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_56
+      rect:
+        serializedVersion: 2
+        x: 710
+        y: 493
+        width: 354
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c2d32eca8215def4bbac19eaa333eb73
+      internalID: -999565815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_57
+      rect:
+        serializedVersion: 2
+        x: 1992
+        y: 680
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 588e5401f355b1f45a1c853c0b77afc8
+      internalID: 1189145303
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_58
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 636
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 544c39ca07879b94eb28e56e20b6b6e8
+      internalID: -1030408155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_59
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 493
+        width: 336
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f8477516cedb09408e1bef8a9ecbac6
+      internalID: -1212217580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_60
+      rect:
+        serializedVersion: 2
+        x: 1840
+        y: 548
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ca49b1b8ba5b2a45ad4d9dc8b51059d
+      internalID: 10805574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_61
+      rect:
+        serializedVersion: 2
+        x: 2260
+        y: 524
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4da80542de203ca46b56199ec232b4b4
+      internalID: -2043088021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_62
+      rect:
+        serializedVersion: 2
+        x: 668
+        y: 480
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a539090e89dab864eacec8a57d1282ed
+      internalID: 1695673323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_63
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 476
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 94fa1ad181d55ab4eb0e5f0e39f79d41
+      internalID: 802239768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_64
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 464
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af90167ccad294e4a85535aef5805d59
+      internalID: 1603779779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_65
+      rect:
+        serializedVersion: 2
+        x: 141
+        y: 41
+        width: 401
+        height: 403
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8beec7a44bee1f6438407ece7acdc189
+      internalID: -1252154796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_66
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 37
+        width: 250
+        height: 393
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 574da5a4af133bf4088e24b4b419426c
+      internalID: -474426616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_67
+      rect:
+        serializedVersion: 2
+        x: 1372
+        y: 412
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: da146c3916214034bab163929da1f289
+      internalID: -142868450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_68
+      rect:
+        serializedVersion: 2
+        x: 1745
+        y: 157
+        width: 186
+        height: 293
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 283e42ee3fbd4914eb3f5a745f536f7b
+      internalID: -1927493094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_69
+      rect:
+        serializedVersion: 2
+        x: 1732
+        y: 408
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5fbb0368e00daaa45852cc5297528be6
+      internalID: 1124057095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_70
+      rect:
+        serializedVersion: 2
+        x: 1480
+        y: 400
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3320feda6d484d743a626b6e213c650e
+      internalID: 1906907140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_71
+      rect:
+        serializedVersion: 2
+        x: 1424
+        y: 376
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cac68a64395d77744b71f67fe3905e24
+      internalID: -1104590891
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_72
+      rect:
+        serializedVersion: 2
+        x: 1965
+        y: 58
+        width: 242
+        height: 328
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52034312ac6d0b14a8de3b026409ac78
+      internalID: 2067385511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_73
+      rect:
+        serializedVersion: 2
+        x: 920
+        y: 272
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ad7c0c7e5ee675429cfe97db1de9aa6
+      internalID: -925507115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_74
+      rect:
+        serializedVersion: 2
+        x: 991
+        y: 101
+        width: 391
+        height: 261
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 061d75652b0eb554db181b93ff762515
+      internalID: -210172716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_75
+      rect:
+        serializedVersion: 2
+        x: 1433
+        y: 80
+        width: 241
+        height: 274
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ee79640db79ddb418b38c4d0132cf28
+      internalID: 1442489710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_76
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 212
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3120009f84a17454eb8e2d37a9934718
+      internalID: 352376755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_77
+      rect:
+        serializedVersion: 2
+        x: 944
+        y: 172
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c04c675b57a0a14391f849547604335
+      internalID: 2055349618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_78
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 148
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfa8b82427843f744896e46ae968ce17
+      internalID: 1351169329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_79
+      rect:
+        serializedVersion: 2
+        x: 1460
+        y: 44
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a3a010954e253d4e88f17bdebd76e7d
+      internalID: -1083453392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SproteMejoradoSinsFondo_80
+      rect:
+        serializedVersion: 2
+        x: 1156
+        y: 4
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0725bedec2115940a21ae81c69301cf
+      internalID: -261124123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      SproteMejoradoSinsFondo_0: 1785321258
+      SproteMejoradoSinsFondo_1: 1699120232
+      SproteMejoradoSinsFondo_10: -1026885933
+      SproteMejoradoSinsFondo_11: -1019312053
+      SproteMejoradoSinsFondo_12: -531627901
+      SproteMejoradoSinsFondo_13: 1706136360
+      SproteMejoradoSinsFondo_14: -1894999300
+      SproteMejoradoSinsFondo_15: -1540569048
+      SproteMejoradoSinsFondo_16: -849546378
+      SproteMejoradoSinsFondo_17: 292690929
+      SproteMejoradoSinsFondo_18: 33891150
+      SproteMejoradoSinsFondo_19: 981371070
+      SproteMejoradoSinsFondo_2: -855570472
+      SproteMejoradoSinsFondo_20: 1892490852
+      SproteMejoradoSinsFondo_21: -386155542
+      SproteMejoradoSinsFondo_22: -854779008
+      SproteMejoradoSinsFondo_23: -526319923
+      SproteMejoradoSinsFondo_24: -849499857
+      SproteMejoradoSinsFondo_25: -1994479708
+      SproteMejoradoSinsFondo_26: -239565878
+      SproteMejoradoSinsFondo_27: 528398181
+      SproteMejoradoSinsFondo_28: -1956056270
+      SproteMejoradoSinsFondo_29: -1094391777
+      SproteMejoradoSinsFondo_3: -674516764
+      SproteMejoradoSinsFondo_30: -1441944803
+      SproteMejoradoSinsFondo_31: -1877928961
+      SproteMejoradoSinsFondo_32: 357073672
+      SproteMejoradoSinsFondo_33: -164369736
+      SproteMejoradoSinsFondo_34: -970499704
+      SproteMejoradoSinsFondo_35: -668905918
+      SproteMejoradoSinsFondo_36: -1902326014
+      SproteMejoradoSinsFondo_37: -953589420
+      SproteMejoradoSinsFondo_38: -298101819
+      SproteMejoradoSinsFondo_39: 980808149
+      SproteMejoradoSinsFondo_4: 1527446146
+      SproteMejoradoSinsFondo_40: -1817307844
+      SproteMejoradoSinsFondo_41: -325164637
+      SproteMejoradoSinsFondo_42: -1699550424
+      SproteMejoradoSinsFondo_43: -2107679241
+      SproteMejoradoSinsFondo_44: -1767802502
+      SproteMejoradoSinsFondo_45: -540017805
+      SproteMejoradoSinsFondo_46: -1614019975
+      SproteMejoradoSinsFondo_47: 1664525495
+      SproteMejoradoSinsFondo_48: -292817021
+      SproteMejoradoSinsFondo_49: -1723395996
+      SproteMejoradoSinsFondo_5: 806590635
+      SproteMejoradoSinsFondo_50: -368489236
+      SproteMejoradoSinsFondo_51: -1525340174
+      SproteMejoradoSinsFondo_52: 1305435091
+      SproteMejoradoSinsFondo_53: -1660280689
+      SproteMejoradoSinsFondo_54: 1562565279
+      SproteMejoradoSinsFondo_55: -1676540932
+      SproteMejoradoSinsFondo_56: -999565815
+      SproteMejoradoSinsFondo_57: 1189145303
+      SproteMejoradoSinsFondo_58: -1030408155
+      SproteMejoradoSinsFondo_59: -1212217580
+      SproteMejoradoSinsFondo_6: -1397384339
+      SproteMejoradoSinsFondo_60: 10805574
+      SproteMejoradoSinsFondo_61: -2043088021
+      SproteMejoradoSinsFondo_62: 1695673323
+      SproteMejoradoSinsFondo_63: 802239768
+      SproteMejoradoSinsFondo_64: 1603779779
+      SproteMejoradoSinsFondo_65: -1252154796
+      SproteMejoradoSinsFondo_66: -474426616
+      SproteMejoradoSinsFondo_67: -142868450
+      SproteMejoradoSinsFondo_68: -1927493094
+      SproteMejoradoSinsFondo_69: 1124057095
+      SproteMejoradoSinsFondo_7: -1228340336
+      SproteMejoradoSinsFondo_70: 1906907140
+      SproteMejoradoSinsFondo_71: -1104590891
+      SproteMejoradoSinsFondo_72: 2067385511
+      SproteMejoradoSinsFondo_73: -925507115
+      SproteMejoradoSinsFondo_74: -210172716
+      SproteMejoradoSinsFondo_75: 1442489710
+      SproteMejoradoSinsFondo_76: 352376755
+      SproteMejoradoSinsFondo_77: 2055349618
+      SproteMejoradoSinsFondo_78: 1351169329
+      SproteMejoradoSinsFondo_79: -1083453392
+      SproteMejoradoSinsFondo_8: 940114112
+      SproteMejoradoSinsFondo_80: -261124123
+      SproteMejoradoSinsFondo_9: -749058633
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

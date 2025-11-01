@@ -1,0 +1,187 @@
+fileFormatVersion: 2
+guid: bad65614cbba541489b6bfcb43fccf35
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PlaformaHD_33
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 626
+        width: 2242
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1185257e32d341b4a928409f1ce08faf
+      internalID: -1228286963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      PlaformaHD_0: -915276488
+      PlaformaHD_1: -1554730305
+      PlaformaHD_10: -1286162003
+      PlaformaHD_11: -1027851556
+      PlaformaHD_12: -2115572822
+      PlaformaHD_13: -1220252609
+      PlaformaHD_14: 2086201867
+      PlaformaHD_15: 1494003157
+      PlaformaHD_16: 1736406910
+      PlaformaHD_17: 1735936572
+      PlaformaHD_18: -482351297
+      PlaformaHD_19: -45637730
+      PlaformaHD_2: 192460029
+      PlaformaHD_20: 1397222217
+      PlaformaHD_21: 1413348088
+      PlaformaHD_22: -1259124405
+      PlaformaHD_23: 980144322
+      PlaformaHD_24: -1038011763
+      PlaformaHD_25: -1594168509
+      PlaformaHD_26: -1262284899
+      PlaformaHD_27: 1525735293
+      PlaformaHD_28: -2144639150
+      PlaformaHD_29: -312364202
+      PlaformaHD_3: 590769304
+      PlaformaHD_30: -1940509875
+      PlaformaHD_31: 1815232492
+      PlaformaHD_32: -1989124305
+      PlaformaHD_33: -1228286963
+      PlaformaHD_34: 684480097
+      PlaformaHD_35: -1561690284
+      PlaformaHD_36: -1121336194
+      PlaformaHD_37: 1019394107
+      PlaformaHD_38: -1847986996
+      PlaformaHD_39: 2012901790
+      PlaformaHD_4: 2114057344
+      PlaformaHD_40: -2133088166
+      PlaformaHD_41: 370161168
+      PlaformaHD_42: 981214193
+      PlaformaHD_43: 176082280
+      PlaformaHD_44: -1387529450
+      PlaformaHD_45: -1482445239
+      PlaformaHD_46: 2098499887
+      PlaformaHD_47: -1513639804
+      PlaformaHD_48: -270148158
+      PlaformaHD_49: 1072709991
+      PlaformaHD_5: -1522253945
+      PlaformaHD_50: -2036161865
+      PlaformaHD_51: 933228823
+      PlaformaHD_6: -169206444
+      PlaformaHD_7: -919523578
+      PlaformaHD_8: -207251148
+      PlaformaHD_9: -261804294
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
