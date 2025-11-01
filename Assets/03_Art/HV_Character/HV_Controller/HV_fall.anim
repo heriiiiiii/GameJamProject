@@ -2747,7 +2747,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
+    path: boneCuerpo/boneCapa
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2759,7 +2759,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
+    path: boneCuerpo/boneCapa
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2771,7 +2771,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
+    path: boneCuerpo/boneCapa
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3143,7 +3143,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: boneCuerpo/boneCapa
+    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3155,7 +3155,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: boneCuerpo/boneCapa
+    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3167,7 +3167,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: boneCuerpo/boneCapa
+    path: boneCuerpo/boneCuello/boneCabeza/boneOjo
     classID: 4
     script: {fileID: 0}
     flags: 0
