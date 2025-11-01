@@ -1,0 +1,1698 @@
+fileFormatVersion: 2
+guid: ea0a35a16cea1064184000df5f6b2749
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Sprite2Mejorados_0
+      rect:
+        serializedVersion: 2
+        x: 1680
+        y: 1996
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a6b842088b529744a5a0ed4cac72a60
+      internalID: -235511531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_1
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 1378
+        width: 328
+        height: 604
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c357263a0dff5b44f983ec315045ae3b
+      internalID: 833102738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_2
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 1980
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c25101ff0d22a604192168f58968ffd7
+      internalID: -728330863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_3
+      rect:
+        serializedVersion: 2
+        x: 1516
+        y: 1976
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b002cc13c23a67f41b5f7e0c2e1dbbaa
+      internalID: -1586749540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_4
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 1960
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b21de2febe8019c4db48c74a3a7bac54
+      internalID: -1309708266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_5
+      rect:
+        serializedVersion: 2
+        x: 1032
+        y: 1952
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60389efd6955bf84196472db0d2a668b
+      internalID: -92072699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_6
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 1378
+        width: 208
+        height: 528
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 72a782517ff8e224ab7c1fc5fcb4129a
+      internalID: -1984248415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_7
+      rect:
+        serializedVersion: 2
+        x: 1720
+        y: 1868
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99478fabfe9556c408e996ac7f9038ca
+      internalID: 1270839373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_8
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 1840
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 811ae731fc3907a4c89a49a746a56bfd
+      internalID: -72701889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_9
+      rect:
+        serializedVersion: 2
+        x: 1212
+        y: 1732
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b724d4e225272cd429e370e026305a1d
+      internalID: -268447811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_10
+      rect:
+        serializedVersion: 2
+        x: 1586
+        y: 1650
+        width: 288
+        height: 152
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 221bf47b9834bbf408c00757ea2c56da
+      internalID: 1667578245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_11
+      rect:
+        serializedVersion: 2
+        x: 1328
+        y: 1716
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f924cfe2b55059341a8288b7d3eec1ab
+      internalID: -1324066488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_12
+      rect:
+        serializedVersion: 2
+        x: 1564
+        y: 1708
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f4e2857a2f4f9240ae7b5208fe0bb8a
+      internalID: -1196610697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_13
+      rect:
+        serializedVersion: 2
+        x: 1872
+        y: 1656
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12b9761e1053fdf4e80b25838301f67f
+      internalID: -1595881678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_14
+      rect:
+        serializedVersion: 2
+        x: 1962
+        y: 1454
+        width: 38
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 554b974cffdf5854eb4a04b5d8005a94
+      internalID: -1307164603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_15
+      rect:
+        serializedVersion: 2
+        x: 1016
+        y: 1644
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7bcd096e66e62f4c9b164afc0d63532
+      internalID: 1559200872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_16
+      rect:
+        serializedVersion: 2
+        x: 1066
+        y: 1566
+        width: 408
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57eacf46b1148484f97a7728b1e81bad
+      internalID: -610542782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_17
+      rect:
+        serializedVersion: 2
+        x: 1676
+        y: 1640
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96dfd893e31046640a22192fdb95aca6
+      internalID: -197978946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1382
+        width: 194
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a74bbf343c370248882479360f68282
+      internalID: -1962796000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_19
+      rect:
+        serializedVersion: 2
+        x: 1332
+        y: 1492
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7fd4b67e5296b0840b6193f06f91f202
+      internalID: -328226984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_20
+      rect:
+        serializedVersion: 2
+        x: 1416
+        y: 1492
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b19cb677b26f9c4eada02ea5ebfd8b4
+      internalID: 1900019834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_21
+      rect:
+        serializedVersion: 2
+        x: 1774
+        y: 1390
+        width: 116
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2cde9ca266d947d4095596ab404b4dee
+      internalID: -1465899672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_22
+      rect:
+        serializedVersion: 2
+        x: 1326
+        y: 1394
+        width: 328
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4371c7d74cf887b43829d80a0ef6aec8
+      internalID: 1375671399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_23
+      rect:
+        serializedVersion: 2
+        x: 1712
+        y: 1400
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a7a65dd5953ee8a45bbe7ea678c46ba1
+      internalID: 397480213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_24
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 1396
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a4cfefe463df0146a8f5ea51b2c11b1
+      internalID: 1749077103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_25
+      rect:
+        serializedVersion: 2
+        x: 1392
+        y: 1352
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9215125d29f949a4a8170e974ff31c40
+      internalID: 135185001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_26
+      rect:
+        serializedVersion: 2
+        x: 1908
+        y: 1348
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 415b828554c179243866cdbd585665ab
+      internalID: 536249203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_27
+      rect:
+        serializedVersion: 2
+        x: 654
+        y: 1050
+        width: 260
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6e1b0d29a4fa4d841be7327dd248c88e
+      internalID: -1935586740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_28
+      rect:
+        serializedVersion: 2
+        x: 950
+        y: 1018
+        width: 240
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 815fcc3f0578cd14f9bd740f45ceb9b7
+      internalID: -206519745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_29
+      rect:
+        serializedVersion: 2
+        x: 1196
+        y: 1216
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a845ddc34e15214f9a07d9c1e3aded5
+      internalID: -1792805415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_30
+      rect:
+        serializedVersion: 2
+        x: 1389
+        y: 994
+        width: 493
+        height: 328
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3a89cc804ed52d448bf08455e2351ae4
+      internalID: -712741795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_31
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1026
+        width: 226
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53d5aae8a62e8ed4faa0a9b9d2860ade
+      internalID: 1042624733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_32
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 1184
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 205119f47ea5ceb4a99373f4352eb94d
+      internalID: 1347169076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_33
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 1026
+        width: 276
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 24c4e2d402a425844a31761137f7786d
+      internalID: 1992284653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_34
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 1012
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b7817e9904271ed4bb4fd775c7ae160f
+      internalID: -540283052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_35
+      rect:
+        serializedVersion: 2
+        x: 876
+        y: 992
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a8b2fd23a46492478586e3179619398
+      internalID: 1582528257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_36
+      rect:
+        serializedVersion: 2
+        x: 1440
+        y: 980
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 67ded7bf8736f854889347f2bc3b90ae
+      internalID: 1018328389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_37
+      rect:
+        serializedVersion: 2
+        x: 596
+        y: 944
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 89d09d4558c15cf469ab5ff93ab8acf6
+      internalID: 1051257056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_38
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 936
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c2182504f9ee49428106148046a16a2
+      internalID: -1768716861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_39
+      rect:
+        serializedVersion: 2
+        x: 860
+        y: 932
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5892176e80b129948a66b37d4cc036b9
+      internalID: 616733373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_40
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 908
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98d197a3c4fbffb4ebd9190863f5fa6a
+      internalID: -147334743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_41
+      rect:
+        serializedVersion: 2
+        x: 1386
+        y: 578
+        width: 548
+        height: 348
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff2d2b25e0f9e2840bd2158abfe01601
+      internalID: -1334143442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_42
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 649
+        width: 354
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6ebb8612a4bde643b5e51443af88bd9
+      internalID: -2014111055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_43
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 590
+        width: 628
+        height: 284
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 941d585e915cf2147852d440f10ba2eb
+      internalID: 621866976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_44
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 734
+        width: 536
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5eaabcfa29dd46c41a69cef2e9fb765c
+      internalID: -49869536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_45
+      rect:
+        serializedVersion: 2
+        x: 1936
+        y: 828
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 285525a9703aa644c8879c4a0816ad10
+      internalID: 1815968369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_46
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 668
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d6566e69acdd014b9e237b928278ef0
+      internalID: 1889459023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_47
+      rect:
+        serializedVersion: 2
+        x: 1188
+        y: 664
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4cc581f88b120f7438bd39b48d7bc542
+      internalID: -26220405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_48
+      rect:
+        serializedVersion: 2
+        x: 1904
+        y: 572
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f6705d714e7dd44fb946c3311263866
+      internalID: -479220649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_49
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 524
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c33a599bbacb1f4f85532205ef0d055
+      internalID: 368994850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_50
+      rect:
+        serializedVersion: 2
+        x: 1932
+        y: 500
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca2cff7d1c92d564cbd53a2e575ebbaa
+      internalID: 1285046996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_51
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 488
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 74e9e56d5d1723f4aaf96bd354c38d9e
+      internalID: 1086837865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_52
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 480
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4bf6e87d68f3cf34ab160a817e391345
+      internalID: 996666471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_53
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 452
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fc99e1fd01e2474c94eba4c6595e8ab
+      internalID: -1180642774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_54
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 146
+        width: 348
+        height: 328
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1d9d9ee186ad6974886cd06469dad75d
+      internalID: 1458489779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_55
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 360
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4fc4894f76613d647a6bd82c53b54830
+      internalID: -1271590603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_56
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 182
+        width: 800
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 05c872ef337cc1e48b59c1227e24fc2a
+      internalID: -110578284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_57
+      rect:
+        serializedVersion: 2
+        x: 1205
+        y: 140
+        width: 321
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e79e006c8e38f494ca08ded66fdee86d
+      internalID: -589627356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_58
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 138
+        width: 214
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 844a90b637fe365439834c1226e9c0fd
+      internalID: 1135887358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_59
+      rect:
+        serializedVersion: 2
+        x: 1592
+        y: 144
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a1534af2fca3ff43b6eb56dcddc872b
+      internalID: -1996934781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_60
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 124
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5165738dfb3c5304c9c53072b5ce3029
+      internalID: -1621317351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_61
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 116
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 479facfc84a79d34486979143245dd01
+      internalID: 1402819835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_62
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 112
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b020aea3b68888644a1fd831a77a51b6
+      internalID: 274833546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_63
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 76
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43a54f85f657da54fa63c3660439d690
+      internalID: 155965600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_64
+      rect:
+        serializedVersion: 2
+        x: 412
+        y: 60
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 45635ef9f1a0a5048ab55e9e9b518696
+      internalID: -1025570190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_65
+      rect:
+        serializedVersion: 2
+        x: 1232
+        y: 56
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4360c854991f38f428a2d4f937e5ff4a
+      internalID: 118163116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_66
+      rect:
+        serializedVersion: 2
+        x: 1440
+        y: 56
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bfca83c3ca5d0924e8736338c68b6c9e
+      internalID: 1754166217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_67
+      rect:
+        serializedVersion: 2
+        x: 1816
+        y: 52
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49d346a0c5471cc49b6bce996d3c02b2
+      internalID: -1388556005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_68
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 40
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfa0258036ed07a44ac708d21236b38d
+      internalID: -990539393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_69
+      rect:
+        serializedVersion: 2
+        x: 1616
+        y: 28
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 953bc6e0d9f497c428504103fc878ce4
+      internalID: -1622444739
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_70
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 16
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4b215f4b0027762438edc749a68541c8
+      internalID: 1991233153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sprite2Mejorados_71
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 0
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b4e4abee99838347891bf39e3ad8295
+      internalID: -1866051286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Sprite2Mejorados_0: -235511531
+      Sprite2Mejorados_1: 833102738
+      Sprite2Mejorados_10: 1667578245
+      Sprite2Mejorados_11: -1324066488
+      Sprite2Mejorados_12: -1196610697
+      Sprite2Mejorados_13: -1595881678
+      Sprite2Mejorados_14: -1307164603
+      Sprite2Mejorados_15: 1559200872
+      Sprite2Mejorados_16: -610542782
+      Sprite2Mejorados_17: -197978946
+      Sprite2Mejorados_18: -1962796000
+      Sprite2Mejorados_19: -328226984
+      Sprite2Mejorados_2: -728330863
+      Sprite2Mejorados_20: 1900019834
+      Sprite2Mejorados_21: -1465899672
+      Sprite2Mejorados_22: 1375671399
+      Sprite2Mejorados_23: 397480213
+      Sprite2Mejorados_24: 1749077103
+      Sprite2Mejorados_25: 135185001
+      Sprite2Mejorados_26: 536249203
+      Sprite2Mejorados_27: -1935586740
+      Sprite2Mejorados_28: -206519745
+      Sprite2Mejorados_29: -1792805415
+      Sprite2Mejorados_3: -1586749540
+      Sprite2Mejorados_30: -712741795
+      Sprite2Mejorados_31: 1042624733
+      Sprite2Mejorados_32: 1347169076
+      Sprite2Mejorados_33: 1992284653
+      Sprite2Mejorados_34: -540283052
+      Sprite2Mejorados_35: 1582528257
+      Sprite2Mejorados_36: 1018328389
+      Sprite2Mejorados_37: 1051257056
+      Sprite2Mejorados_38: -1768716861
+      Sprite2Mejorados_39: 616733373
+      Sprite2Mejorados_4: -1309708266
+      Sprite2Mejorados_40: -147334743
+      Sprite2Mejorados_41: -1334143442
+      Sprite2Mejorados_42: -2014111055
+      Sprite2Mejorados_43: 621866976
+      Sprite2Mejorados_44: -49869536
+      Sprite2Mejorados_45: 1815968369
+      Sprite2Mejorados_46: 1889459023
+      Sprite2Mejorados_47: -26220405
+      Sprite2Mejorados_48: -479220649
+      Sprite2Mejorados_49: 368994850
+      Sprite2Mejorados_5: -92072699
+      Sprite2Mejorados_50: 1285046996
+      Sprite2Mejorados_51: 1086837865
+      Sprite2Mejorados_52: 996666471
+      Sprite2Mejorados_53: -1180642774
+      Sprite2Mejorados_54: 1458489779
+      Sprite2Mejorados_55: -1271590603
+      Sprite2Mejorados_56: -110578284
+      Sprite2Mejorados_57: -589627356
+      Sprite2Mejorados_58: 1135887358
+      Sprite2Mejorados_59: -1996934781
+      Sprite2Mejorados_6: -1984248415
+      Sprite2Mejorados_60: -1621317351
+      Sprite2Mejorados_61: 1402819835
+      Sprite2Mejorados_62: 274833546
+      Sprite2Mejorados_63: 155965600
+      Sprite2Mejorados_64: -1025570190
+      Sprite2Mejorados_65: 118163116
+      Sprite2Mejorados_66: 1754166217
+      Sprite2Mejorados_67: -1388556005
+      Sprite2Mejorados_68: -990539393
+      Sprite2Mejorados_69: -1622444739
+      Sprite2Mejorados_7: 1270839373
+      Sprite2Mejorados_70: 1991233153
+      Sprite2Mejorados_71: -1866051286
+      Sprite2Mejorados_8: -72701889
+      Sprite2Mejorados_9: -268447811
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,194 @@
+fileFormatVersion: 2
+guid: fd82d70b199e96947b879b28f1568108
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LateralHD_2
+      rect:
+        serializedVersion: 2
+        x: 962
+        y: 301
+        width: 413
+        height: 1019
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3782f5f888352e245ac176862eb4a825
+      internalID: -2029483236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      LateralHD_0: 1654023190
+      LateralHD_1: -984567079
+      LateralHD_10: 1210743127
+      LateralHD_11: -1410434122
+      LateralHD_12: -730895734
+      LateralHD_13: 85603914
+      LateralHD_14: 965360624
+      LateralHD_15: -47777081
+      LateralHD_16: -824455908
+      LateralHD_17: 97914142
+      LateralHD_18: -1425540857
+      LateralHD_19: 946735106
+      LateralHD_2: -2029483236
+      LateralHD_20: -1200183807
+      LateralHD_21: 335764988
+      LateralHD_22: 1390902422
+      LateralHD_23: 1547934217
+      LateralHD_24: 406741046
+      LateralHD_25: -370300909
+      LateralHD_26: 872488486
+      LateralHD_27: 1698628487
+      LateralHD_28: 1691422443
+      LateralHD_29: -1512579492
+      LateralHD_3: -1380029883
+      LateralHD_30: -1064823245
+      LateralHD_31: -606463290
+      LateralHD_32: 1938859527
+      LateralHD_33: 1091870839
+      LateralHD_34: -1715151201
+      LateralHD_35: -304900252
+      LateralHD_36: -75758221
+      LateralHD_37: -1050552547
+      LateralHD_38: 812302225
+      LateralHD_39: 751398499
+      LateralHD_4: -141798156
+      LateralHD_40: 2015996891
+      LateralHD_41: 624399650
+      LateralHD_42: -1895913683
+      LateralHD_43: 1983778175
+      LateralHD_44: 288000025
+      LateralHD_45: -1507765986
+      LateralHD_46: -242649677
+      LateralHD_47: 285116807
+      LateralHD_48: -2020275696
+      LateralHD_49: -1859714045
+      LateralHD_5: -1799943813
+      LateralHD_50: 1808259794
+      LateralHD_51: 1410413903
+      LateralHD_52: -996638952
+      LateralHD_53: 1929134572
+      LateralHD_54: 68462908
+      LateralHD_55: 1932282221
+      LateralHD_56: -1332418860
+      LateralHD_57: 407838549
+      LateralHD_58: 936087742
+      LateralHD_6: 201128317
+      LateralHD_7: -1914090563
+      LateralHD_8: -1513718547
+      LateralHD_9: -1080288691
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
