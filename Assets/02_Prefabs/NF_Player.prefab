@@ -116,6 +116,11 @@ MonoBehaviour:
   damage: 1
   slashEffect: {fileID: 3188800768891569814, guid: 0ac60ec5365f2c4418ac961330fea637, type: 3}
   timeBetweenAttack: 0.3
+  comboBufferWindow: 0.25
+  idleResetTime: 0.6
+  chainWindowStart: 0.35
+  chainWindowEnd: 0.8
+  postAttackIdleDelay: 0.1
   recoilXSpeed: 100
   recoilYSpeed: 100
   recoilDuration: 0.15
