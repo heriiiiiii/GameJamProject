@@ -1,19 +1,19 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RodanteFungico : MonoBehaviour
 {
     [Header("Puntos de movimiento")]
-    public Transform puntoA; // PosiciÛn cuando sale (ataque)
-    public Transform puntoB; // PosiciÛn escondido
+    public Transform puntoA; // Posici√≥n cuando sale (ataque)
+    public Transform puntoB; // Posici√≥n escondido
 
-    [Header("Par·metros")]
+    [Header("Par√°metros")]
     public float velocidad = 2f;
     public float knockbackForce = 15f;
     public int dano = 1;
 
-    [Header("DetecciÛn del jugador")]
+    [Header("Detecci√≥n del jugador")]
     public float rangoDeteccion = 5f;
 
     private Rigidbody2D rb;
@@ -22,7 +22,7 @@ public class RodanteFungico : MonoBehaviour
     private bool estaAtacando = false;
     private bool movimientoCompletado = true;
 
-    // Par·metros del Animator
+    // Par√°metros del Animator
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsIdleAttack = Animator.StringToHash("IsIdleAttack");
     private static readonly int IsReturning = Animator.StringToHash("IsReturning");
@@ -79,13 +79,13 @@ public class RodanteFungico : MonoBehaviour
         // Mover hacia el destino
         transform.position = Vector2.MoveTowards(transform.position, destino, velocidad * Time.deltaTime);
 
-        // Verificar si llegÛ al destino
+        // Verificar si lleg√≥ al destino
         movimientoCompletado = Vector2.Distance(transform.position, destino) < 0.1f;
     }
 
     void VerificarPosicion()
     {
-        // Si est· en posiciÛn de ataque (puntoA) y jugador detectado
+        // Si est√° en posici√≥n de ataque (puntoA) y jugador detectado
         if (movimientoCompletado && jugadorDetectado && Vector2.Distance(transform.position, puntoA.position) < 0.1f)
         {
             animator.SetBool(IsIdleAttack, true);
@@ -94,7 +94,7 @@ public class RodanteFungico : MonoBehaviour
 
     void ActualizarAnimaciones()
     {
-        // LÛgica principal de animaciones
+        // L√≥gica principal de animaciones
         if (jugadorDetectado && !movimientoCompletado)
         {
             // Saliendo hacia el punto A (ataque)
@@ -116,7 +116,7 @@ public class RodanteFungico : MonoBehaviour
         }
     }
 
-    // MÈtodo para activar el ataque de mordida
+    // M√©todo para activar el ataque de mordida
     public void IniciarAtaque()
     {
         estaAtacando = true;
@@ -124,7 +124,7 @@ public class RodanteFungico : MonoBehaviour
         animator.SetBool(IsIdleAttack, false);
     }
 
-    // MÈtodo para finalizar el ataque de mordida
+    // M√©todo para finalizar el ataque de mordida
     public void FinalizarAtaque()
     {
         estaAtacando = false;
