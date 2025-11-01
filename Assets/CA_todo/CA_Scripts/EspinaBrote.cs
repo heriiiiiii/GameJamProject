@@ -9,7 +9,7 @@ public class EspinaBrote : MonoBehaviour
     public int dano = 1;
     public float duracion = 3f;
     public float fuerzaGiro = 2f;
-    public float tiempoAntesDeSeguir = 0.5f; 
+    public float tiempoAntesDeSeguir = 0.5f;
 
     private Transform jugador;
     private Rigidbody2D rb;
@@ -26,6 +26,13 @@ public class EspinaBrote : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         jugador = GameObject.FindGameObjectWithTag("Player")?.transform;
         Destroy(gameObject, duracion);
+
+        // Rotación inicial basada en la dirección
+        if (direccionInicial != Vector2.zero)
+        {
+            RotarHaciaDireccion(direccionInicial);
+        }
+
         StartCoroutine(ActivarPersecucion());
     }
 
@@ -46,6 +53,18 @@ public class EspinaBrote : MonoBehaviour
         direccionInicial = Vector2.Lerp(direccionInicial, direccionObjetivo, fuerzaGiro * Time.deltaTime);
 
         rb.velocity = direccionInicial * velocidad;
+
+        // Rotar el proyectil para que apunte hacia la dirección de movimiento
+        RotarHaciaDireccion(direccionInicial);
+    }
+
+    void RotarHaciaDireccion(Vector2 direccion)
+    {
+        if (direccion != Vector2.zero)
+        {
+            float angulo = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, angulo);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -54,12 +73,17 @@ public class EspinaBrote : MonoBehaviour
         {
             PlayerHealth salud = other.GetComponent<PlayerHealth>();
             if (salud != null) salud.RecibirDanio(dano);
-            Destroy(gameObject);
+
+            var visual = GetComponent<CA_ProyectilParticles>();
+            if (visual != null) visual.DestruirConEfecto();
+            else Destroy(gameObject);
         }
 
         if (other.CompareTag("Obstacle"))
         {
-            Destroy(gameObject);
+            var visual = GetComponent<CA_ProyectilParticles>();
+            if (visual != null) visual.DestruirConEfecto();
+            else Destroy(gameObject);
         }
     }
 }

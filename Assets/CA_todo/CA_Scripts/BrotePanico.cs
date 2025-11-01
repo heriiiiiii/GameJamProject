@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+Ôªøusing System.Collections;
 using UnityEngine;
 
 public class BrotePanico : MonoBehaviour
 {
-    [Header("DetecciÛn del jugador")]
+    [Header("Detecci√≥n del jugador")]
     public float rangoDeteccion = 5f;
     public string tagJugador = "Player";
 
@@ -13,28 +12,58 @@ public class BrotePanico : MonoBehaviour
     public float tiempoEntreDisparos = 3f;
     public Transform puntoDisparo;
 
-    [Header("DaÒo por contacto")]
+    [Header("Da√±o por contacto")]
     public int danoContacto = 1;
     public float knockbackForce = 6f;
 
-    private bool jugadorDetectado = false;
+    // Componentes
+    private Animator animator;
+    public bool jugadorDetectado = false;
     private float temporizador;
     private Transform jugador;
 
+    // Par√°metros Animator
+    private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
+    private static readonly int IsMoving = Animator.StringToHash("IsMoving");
+    private static readonly int PlayerDetected = Animator.StringToHash("PlayerDetected");
+    private static readonly int IsDead = Animator.StringToHash("IsDead");
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+        temporizador = tiempoEntreDisparos;
+
+        animator.SetBool(PlayerDetected, false);
+        animator.SetBool(IsAttacking, false);
+        //animator.SetBool(IsMoving, false);
+        animator.SetBool(IsDead, false);
+    }
+
     void Update()
     {
+        if (animator.GetBool(IsDead)) return;
+
+        bool deteccionAnterior = jugadorDetectado;
         DetectarJugador();
+
+        if (deteccionAnterior != jugadorDetectado)
+            animator.SetBool(PlayerDetected, jugadorDetectado);
 
         if (jugadorDetectado)
         {
             temporizador -= Time.deltaTime;
             if (temporizador <= 0f)
             {
-                Disparar();
+                animator.SetBool(IsAttacking, true);
                 temporizador = tiempoEntreDisparos;
             }
         }
+        else
+        {
+            animator.SetBool(IsAttacking, false);
+        }
     }
+
 
     void DetectarJugador()
     {
@@ -51,23 +80,29 @@ public class BrotePanico : MonoBehaviour
         }
     }
 
-    void Disparar()
+    // ‚úÖ AHORA este m√©todo ser√° llamado desde el Behaviour (CA_ataque)
+    public void Disparar()
     {
         if (prefabEspina == null || jugador == null) return;
 
         Vector2 direccionBase = (jugador.position - transform.position).normalized;
-
-        // ¡ngulos de dispersiÛn
         float[] angulos = { -25f, 0f, 25f };
 
         foreach (float ang in angulos)
         {
             Quaternion rot = Quaternion.Euler(0, 0, ang);
             Vector2 dir = rot * direccionBase;
-
             GameObject bala = Instantiate(prefabEspina, puntoDisparo.position, Quaternion.identity);
             bala.GetComponent<EspinaBrote>().Inicializar(dir);
         }
+    }
+
+    public void Morir()
+    {
+        animator.SetBool(IsDead, true);
+        GetComponent<Collider2D>().enabled = false;
+        enabled = false;
+        Destroy(gameObject, 2f);
     }
 
     void OnDrawGizmosSelected()
@@ -78,7 +113,7 @@ public class BrotePanico : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(tagJugador))
+        if (collision.gameObject.CompareTag(tagJugador) && !animator.GetBool(IsDead))
         {
             PlayerHealth salud = collision.gameObject.GetComponent<PlayerHealth>();
             if (salud != null) salud.RecibirDanio(danoContacto);
