@@ -29,7 +29,9 @@ public class CA_BalaVolador : MonoBehaviour
             NF_PlayerHealth vida = col.GetComponent<NF_PlayerHealth>();
             if (vida != null)
             {
-                vida.TakeDamage(dano);
+                Vector2 hitDir = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
+
+                vida.TakeDamage(dano, hitDir);
             }
             Destroy(gameObject);
         }

@@ -167,7 +167,10 @@ public class CA_HongoCaballero : MonoBehaviour
                 NF_PlayerHealth vida = hit.GetComponent<NF_PlayerHealth>();
                 if (vida != null)
                 {
-                    vida.TakeDamage(danoCorte);
+                    // Dirección desde el enemigo hacia el player
+                    Vector2 hitDir = ((Vector2)hit.transform.position - (Vector2)transform.position).normalized;
+                    vida.TakeDamage(danoCorte, hitDir);
+
                     // Empuje pequeño en el corte
                     AplicarEmpujeAlPlayer(hit.transform, 5f);
                 }
@@ -255,11 +258,12 @@ public class CA_HongoCaballero : MonoBehaviour
                     AplicarEmpujeAlPlayer(player.transform, fuerzaEmpujePlayer);
                     playersEmpujados.Add(player);
 
-                    // También aplicar daño
+                    // Aplicar daño con dirección desde el enemigo hacia el player
                     NF_PlayerHealth vida = player.GetComponent<NF_PlayerHealth>();
                     if (vida != null)
                     {
-                        vida.TakeDamage(danoEstocada);
+                        Vector2 hitDir = ((Vector2)player.transform.position - (Vector2)transform.position).normalized;
+                        vida.TakeDamage(danoEstocada, hitDir);
                     }
                 }
             }
@@ -340,7 +344,8 @@ public class CA_HongoCaballero : MonoBehaviour
                 NF_PlayerHealth vida = hit.GetComponent<NF_PlayerHealth>();
                 if (vida != null)
                 {
-                    vida.TakeDamage(dano);
+                    Vector2 hitDir = ((Vector2)hit.transform.position - (Vector2)transform.position).normalized;
+                    vida.TakeDamage(dano, hitDir);
                 }
             }
         }
