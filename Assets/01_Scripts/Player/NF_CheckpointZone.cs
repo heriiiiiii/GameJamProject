@@ -14,6 +14,7 @@ public class NF_CheckpointZone : MonoBehaviour
 
     private void Update()
     {
+        // Si el jugador está dentro del área y presiona E, guarda el checkpoint
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
         {
             gameController.UpdateCheckpoint(transform.position, "Zone");
@@ -25,12 +26,18 @@ public class NF_CheckpointZone : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
+        {
             playerInRange = true;
+            Debug.Log("✅ Jugador entró al área del checkpoint.");
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
+        {
             playerInRange = false;
+            Debug.Log("🚪 Jugador salió del área del checkpoint.");
+        }
     }
 }

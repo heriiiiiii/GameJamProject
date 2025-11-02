@@ -1,48 +1,42 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CA_RecolEnemy : MonoBehaviour
 {
-    [SerializeField] float health;
-    [SerializeField] float recoilLength;
-    [SerializeField] float recoilFactor;
+    [Header("Stats")]
+    [SerializeField] float health = 10f;
+
+    [Header("Recoil")]
+    [SerializeField] float recoilLength = 0.2f;
+    [SerializeField] float recoilFactor = 1f;
     [SerializeField] bool isRecoiling = false;
 
-    float recoilTimer;
-    Rigidbody2D rb;
-    Animator animator;
+    [Header("VFX")]
+    [SerializeField] ParticleSystem hitParticles; // ðŸŒŸ prefab del sistema de partÃ­culas
+    [SerializeField] Transform particleSpawnPoint; // opcional: punto exacto de apariciÃ³n
 
-    private Dictionary<string, string> deathAnimations = new Dictionary<string, string>()
-    {
-        { "Enemy", "IsDead" },
-    };
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
-    }
+    private float recoilTimer;
+    private Rigidbody2D rb;
+    private NF_DamageFlash _damageFlash;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        _damageFlash = GetComponent<NF_DamageFlash>();
     }
 
     void Update()
     {
         if (health <= 0)
         {
-            return; // Ya está muerto
+            return; // Ya estï¿½ muerto
         }
 
         if (isRecoiling)
         {
             if (recoilTimer < recoilLength)
-            {
                 recoilTimer += Time.deltaTime;
-            }
             else
             {
                 isRecoiling = false;
@@ -53,108 +47,33 @@ public class CA_RecolEnemy : MonoBehaviour
 
     public void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
     {
-        if (health <= 0) return; // Ya está muerto
+        if (health <= 0) return; // Ya estï¿½ muerto
 
         health -= _damageDone;
 
-        // Verificar si murió después del daño
-        if (health <= 0)
-        {
-            ActivarMuerte();
-            return;
-        }
+        // âš¡ Efecto de flash (si existe)
+        if (_damageFlash != null)
+            _damageFlash.CallDamageFlash();
 
-        // Aplicar retroceso solo si sigue vivo
-        if (!isRecoiling)
+        // ðŸ’¥ Recoil fÃ­sico
+        if (!isRecoiling && rb != null)
         {
-            rb.AddForce(-_hitForce * recoilFactor * _hitDirection);
             isRecoiling = true;
-            recoilTimer = 0f;
+            rb.AddForce(-_hitForce * recoilFactor * _hitDirection, ForceMode2D.Impulse);
         }
-    }
 
-    void ActivarMuerte()
-    {
-        // Desactivar componentes físicos y de comportamiento
-        if (rb != null)
+        // ðŸ’« PartÃ­culas de impacto
+        if (hitParticles != null)
         {
-            rb.velocity = Vector2.zero;
-            rb.isKinematic = true;
+            // determina posiciÃ³n (si hay spawn point, Ãºsalo)
+            Vector3 spawnPos = particleSpawnPoint != null ? particleSpawnPoint.position : transform.position;
+
+            // instanciar el sistema
+            ParticleSystem ps = Instantiate(hitParticles, spawnPos, Quaternion.identity);
+            ps.Play();
+
+            // destruir el sistema cuando termina (para evitar basura en escena)
+            Destroy(ps.gameObject, ps.main.duration + ps.main.startLifetime.constantMax);
         }
-
-        // Desactivar colliders
-        Collider2D[] colliders = GetComponents<Collider2D>();
-        foreach (Collider2D col in colliders)
-        {
-            col.enabled = false;
-        }
-
-        // Sistema de animación por tag
-        string deathParam = ObtenerParametroMuertePorTag();
-        if (animator != null && !string.IsNullOrEmpty(deathParam))
-        {
-            animator.SetBool(deathParam, true);
-        }
-
-        // Desactivar scripts de comportamiento específicos
-        DesactivarComportamientosEnemigo();
-
-        // Destruir después de tiempo (o manejar por evento de animación)
-        StartCoroutine(DestruirDespuesDeAnimacion());
-    }
-
-    string ObtenerParametroMuertePorTag()
-    {
-        // Buscar en los tags del GameObject
-        foreach (string tag in deathAnimations.Keys)
-        {
-            if (gameObject.CompareTag(tag))
-            {
-                return deathAnimations[tag];
-            }
-        }
-
-        // Tag por defecto si no se encuentra coincidencia
-        return "IsDead";
-    }
-
-    void DesactivarComportamientosEnemigo()
-    {
-        // Desactivar scripts comunes de enemigos
-        MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
-        foreach (MonoBehaviour script in scripts)
-        {
-            if (script != this && script != animator &&
-                script.GetType() != typeof(SpriteRenderer) &&
-                script.GetType() != typeof(Transform))
-            {
-                script.enabled = false;
-            }
-        }
-    }
-
-    IEnumerator DestruirDespuesDeAnimacion()
-    {
-        // Esperar tiempo suficiente para la animación de muerte
-        yield return new WaitForSeconds(2f);
-        Destroy(gameObject);
-    }
-
-    // Método público para forzar muerte (útil para efectos instantáneos)
-    public void ForzarMuerte()
-    {
-        health = 0;
-        ActivarMuerte();
-    }
-
-    // En la clase CA_RecolEnemy, agregar este método:
-    public float GetHealth()
-    {
-        return health;
-    }
-
-    public bool EstaMuerto()
-    {
-        return health <= 0;
     }
 }

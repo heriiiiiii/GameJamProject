@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 6762526698614316268}
   - component: {fileID: 5966528966234621930}
   - component: {fileID: 117612409286495288}
+  - component: {fileID: 3042356108731516697}
   - component: {fileID: 2650810030480971659}
   m_Layer: 0
   m_Name: NF_Player
@@ -116,6 +117,11 @@ MonoBehaviour:
   damage: 1
   slashEffect: {fileID: 3188800768891569814, guid: 0ac60ec5365f2c4418ac961330fea637, type: 3}
   timeBetweenAttack: 0.3
+  comboBufferWindow: 0.25
+  idleResetTime: 0.6
+  chainWindowStart: 0.35
+  chainWindowEnd: 0.8
+  postAttackIdleDelay: 0.1
   recoilXSpeed: 100
   recoilYSpeed: 100
   recoilDuration: 0.15
@@ -130,6 +136,9 @@ MonoBehaviour:
   invulnerabilityTime: 1
   landingMinAirTime: 0.08
   fallThreshold: -0.05
+  longIdleDelay: 6
+  debugLongIdle: 1
+  deathAnimationDuration: 1.5
 --- !u!114 &117612409286495288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +156,51 @@ MonoBehaviour:
   recoillingX: 0
   recoillingY: 0
   lookingRight: 1
+--- !u!61 &3042356108731516697
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4795467754726888508}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!50 &2650810030480971659
 Rigidbody2D:
   serializedVersion: 4
