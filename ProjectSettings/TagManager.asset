@@ -8,6 +8,7 @@ TagManager:
   - CheckpointParkour
   - CheckpointZone
   - Enemy
+  - SpawnPoint_Left
   layers:
   - Default
   - TransparentFX
