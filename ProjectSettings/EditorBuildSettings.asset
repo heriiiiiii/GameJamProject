@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/00_Scenes/Presentacion.unity
     guid: f934d639e653f3946ba14c614dfc1a67
+  - enabled: 1
+    path: Assets/00_Scenes/IM_Presentacion.unity
+    guid: 357a3f2e2651ac74487651517577b300
+  - enabled: 1
+    path: Assets/00_Scenes/IM_1_Acto.unity
+    guid: f4225f03fa9fb604292ad8c34c1d9f73
   m_configObjects: {}
