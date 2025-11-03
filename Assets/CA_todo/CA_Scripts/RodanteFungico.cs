@@ -162,10 +162,10 @@ public class RodanteFungico : MonoBehaviour
                 rbPlayer.AddForce(empuje * knockbackForce, ForceMode2D.Impulse);
             }
 
-            PlayerHealth salud = collision.gameObject.GetComponent<PlayerHealth>();
+            NF_PlayerHealth salud = collision.gameObject.GetComponent<NF_PlayerHealth>();
             if (salud != null)
             {
-                salud.RecibirDanio(dano);
+                salud.TakeDamageWithoutKnockback(dano);
             }
 
             Invoke("FinalizarAtaque", 1f);

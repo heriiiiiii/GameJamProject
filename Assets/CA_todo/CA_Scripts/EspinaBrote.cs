@@ -1,10 +1,10 @@
-using System.Collections;
+锘縰sing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EspinaBrote : MonoBehaviour
 {
-    [Header("Par醡etros")]
+    [Header("Par谩metros")]
     public float velocidad = 3f;
     public int dano = 1;
     public float duracion = 3f;
@@ -27,7 +27,7 @@ public class EspinaBrote : MonoBehaviour
         jugador = GameObject.FindGameObjectWithTag("Player")?.transform;
         Destroy(gameObject, duracion);
 
-        // Rotaci髇 inicial basada en la direcci髇
+        // Rotaci贸n inicial basada en la direcci贸n
         if (direccionInicial != Vector2.zero)
         {
             RotarHaciaDireccion(direccionInicial);
@@ -48,13 +48,13 @@ public class EspinaBrote : MonoBehaviour
     {
         if (!persiguiendo || jugador == null) return;
 
-        // Ajusta suavemente la direcci髇 hacia el jugador
+        // Ajusta suavemente la direcci贸n hacia el jugador
         Vector2 direccionObjetivo = (jugador.position - transform.position).normalized;
         direccionInicial = Vector2.Lerp(direccionInicial, direccionObjetivo, fuerzaGiro * Time.deltaTime);
 
         rb.velocity = direccionInicial * velocidad;
 
-        // Rotar el proyectil para que apunte hacia la direcci髇 de movimiento
+        // Rotar el proyectil para que apunte hacia la direcci贸n de movimiento
         RotarHaciaDireccion(direccionInicial);
     }
 
@@ -71,19 +71,32 @@ public class EspinaBrote : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerHealth salud = other.GetComponent<PlayerHealth>();
-            if (salud != null) salud.RecibirDanio(dano);
+            NF_PlayerHealth salud = other.GetComponent<NF_PlayerHealth>();
+            if (salud != null)
+            {
+                // 馃Л Calculamos la direcci贸n del golpe (desde proyectil hacia el jugador)
+                Vector2 hitDirection = (other.transform.position - transform.position).normalized;
 
+                // 馃挜 Llamamos al da帽o con knockback
+                salud.TakeDamage(dano, hitDirection);
+            }
+
+            // 馃挮 Destrucci贸n visual del proyectil
             var visual = GetComponent<CA_ProyectilParticles>();
-            if (visual != null) visual.DestruirConEfecto();
-            else Destroy(gameObject);
+            if (visual != null)
+                visual.DestruirConEfecto();
+            else
+                Destroy(gameObject);
         }
 
-        if (other.CompareTag("Obstacle"))
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             var visual = GetComponent<CA_ProyectilParticles>();
-            if (visual != null) visual.DestruirConEfecto();
-            else Destroy(gameObject);
+            if (visual != null)
+                visual.DestruirConEfecto();
+            else
+                Destroy(gameObject);
         }
     }
+
 }

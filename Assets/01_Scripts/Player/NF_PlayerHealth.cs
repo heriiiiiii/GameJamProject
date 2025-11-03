@@ -35,6 +35,11 @@ public class NF_PlayerHealth : MonoBehaviour
         UpdateHealthUI();
         UpdateWeakState();
     }
+    private void Update()
+    {
+        UpdateHealthUI();
+        UpdateWeakState();
+    }
     public void TakeDamage(int damage, Vector2 hitDirection)
     {
         NF_CameraShakeManager.instance.CameraShake(impulseSource);
@@ -88,7 +93,7 @@ public class NF_PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
     }
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (!useUI || healthFill == null) return;
         healthFill.fillAmount = (float)currentHealth / (float)maxHealth;
@@ -101,25 +106,31 @@ public class NF_PlayerHealth : MonoBehaviour
     //    UpdateHealthUI();
     //    UpdateWeakState();
     //}
-    private void UpdateWeakState()
+    public void UpdateWeakState()
     {
         if (!useUI || uiAnimator == null) return;
         bool isWeak = currentHealth <= Mathf.CeilToInt(maxHealth * 0.25f); // ≤25% de vida
         uiAnimator.SetBool("isWeak", isWeak);
     }
+    private bool isHitStopping = false;
+
     private IEnumerator HitStop(float duration)
     {
-        float originalScale = Time.timeScale;
+        // 🚫 Evita que se ejecute más de un hitstop simultáneo
+        if (isHitStopping)
+            yield break;
 
-        // Ralentiza el tiempo para dar sensación de impacto
+        isHitStopping = true;
+
+        float originalScale = Time.timeScale;
         Time.timeScale = 0.05f;
 
-        // Espera sin depender del tiempo del juego (para que funcione durante el hitstop)
         yield return new WaitForSecondsRealtime(duration);
 
-        // Restaura el tiempo
         Time.timeScale = originalScale;
+        isHitStopping = false;
     }
+
 
     private void Die()
     {

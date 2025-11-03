@@ -30,6 +30,20 @@ public class NF_GameController : MonoBehaviour
             Debug.Log($"🏁 Checkpoint Parkour guardado en: {pos}");
         }
     }
+    public void HealPlayerAtSpawn()
+    {
+        if (playerHealth == null)
+            playerHealth = player.GetComponent<NF_PlayerHealth>();
+
+        if (playerHealth != null)
+        {
+            playerHealth.currentHealth = playerHealth.maxHealth;
+            playerHealth.UpdateHealthUI();
+            playerHealth.UpdateWeakState();
+
+            Debug.Log("💚 Jugador curado al máximo en el spawn.");
+        }
+    }
 
     public IEnumerator Respawn(float duration, string checkpointType)
     {
@@ -64,7 +78,14 @@ public class NF_GameController : MonoBehaviour
 
             // 🩸 Curar vida completa al reaparecer en Zone
             if (health != null)
-                health.currentHealth = lifeRespawn;
+                health.currentHealth = health.maxHealth; // o lifeRespawn, si querés mantenerlo variable
+        }
+
+        // 🔹 💡 Actualiza inmediatamente la interfaz de vida
+        if (health != null)
+        {
+            health.UpdateHealthUI();
+            health.UpdateWeakState();
         }
 
         // 🔸 Reactiva todo
@@ -73,6 +94,4 @@ public class NF_GameController : MonoBehaviour
         if (controller != null)
             controller.enabled = true;
     }
-
-
 }
