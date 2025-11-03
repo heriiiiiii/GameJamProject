@@ -5497,7 +5497,7 @@ MonoBehaviour:
   - {fileID: 1686132810}
   fadeImage: {fileID: 352108210}
   finalFadeDuration: 4.2
-  nextSceneName: IM_1_Acto
+  nextSceneName: 01_JZona1
   fadeDuration: 2
   delayBetweenTexts: 3
 --- !u!4 &894395193

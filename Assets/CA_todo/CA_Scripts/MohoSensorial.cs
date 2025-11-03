@@ -1,9 +1,9 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class MohoSensorial : MonoBehaviour
 {
-    [Header("Daño y duración")]
+    [Header("DaÃ±o y duraciÃ³n")]
     public int danoPorSegundo = 1;
     public float duracionInmovilizacion = 2f; // tiempo total atrapado
     public float fuerzaEmpuje = 10f;          // fuerza al soltar
@@ -11,7 +11,7 @@ public class MohoSensorial : MonoBehaviour
     [Header("Animaciones")]
     private Animator animator;
 
-    // Parámetros del Animator
+    // ParÃ¡metros del Animator
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsInmovilizing = Animator.StringToHash("IsInmovilizing");
 
@@ -36,7 +36,7 @@ public class MohoSensorial : MonoBehaviour
             jugador = collision.gameObject;
             jugadorEnContacto = true;
 
-            // Comienza la animación de ataque inicial
+            // Comienza la animaciÃ³n de ataque inicial
             animator.SetBool(IsAttacking, true);
             animator.SetBool(IsInmovilizing, false);
 
@@ -69,7 +69,7 @@ public class MohoSensorial : MonoBehaviour
             if (movimiento != null)
                 movimiento.enabled = false;
 
-            // Daño periódico
+            // DaÃ±o periÃ³dico
             danioCoroutine = StartCoroutine(DanioConstante());
 
             // Inicia la fase de atrapamiento
@@ -80,17 +80,17 @@ public class MohoSensorial : MonoBehaviour
     IEnumerator FaseInmovilizacion()
     {
         //  Esperar (duracionInmovilizacion - 1 segundo)
-        // porque queremos que el último segundo sea de animación Idle
+        // porque queremos que el Ãºltimo segundo sea de animaciÃ³n Idle
         float tiempoIdlePrevio = 0.5f;
         float tiempoAtrapado = Mathf.Max(0f, duracionInmovilizacion - tiempoIdlePrevio);
 
-        // Mantener animación de atrapado durante la primera parte
+        // Mantener animaciÃ³n de atrapado durante la primera parte
         yield return new WaitForSeconds(tiempoAtrapado);
 
         //  Cambiar a Idle 1 segundo antes de liberar
         animator.SetBool(IsInmovilizing, false);
 
-        // Esperar 1 segundo más (Idle visible mientras aún está atrapado)
+        // Esperar 1 segundo mÃ¡s (Idle visible mientras aÃºn estÃ¡ atrapado)
         yield return new WaitForSeconds(tiempoIdlePrevio);
 
         //  Ahora liberar al jugador
@@ -122,7 +122,7 @@ public class MohoSensorial : MonoBehaviour
         if (inmovilizacionCoroutine != null)
             StopCoroutine(inmovilizacionCoroutine);
 
-        //  Mantener Idle después de liberar
+        //  Mantener Idle despuÃ©s de liberar
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, false);
     }
@@ -146,16 +146,17 @@ public class MohoSensorial : MonoBehaviour
 
     IEnumerator DanioConstante()
     {
-        PlayerHealth salud = jugador.GetComponent<PlayerHealth>();
+        NF_PlayerHealth salud = jugador.GetComponent<NF_PlayerHealth>();
 
         while (jugadorEnContacto && animator.GetBool(IsInmovilizing))
         {
             if (salud != null)
-                salud.RecibirDanio(danoPorSegundo);
+                salud.TakeDamageWithoutKnockback(danoPorSegundo); // âœ… sin knockback
 
             yield return new WaitForSeconds(1f);
         }
     }
+
 
     void Update()
     {

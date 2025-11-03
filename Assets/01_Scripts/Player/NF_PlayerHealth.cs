@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.UI;
+
 public class NF_PlayerHealth : MonoBehaviour
 {
     [Header("Player Health Settings")]
@@ -10,6 +12,11 @@ public class NF_PlayerHealth : MonoBehaviour
     private NF_GameController gameController;
     private NF_Knockback knockback;
     private CinemachineImpulseSource impulseSource;
+
+    [Header("References")]
+    [SerializeField] private Image healthFill;   
+    [SerializeField] private Animator uiAnimator;  
+    [SerializeField] private bool useUI = true;
 
     private void Awake()
     {
@@ -24,13 +31,19 @@ public class NF_PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         knockback = GetComponent<NF_Knockback>();
           impulseSource=GetComponent<CinemachineImpulseSource>();
+
+        UpdateHealthUI();
+        UpdateWeakState();
     }
     public void TakeDamage(int damage, Vector2 hitDirection)
     {
         NF_CameraShakeManager.instance.CameraShake(impulseSource);
         // Resta vida
         currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
+        UpdateHealthUI();
+        UpdateWeakState();
         // Direccion del input (no usada directamente, pero mantenida por compatibilidad)
         float inputDirection = Mathf.Sign(CA_PlayerController.Instance.transform.localScale.x);
 
@@ -49,11 +62,51 @@ public class NF_PlayerHealth : MonoBehaviour
         // 💫 KNOCKBACK (retroceso físico del jugador)
         knockback.CallKnockback(hitDirection);
     }
+    // 💀 Versión sin knockback (para daño pasivo o atrapamientos tipo moho)
+    public void TakeDamageWithoutKnockback(int damage)
+    {
+        if (NF_CameraShakeManager.instance != null && impulseSource != null)
+            NF_CameraShakeManager.instance.CameraShake(impulseSource);
+
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        UpdateHealthUI();
+        UpdateWeakState();
+
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            Die();
+        }
+
+        // 🔹 Solo efecto de impacto (no knockback)
+        StartCoroutine(HitStop(0.05f));
+    }
+
     public void HealToFull()
     {
         currentHealth = maxHealth;
     }
+    private void UpdateHealthUI()
+    {
+        if (!useUI || healthFill == null) return;
+        healthFill.fillAmount = (float)currentHealth / (float)maxHealth;
+    }
+    //public void Heal(int amount)
+    //{
+    //    currentHealth += amount;
+    //    currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
+    //    UpdateHealthUI();
+    //    UpdateWeakState();
+    //}
+    private void UpdateWeakState()
+    {
+        if (!useUI || uiAnimator == null) return;
+        bool isWeak = currentHealth <= Mathf.CeilToInt(maxHealth * 0.25f); // ≤25% de vida
+        uiAnimator.SetBool("isWeak", isWeak);
+    }
     private IEnumerator HitStop(float duration)
     {
         float originalScale = Time.timeScale;
@@ -71,6 +124,11 @@ public class NF_PlayerHealth : MonoBehaviour
     private void Die()
     {
         Debug.Log("☠️ El jugador ha muerto. Respawn en Zone.");
+        currentHealth = maxHealth;
+
+        // 💡 2️⃣ Actualizar UI inmediatamente
+        UpdateHealthUI();
+        UpdateWeakState();
         //StartCoroutine(gameController.Respawn(1f, "Zone"));
         CA_PlayerController.Instance.Die();
     }

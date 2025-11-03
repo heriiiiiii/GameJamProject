@@ -9559,7 +9559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54dce9cb7c34f1b4f928cbb3078f2f3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  presentationScene: 00_Scenes/01_JZona1
+  presentationScene: 00_Scenes/IM_Presentacion
   mainMenuPanel: {fileID: 547634995}
   optionsPanel: {fileID: 427140056}
   firstMainButton: {fileID: 2044349742}
