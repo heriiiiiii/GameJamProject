@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocidad: 4
   dano: 1
-  duracion: 5
+  duracion: 3
   fuerzaGiro: 3
   tiempoAntesDeSeguir: 0.7
 --- !u!212 &267575973725448980
