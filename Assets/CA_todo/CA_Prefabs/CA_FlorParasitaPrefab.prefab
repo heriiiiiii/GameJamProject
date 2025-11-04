@@ -50,9 +50,8 @@ MonoBehaviour:
   fuerzaEmpuje: 16
   particulasExplosion: {fileID: 0}
   spriteFlor: {fileID: 21300000, guid: 96f9cb5141b3353468b8313a377d12c9, type: 3}
-  duracionDestello: 0.5
-  intensidadDestello: 30
-  colorDestello: {r: 1, g: 1, b: 1, a: 1}
+  intensidadSacudida: 0.5
+  duracionSacudida: 0.3
 --- !u!212 &1546948496700756306
 SpriteRenderer:
   m_ObjectHideFlags: 0

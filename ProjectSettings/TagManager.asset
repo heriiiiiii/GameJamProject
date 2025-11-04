@@ -8,6 +8,7 @@ TagManager:
   - CheckpointParkour
   - CheckpointZone
   - Enemy
+  - Cargable
   layers:
   - Default
   - TransparentFX

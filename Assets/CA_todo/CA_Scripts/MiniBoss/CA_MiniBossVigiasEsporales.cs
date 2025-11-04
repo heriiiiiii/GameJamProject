@@ -8,20 +8,27 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     public class HongoData
     {
         public GameObject hongo;
+        public GameObject hongoDormido; // AÑADIR: Prefab del hongo dormido
         public float vida;
         public float vidaMaxima = 100f;
         public bool estaVivo = true;
         public int tipoAtaque;
+        public Animator animator;
+        public bool estaActivo = false; // AÑADIR: Estado de activación
     }
 
-    [Header("Rotación Visual")]
-    public bool usarRotacionVisual = true;
-    public float velocidadRotacion = 5f;
-    public float anguloMaximoInclinacion = 15f;
+    [Header("Configuración de Animaciones")]
+    public float duracionAnimacionAtaque = 1.5f;
+    public float duracionAnimacionRetorno = 1f;
 
+    [Header("Rotación Visual")]
+    public bool usarRotacionVisual = false; // CAMBIADO: Desactivado por defecto
+
+    [Header("Separación entre Hongos")]
+    public float distanciaMinimaSeparacion = 2.5f;
+    public float fuerzaSeparacion = 5f;
 
     private Vector3[] direccionesMovimiento = new Vector3[3];
-    private Quaternion[] rotacionesObjetivo = new Quaternion[3];
 
     [Header("Configuración Hongos")]
     public HongoData[] hongos = new HongoData[3];
@@ -32,6 +39,7 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     public bool estaDespierto = false;
     public bool enMovimientoEvasivo = false;
     public int hongosVivos = 3;
+    public float tiempoActivacion = 1f; // AÑADIR: Tiempo para activarse
 
     [Header("Movimiento Evasivo Zig-Zag")]
     public float rangoMovimientoX = 3f;
@@ -70,6 +78,8 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     public int danioContacto = 1;
     public float tiempoEntreDanioContacto = 1f;
 
+
+
     // VARIABLES PARA DAÑO Y VELOCIDAD ESCALABLES
     private float multiplicadorDanio = 2f;
     private float multiplicadorVelocidad = 2f;
@@ -92,6 +102,17 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     private Coroutine disparosLentosCoroutine;
     private float[] ultimoDanioContacto = new float[3];
 
+    // NUEVO: Estados de animación
+    private enum EstadoAnimacion
+    {
+        Inactivo, // AÑADIR: Estado para hongos dormidos
+        Idle,
+        Attacking,
+        Returning,
+        Dead,
+        Stacked
+    }
+
     void Start()
     {
         danioBaseEstocada = danioEstocada;
@@ -102,7 +123,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
         InicializarHongos();
         GuardarPosicionesOriginales();
-        InicializarSistemaRotacion(); // ← NUEVO
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) jugador = playerObj.transform;
 
@@ -114,31 +134,35 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         }
     }
 
-    // NUEVO MÉTODO: Inicializar sistema de rotación
-    void InicializarSistemaRotacion()
-    {
-        for (int i = 0; i < hongos.Length; i++)
-        {
-            direccionesMovimiento[i] = Vector3.right; // Dirección inicial
-            rotacionesObjetivo[i] = hongos[i].hongo.transform.rotation;
-        }
-    }
-
     void InicializarHongos()
     {
         hongos[0].tipoAtaque = 0;
-        hongos[1].tipoAtaque = 0;
+        hongos[1].tipoAtaque = 1;
         hongos[2].tipoAtaque = 1;
 
         for (int i = 0; i < hongos.Length; i++)
         {
+            if (hongos[i].hongo == null)
+            {
+                Debug.LogError($"Hongo activo {i} no asignado en inspector!");
+                continue;
+            }
+
+            if (hongos[i].hongoDormido == null)
+            {
+                Debug.LogError($"Hongo dormido {i} no asignado en inspector!");
+                continue;
+            }
+
             hongos[i].vida = hongos[i].vidaMaxima;
             hongos[i].estaVivo = true;
+            hongos[i].estaActivo = false; // Inician inactivos
 
-            CA_RecolEnemy recolEnemy = hongos[i].hongo.GetComponent<CA_RecolEnemy>();
-            if (recolEnemy == null)
+            // Configurar hongo activo (inicialmente desactivado)
+            hongos[i].animator = hongos[i].hongo.GetComponent<Animator>();
+            if (hongos[i].animator == null)
             {
-                recolEnemy = hongos[i].hongo.AddComponent<CA_RecolEnemy>();
+                Debug.LogWarning($"Hongo activo {i} no tiene componente Animator");
             }
 
             CircleCollider2D collider = hongos[i].hongo.GetComponent<CircleCollider2D>();
@@ -152,9 +176,116 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
             SpriteRenderer sr = hongos[i].hongo.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
-                sr.color = i == 2 ? Color.red : Color.green;
+                sr.color = i == 0 ? Color.blue : (i == 1 ? Color.green : Color.red);
+            }
+
+            if (hongos[i].hongo != null)
+            {
+                hongos[i].hongo.transform.rotation = Quaternion.identity;
+                hongos[i].hongo.SetActive(false); // Desactivar hongo activo inicialmente
+            }
+
+            // Configurar hongo dormido (inicialmente activado)
+            if (hongos[i].hongoDormido != null)
+            {
+                hongos[i].hongoDormido.transform.position = hongos[i].hongo.transform.position;
+                hongos[i].hongoDormido.transform.rotation = Quaternion.identity;
+                hongos[i].hongoDormido.SetActive(true); // Activar hongo dormido inicialmente
+            }
+
+            SetAnimacionHongo(i, EstadoAnimacion.Inactivo);
+        }
+    }
+
+    // Método para activar el boss completo
+    public void ActivarBoss()
+    {
+        if (!estaDespierto)
+        {
+            estaDespierto = true;
+            Debug.Log("¡BOSS ACTIVADO! Cambiando hongos dormidos a activos...");
+            StartCoroutine(TransicionActivacion());
+        }
+    }
+
+    // Corrutina para transición suave de dormido a activo
+    IEnumerator TransicionActivacion()
+    {
+        // Primero: Efectos visuales en los hongos dormidos
+        foreach (HongoData hongo in hongos)
+        {
+            if (hongo.hongoDormido != null)
+            {
+                StartCoroutine(EfectoDespertar(hongo.hongoDormido.transform));
             }
         }
+
+        yield return new WaitForSeconds(tiempoActivacion * 0.5f);
+
+        // Segundo: Cambiar de prefab dormido a activo
+        for (int i = 0; i < hongos.Length; i++)
+        {
+            if (hongos[i].hongoDormido != null)
+            {
+                hongos[i].hongoDormido.SetActive(false);
+            }
+
+            if (hongos[i].hongo != null)
+            {
+                hongos[i].hongo.SetActive(true);
+                hongos[i].estaActivo = true;
+
+                // Efecto de aparición del hongo activo
+                StartCoroutine(EfectoAparicion(hongos[i].hongo.transform));
+
+                // Cambiar a estado Idle
+                SetAnimacionHongo(i, EstadoAnimacion.Idle);
+            }
+        }
+
+        yield return new WaitForSeconds(tiempoActivacion * 0.5f);
+
+        // Tercero: Iniciar comportamiento normal del boss
+        tiempoUltimoAtaque = Time.time;
+        Debug.Log("¡BOSS COMPLETAMENTE ACTIVO! Iniciando patrones de ataque...");
+    }
+
+    // Efecto visual para despertar hongos dormidos
+    IEnumerator EfectoDespertar(Transform hongoDormido)
+    {
+        if (hongoDormido == null) yield break;
+
+        Vector3 escalaOriginal = hongoDormido.localScale;
+        float tiempo = 0f;
+
+        while (tiempo < tiempoActivacion * 0.5f)
+        {
+            float escala = escalaOriginal.x * (1f + Mathf.Sin(tiempo * 10f) * 0.2f);
+            hongoDormido.localScale = new Vector3(escala, escala, escalaOriginal.z);
+            tiempo += Time.deltaTime;
+            yield return null;
+        }
+
+        hongoDormido.localScale = escalaOriginal;
+    }
+
+    // Efecto visual para aparición de hongos activos
+    IEnumerator EfectoAparicion(Transform hongoActivo)
+    {
+        if (hongoActivo == null) yield break;
+
+        Vector3 escalaFinal = hongoActivo.localScale;
+        hongoActivo.localScale = Vector3.zero;
+        float tiempo = 0f;
+
+        while (tiempo < tiempoActivacion * 0.5f)
+        {
+            hongoActivo.localScale = Vector3.Lerp(Vector3.zero, escalaFinal, tiempo / (tiempoActivacion * 0.5f));
+            tiempo += Time.deltaTime;
+            yield return null;
+        }
+
+        hongoActivo.localScale = escalaFinal;
     }
 
     void GuardarPosicionesOriginales()
@@ -181,11 +312,13 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
         ActualizarDanioContacto();
 
-        // NUEVO: Actualizar rotaciones visuales
-        if (usarRotacionVisual)
+        // Aplicar separación entre hongos
+        if (!ataqueEnCurso)
         {
-            ActualizarRotacionesVisuales();
+            AplicarSeparacionEntreHongos();
         }
+
+        // ELIMINADO: Llamada a ActualizarRotacionesVisuales()
 
         if (ataqueEnCurso || enMovimientoEvasivo) return;
 
@@ -196,118 +329,133 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         }
     }
 
-    // NUEVO: Actualizar rotaciones de todos los hongos
-    void ActualizarRotacionesVisuales()
+    // Sistema de separación entre hongos
+    void AplicarSeparacionEntreHongos()
     {
         for (int i = 0; i < hongos.Length; i++)
         {
-            if (hongos[i].estaVivo && hongos[i].hongo != null)
+            if (!hongos[i].estaVivo || hongos[i].hongo == null) continue;
+
+            for (int j = i + 1; j < hongos.Length; j++)
             {
-                ActualizarRotacionHongo(i);
+                if (!hongos[j].estaVivo || hongos[j].hongo == null) continue;
+
+                Vector3 posicionI = hongos[i].hongo.transform.position;
+                Vector3 posicionJ = hongos[j].hongo.transform.position;
+                float distancia = Vector3.Distance(posicionI, posicionJ);
+
+                if (distancia < distanciaMinimaSeparacion)
+                {
+                    // Calcular dirección de repulsión
+                    Vector3 direccionRepulsion = (posicionI - posicionJ).normalized;
+                    float fuerza = (1f - (distancia / distanciaMinimaSeparacion)) * fuerzaSeparacion;
+
+                    // Aplicar movimiento de separación
+                    Vector3 nuevaPosicionI = posicionI + direccionRepulsion * fuerza * Time.deltaTime;
+                    Vector3 nuevaPosicionJ = posicionJ - direccionRepulsion * fuerza * Time.deltaTime;
+
+                    // Mantener dentro de los rangos permitidos
+                    nuevaPosicionI = LimitarPosicionARango(nuevaPosicionI, posicionesOriginales[i]);
+                    nuevaPosicionJ = LimitarPosicionARango(nuevaPosicionJ, posicionesOriginales[j]);
+
+                    hongos[i].hongo.transform.position = nuevaPosicionI;
+                    hongos[j].hongo.transform.position = nuevaPosicionJ;
+                }
             }
         }
     }
 
-    // NUEVO: Actualizar rotación individual de cada hongo
-    void ActualizarRotacionHongo(int indiceHongo)
+    // Limitar posición dentro del rango permitido
+    Vector3 LimitarPosicionARango(Vector3 posicion, Vector3 posicionOriginal)
     {
-        Transform hongoTransform = hongos[indiceHongo].hongo.transform;
+        posicion.x = Mathf.Clamp(posicion.x,
+            posicionOriginal.x - rangoMovimientoX,
+            posicionOriginal.x + rangoMovimientoX);
+        posicion.y = Mathf.Clamp(posicion.y,
+            posicionOriginal.y - rangoMovimientoY,
+            posicionOriginal.y + rangoMovimientoY);
 
-        // Calcular dirección del movimiento
-        Vector3 direccionActual = CalcularDireccionMovimiento(indiceHongo);
-
-        if (direccionActual != Vector3.zero)
-        {
-            // Calcular rotación objetivo basada en la dirección
-            Quaternion rotacionObjetivo = CalcularRotacionDesdeDireccion(direccionActual);
-
-            // Suavizar la rotación
-            hongoTransform.rotation = Quaternion.Lerp(
-                hongoTransform.rotation,
-                rotacionObjetivo,
-                velocidadRotacion * Time.deltaTime
-            );
-        }
+        return posicion;
     }
 
-    // NUEVO: Calcular dirección actual del movimiento
-    Vector3 CalcularDireccionMovimiento(int indiceHongo)
+    // Sistema de control de animaciones (sin cambios)
+    private void SetAnimacionHongo(int indiceHongo, EstadoAnimacion estado)
     {
-        Vector3 direccion = Vector3.zero;
+        if (indiceHongo < 0 || indiceHongo >= hongos.Length) return;
+        if (!hongos[indiceHongo].estaVivo || hongos[indiceHongo].animator == null) return;
 
-        if (enMovimientoEvasivo)
-        {
-            // Durante movimiento evasivo, usar la dirección actual
-            direccion = direccionesActuales[indiceHongo];
-        }
-        else if (ataqueEnCurso)
-        {
-            // Durante ataques, calcular dirección basada en el movimiento
-            direccion = CalcularDireccionDuranteAtaque(indiceHongo);
-        }
-        else
-        {
-            // Durante idle, dirección hacia el jugador o movimiento suave
-            direccion = CalcularDireccionIdle(indiceHongo);
-        }
+        ResetAnimacionHongo(indiceHongo);
 
-        direccionesMovimiento[indiceHongo] = direccion;
-        return direccion;
-    }
-
-    // NUEVO: Calcular dirección durante ataques específicos
-    Vector3 CalcularDireccionDuranteAtaque(int indiceHongo)
-    {
-        Transform hongoTransform = hongos[indiceHongo].hongo.transform;
-
-        switch (ataqueActual)
+        switch (estado)
         {
-            case 2: // Estocada
-                if (jugador != null)
-                {
-                    return (jugador.position - hongoTransform.position).normalized;
-                }
+            case EstadoAnimacion.Inactivo: // AÑADIR este caso
+                                           // Los hongos inactivos usan su propio prefab con animación
                 break;
-
-            case 1: // Balas Giratorias
-                    // Movimiento aleatorio durante este ataque
-                return direccionesActuales[indiceHongo];
-
-            default:
-                return direccionesMovimiento[indiceHongo];
+            case EstadoAnimacion.Idle:
+                hongos[indiceHongo].animator.SetBool("IsIdle", true);
+                break;
+            case EstadoAnimacion.Attacking:
+                hongos[indiceHongo].animator.SetBool("IsAttacking", true);
+                break;
+            case EstadoAnimacion.Returning:
+                hongos[indiceHongo].animator.SetBool("IsReturning", true);
+                break;
+            case EstadoAnimacion.Dead:
+                hongos[indiceHongo].animator.SetBool("IsDead", true);
+                break;
+            case EstadoAnimacion.Stacked:
+                hongos[indiceHongo].animator.SetBool("IsStacked", true);
+                break;
         }
-
-        return direccionesMovimiento[indiceHongo];
     }
 
-    // NUEVO: Calcular dirección durante estado idle
-    Vector3 CalcularDireccionIdle(int indiceHongo)
+    private void ResetAnimacionHongo(int indiceHongo)
     {
-        if (jugador != null)
+        if (hongos[indiceHongo].animator == null) return;
+
+        hongos[indiceHongo].animator.SetBool("IsIdle", false);
+        hongos[indiceHongo].animator.SetBool("IsAttacking", false);
+        hongos[indiceHongo].animator.SetBool("IsReturning", false);
+        hongos[indiceHongo].animator.SetBool("IsDead", false);
+        hongos[indiceHongo].animator.SetBool("IsStacked", false);
+    }
+
+    private void ActivarAnimacionAtaque()
+    {
+        for (int i = 0; i < hongos.Length; i++)
         {
-            Transform hongoTransform = hongos[indiceHongo].hongo.transform;
-            Vector3 direccionJugador = (jugador.position - hongoTransform.position).normalized;
-
-            // Suavizar el cambio de dirección
-            return Vector3.Lerp(direccionesMovimiento[indiceHongo], direccionJugador, 0.1f);
+            if (hongos[i].estaVivo)
+            {
+                SetAnimacionHongo(i, EstadoAnimacion.Attacking);
+            }
         }
-
-        return direccionesMovimiento[indiceHongo];
     }
 
-    // NUEVO: Calcular rotación desde dirección (2D)
-    Quaternion CalcularRotacionDesdeDireccion(Vector3 direccion)
+    private void ActivarAnimacionRetorno()
     {
-        if (direccion == Vector3.zero)
-            return Quaternion.identity;
+        for (int i = 0; i < hongos.Length; i++)
+        {
+            if (hongos[i].estaVivo)
+            {
+                SetAnimacionHongo(i, EstadoAnimacion.Returning);
+            }
+        }
+    }
 
-        // Calcular ángulo en grados (para 2D)
-        float angulo = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
+    private void RestaurarAnimacionIdle()
+    {
+        for (int i = 0; i < hongos.Length; i++)
+        {
+            if (hongos[i].estaVivo)
+            {
+                SetAnimacionHongo(i, EstadoAnimacion.Idle);
+            }
+        }
+    }
 
-        // Aplicar inclinación basada en la velocidad vertical
-        float inclinacion = -direccion.y * anguloMaximoInclinacion;
-
-        return Quaternion.Euler(0f, 0f, angulo + inclinacion);
+    private void ActivarAnimacionMuerte(int indiceHongo)
+    {
+        SetAnimacionHongo(indiceHongo, EstadoAnimacion.Dead);
     }
 
     void ActualizarDanioContacto()
@@ -335,7 +483,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
             int danioActual = Mathf.RoundToInt(danioBaseContacto * multiplicadorDanio);
             playerHealth.RecibirDanio(danioActual);
             ultimoDanioContacto[indiceHongo] = Time.time;
-            Debug.Log($"Daño por contacto: {danioActual} (Hongo {indiceHongo})");
         }
     }
 
@@ -354,7 +501,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
     IEnumerator ActivarMovimientoEvasivoPorVida()
     {
-        Debug.Log("¡Hongo a mitad de vida! Activando movimiento evasivo con disparos lentos");
         yield return StartCoroutine(IniciarMovimientoEvasivo());
         movimientoEvasivoActivado = false;
     }
@@ -363,7 +509,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     IEnumerator IniciarMovimientoEvasivo()
     {
         enMovimientoEvasivo = true;
-        Debug.Log("Iniciando movimiento evasivo zig-zag");
 
         movimientoEvasivoCoroutine = StartCoroutine(MovimientoEvasivoCoroutine());
         disparosLentosCoroutine = StartCoroutine(DisparosLentosDuranteMovimiento());
@@ -378,7 +523,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         yield return StartCoroutine(RegresarAPosicionesOriginales());
 
         enMovimientoEvasivo = false;
-        Debug.Log("Fin del movimiento evasivo");
     }
 
     IEnumerator MovimientoEvasivoCoroutine()
@@ -415,6 +559,27 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         Vector3 posicionActual = hongos[indiceHongo].hongo.transform.position;
         Vector3 posicionOriginal = posicionesOriginales[indiceHongo];
 
+        // Evitar direcciones que acerquen demasiado a otros hongos
+        for (int i = 0; i < hongos.Length; i++)
+        {
+            if (i != indiceHongo && hongos[i].estaVivo && hongos[i].hongo != null)
+            {
+                Vector3 direccionAOtro = (hongos[i].hongo.transform.position - posicionActual).normalized;
+                float distancia = Vector3.Distance(posicionActual, hongos[i].hongo.transform.position);
+
+                if (distancia < distanciaMinimaSeparacion * 1.5f)
+                {
+                    // Reducir componente en dirección al otro hongo
+                    float dotProduct = Vector3.Dot(nuevaDireccion, direccionAOtro);
+                    if (dotProduct > 0.3f) // Si se está moviendo hacia el otro hongo
+                    {
+                        nuevaDireccion -= direccionAOtro * dotProduct * 0.5f;
+                        nuevaDireccion.Normalize();
+                    }
+                }
+            }
+        }
+
         if (Mathf.Abs(posicionActual.x - posicionOriginal.x) > rangoMovimientoX * 0.8f)
         {
             nuevaDireccion.x = Mathf.Sign(posicionOriginal.x - posicionActual.x);
@@ -439,17 +604,12 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         Vector3 movimiento = direccionesActuales[indiceHongo] * velocidadActual * Time.deltaTime;
         Vector3 nuevaPosicion = hongoTransform.position + movimiento;
 
-        nuevaPosicion.x = Mathf.Clamp(nuevaPosicion.x,
-            posicionOriginal.x - rangoMovimientoX,
-            posicionOriginal.x + rangoMovimientoX);
-        nuevaPosicion.y = Mathf.Clamp(nuevaPosicion.y,
-            posicionOriginal.y - rangoMovimientoY,
-            posicionOriginal.y + rangoMovimientoY);
+        nuevaPosicion = LimitarPosicionARango(nuevaPosicion, posicionOriginal);
 
-        // NUEVO: Actualizar dirección de movimiento
-        direccionesMovimiento[indiceHongo] = (nuevaPosicion - hongoTransform.position).normalized;
-
+        // NUEVO: Mantener la rotación original
+        Quaternion rotacionOriginal = hongoTransform.rotation;
         hongoTransform.position = nuevaPosicion;
+        hongoTransform.rotation = rotacionOriginal; // Preservar rotación
     }
 
     IEnumerator DisparosLentosDuranteMovimiento()
@@ -518,16 +678,13 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     {
         List<int> ataquesDisponibles = new List<int>();
 
-        // Siempre disponibles
         ataquesDisponibles.Add(1); // Balas Giratorias con Rayo
 
-        // Añadir movimiento evasivo solo si hay 3 hongos
         if (hongosVivos == 3)
         {
             ataquesDisponibles.Add(0); // Movimiento Evasivo
         }
 
-        // Añadir estocada con mayor probabilidad cuando hay menos hongos
         if (hongosVivos < 3)
         {
             for (int i = 0; i < 3; i++)
@@ -541,8 +698,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         }
 
         ataqueActual = ataquesDisponibles[Random.Range(0, ataquesDisponibles.Count)];
-
-        Debug.Log($"Ataque seleccionado: {ataqueActual} - Disponibles: {ataquesDisponibles.Count}");
 
         switch (ataqueActual)
         {
@@ -561,20 +716,15 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     IEnumerator AtaqueMovimientoEvasivo()
     {
         ataqueEnCurso = true;
-        Debug.Log("Iniciando ataque de movimiento evasivo");
-
         yield return StartCoroutine(IniciarMovimientoEvasivo());
-
         ataqueEnCurso = false;
     }
 
-    // --- ATAQUE BALAS GIRATORIAS CON EFECTO RAYO ---
+    // --- ATAQUE BALAS GIRATORIAS ---
     IEnumerator AtaqueBalasGiratorias()
     {
         ataqueEnCurso = true;
-        Debug.Log("Iniciando ataque de balas giratorias con rayo");
-
-        Coroutine movimientoCoroutine = StartCoroutine(MovimientoDuranteBalasGiratorias());
+        ActivarAnimacionAtaque();
 
         List<Coroutine> coroutinesBalas = new List<Coroutine>();
 
@@ -588,45 +738,14 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        if (movimientoCoroutine != null)
-            StopCoroutine(movimientoCoroutine);
-
         foreach (GameObject bala in hilosActivos)
         {
             if (bala != null) Destroy(bala);
         }
         hilosActivos.Clear();
 
+        RestaurarAnimacionIdle();
         ataqueEnCurso = false;
-    }
-
-    IEnumerator MovimientoDuranteBalasGiratorias()
-    {
-        float tiempoInicio = Time.time;
-        while (Time.time - tiempoInicio < 3f)
-        {
-            for (int i = 0; i < hongos.Length; i++)
-            {
-                if (hongos[i].estaVivo && hongos[i].hongo != null)
-                {
-                    Vector3 direccionAleatoria = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0).normalized;
-                    float velocidadRapida = velocidadBaseMovimiento * multiplicadorVelocidad * 2f;
-
-                    Vector3 nuevaPosicion = hongos[i].hongo.transform.position + direccionAleatoria * velocidadRapida * Time.deltaTime;
-                    Vector3 posicionOriginal = posicionesOriginales[i];
-
-                    nuevaPosicion.x = Mathf.Clamp(nuevaPosicion.x,
-                        posicionOriginal.x - rangoMovimientoX,
-                        posicionOriginal.x + rangoMovimientoX);
-                    nuevaPosicion.y = Mathf.Clamp(nuevaPosicion.y,
-                        posicionOriginal.y - rangoMovimientoY,
-                        posicionOriginal.y + rangoMovimientoY);
-
-                    hongos[i].hongo.transform.position = nuevaPosicion;
-                }
-            }
-            yield return null;
-        }
     }
 
     IEnumerator CrearBalasGiratorias(Transform origen)
@@ -792,7 +911,7 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     IEnumerator AtaqueEstocada()
     {
         ataqueEnCurso = true;
-        Debug.Log("¡INICIANDO ATAQUE ESTOCADA!");
+        ActivarAnimacionAtaque();
 
         List<Coroutine> estocadas = new List<Coroutine>();
 
@@ -802,7 +921,7 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
             {
                 float velocidadBase = hongosVivos < 3 ? velocidadBaseEstocada * 1.5f : velocidadBaseEstocada;
                 float velocidadActual = velocidadBase * multiplicadorVelocidad;
-                estocadas.Add(StartCoroutine(EstocadaIndividualMejorada(hongo.hongo.transform, velocidadActual)));
+                estocadas.Add(StartCoroutine(EstocadaIndividualMejorada(hongo, velocidadActual)));
             }
         }
 
@@ -811,20 +930,22 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
             yield return estocada;
         }
 
+        ActivarAnimacionRetorno();
+        yield return new WaitForSeconds(duracionAnimacionRetorno);
+        RestaurarAnimacionIdle();
         ataqueEnCurso = false;
-        Debug.Log("Estocada completada");
     }
 
-    IEnumerator EstocadaIndividualMejorada(Transform hongo, float velocidad)
+    IEnumerator EstocadaIndividualMejorada(HongoData hongoData, float velocidad)
     {
-        if (hongo == null || jugador == null) yield break;
+        if (hongoData.hongo == null || jugador == null) yield break;
 
+        Transform hongo = hongoData.hongo.transform;
         Vector3 posicionInicial = hongo.position;
-
-        Debug.Log($"Hongo {hongo.name} iniciando estocada hacia player");
 
         SpriteRenderer sr = hongo.GetComponent<SpriteRenderer>();
         Color originalColor = sr != null ? sr.color : Color.white;
+
         if (sr != null)
         {
             sr.color = Color.yellow;
@@ -847,7 +968,12 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         while (distanciaRecorrida < distanciaInicial && !golpeado && hongo != null)
         {
             float distanciaFrame = velocidad * Time.deltaTime;
+
+            // NUEVO: Guardar rotación antes de mover
+            Quaternion rotacionOriginal = hongo.rotation;
             hongo.position += direccion * distanciaFrame;
+            hongo.rotation = rotacionOriginal; // Restaurar rotación
+
             distanciaRecorrida += distanciaFrame;
 
             Collider2D colision = Physics2D.OverlapCircle(hongo.position, 1f);
@@ -859,7 +985,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
                     int danioActual = Mathf.RoundToInt(danioBaseEstocada * multiplicadorDanio);
                     playerHealth.RecibirDanio(danioActual);
                     golpeado = true;
-                    Debug.Log($"¡ESTOCO! {danioActual} de daño (Multiplicador: {multiplicadorDanio}x)");
                 }
                 break;
             }
@@ -867,22 +992,9 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
             yield return null;
         }
 
-        int ObtenerIndiceDesdeTransform(Transform hongoTransform)
-        {
-            for (int i = 0; i < hongos.Length; i++)
-            {
-                if (hongos[i].hongo != null && hongos[i].hongo.transform == hongoTransform)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
         yield return new WaitForSeconds(0.2f);
 
         Vector3 puntoRetirada = ObtenerPuntoRetiradaAleatorio();
-        Debug.Log($"Hongo {hongo.name} retirándose a punto: {puntoRetirada}");
 
         if (sr != null)
         {
@@ -897,12 +1009,15 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         while (distanciaRetiradaRecorrida < distanciaRetirada && hongo != null)
         {
             float distanciaFrame = velocidad * 0.7f * Time.deltaTime;
+
+            // NUEVO: Guardar rotación antes de mover
+            Quaternion rotacionOriginal = hongo.rotation;
             hongo.position += direccionRetirada * distanciaFrame;
+            hongo.rotation = rotacionOriginal; // Restaurar rotación
+
             distanciaRetiradaRecorrida += distanciaFrame;
             yield return null;
         }
-
-        Debug.Log($"Hongo {hongo.name} completó estocada");
     }
 
     Vector3 ObtenerPuntoRetiradaAleatorio()
@@ -925,16 +1040,22 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         if (hongo == null) yield break;
 
         Vector3 inicio = hongo.position;
+        Quaternion rotacionOriginal = hongo.rotation; // NUEVO: Guardar rotación
         float tiempo = 0f;
 
         while (tiempo < duracion && hongo != null)
         {
             hongo.position = Vector3.Lerp(inicio, objetivo, tiempo / duracion);
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
             tiempo += Time.deltaTime;
             yield return null;
         }
 
-        if (hongo != null) hongo.position = objetivo;
+        if (hongo != null)
+        {
+            hongo.position = objetivo;
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
+        }
     }
 
     // --- SISTEMA DE DAÑO Y FUSIÓN CON MULTIPLICADORES ---
@@ -970,13 +1091,13 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         {
             SpriteRenderer sr = hongos[indice].hongo.GetComponent<SpriteRenderer>();
             if (sr != null) sr.color = Color.black;
+
+            ActivarAnimacionMuerte(indice);
             StartCoroutine(EfectoMuerte(hongos[indice].hongo));
         }
 
         hongos[indice].estaVivo = false;
         hongosVivos--;
-
-        Debug.Log($"¡Hongo {indice} derrotado! Hongos restantes: {hongosVivos}");
 
         ActualizarMultiplicadores();
 
@@ -996,18 +1117,18 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
         velocidadMovimiento = velocidadBaseMovimiento * multiplicadorVelocidad;
         velocidadHilosRectos = velocidadBaseHilos * multiplicadorVelocidad;
         danioContacto = Mathf.RoundToInt(danioBaseContacto * multiplicadorDanio);
-
-        Debug.Log($"Multiplicadores actualizados - Daño: {multiplicadorDanio}x, Velocidad: {multiplicadorVelocidad}x");
     }
 
     IEnumerator EfectoMuerte(GameObject hongo)
     {
         if (hongo == null) yield break;
+        Quaternion rotacionOriginal = hongo.transform.rotation; // NUEVO: Guardar rotación
         for (int i = 0; i < 3; i++)
         {
             if (hongo != null)
             {
                 hongo.transform.localScale *= 0.7f;
+                hongo.transform.rotation = rotacionOriginal; // NUEVO: Mantener rotación
                 yield return new WaitForSeconds(0.1f);
             }
         }
@@ -1016,7 +1137,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
     IEnumerator FusionarHongos()
     {
-        Debug.Log("¡Fusión! 2 hongos restantes - Ataques más rápidos y agresivos");
         tiempoEntreAtaques = velocidadAtaqueFusion;
         foreach (HongoData hongo in hongos)
         {
@@ -1035,7 +1155,6 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
     IEnumerator FusionFinal()
     {
-        Debug.Log("¡Fusión Final! 1 hongo restante - Ataques ultra rápidos");
         tiempoEntreAtaques = velocidadAtaqueFusion * 0.5f;
         foreach (HongoData hongo in hongos)
         {
@@ -1056,59 +1175,72 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
     {
         if (hongo == null) yield break;
         Vector3 escalaOriginal = hongo.localScale;
+        Quaternion rotacionOriginal = hongo.rotation; // NUEVO: Guardar rotación
         float tiempo = 0f;
         while (tiempo < 0.5f && hongo != null)
         {
             hongo.localScale = escalaOriginal * (1f + Mathf.Sin(tiempo * 10f) * 0.2f);
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
             tiempo += Time.deltaTime;
             yield return null;
         }
-        if (hongo != null) hongo.localScale = escalaOriginal;
+        if (hongo != null)
+        {
+            hongo.localScale = escalaOriginal;
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
+        }
     }
 
     IEnumerator EfectoFusionFinal(Transform hongo)
     {
         if (hongo == null) yield break;
         Vector3 escalaOriginal = hongo.localScale;
+        Quaternion rotacionOriginal = hongo.rotation; // NUEVO: Guardar rotación
         hongo.localScale = escalaOriginal * 1.3f;
         float tiempo = 0f;
         while (tiempo < 1f && hongo != null)
         {
             hongo.localScale = escalaOriginal * 1.3f * (1f + Mathf.Sin(tiempo * 15f) * 0.1f);
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
             tiempo += Time.deltaTime;
             yield return null;
         }
     }
 
-    public void ActivarBoss()
-    {
-        if (!estaDespierto)
-        {
-            estaDespierto = true;
-            Debug.Log("¡MINI BOSS ACTIVADO!");
-            foreach (HongoData hongo in hongos)
-            {
-                if (hongo.hongo != null)
-                {
-                    StartCoroutine(EfectoActivacion(hongo.hongo.transform));
-                }
-            }
-            tiempoUltimoAtaque = Time.time;
-        }
-    }
+    //public void ActivarBoss()
+    //{
+    //    if (!estaDespierto)
+    //    {
+    //        estaDespierto = true;
+    //        foreach (HongoData hongo in hongos)
+    //        {
+    //            if (hongo.hongo != null)
+    //            {
+    //                StartCoroutine(EfectoActivacion(hongo.hongo.transform));
+    //            }
+    //        }
+    //        tiempoUltimoAtaque = Time.time;
+    //    }
+    //}
 
     IEnumerator EfectoActivacion(Transform hongo)
     {
         if (hongo == null) yield break;
         Vector3 escalaOriginal = hongo.localScale;
+        Quaternion rotacionOriginal = hongo.rotation; // NUEVO: Guardar rotación
         float duracion = 0.5f;
         float tiempo = 0f;
         while (tiempo < duracion && hongo != null)
         {
             hongo.localScale = escalaOriginal * (1f + Mathf.PingPong(tiempo * 2f, 0.3f));
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
             tiempo += Time.deltaTime;
             yield return null;
         }
-        if (hongo != null) hongo.localScale = escalaOriginal;
+        if (hongo != null)
+        {
+            hongo.localScale = escalaOriginal;
+            hongo.rotation = rotacionOriginal; // NUEVO: Mantener rotación
+        }
     }
 }
