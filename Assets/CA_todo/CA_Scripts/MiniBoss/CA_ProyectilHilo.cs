@@ -5,35 +5,26 @@ public class CA_ProyectilHilo : MonoBehaviour
     public int danio = 1;
     public LayerMask layerSuelo;
 
-    [Header("Configuración Sierra")]
-    public float amplitudSierra = 0.8f;
-    public float frecuenciaSierra = 4f;
-    public float longitudHilo = 3f;
-    public float anchoHilo = 0.1f;
-    public Material materialHilo;
-    public Color colorHilo = new Color(1f, 1f, 1f, 0.8f);
+    [Header("Configuración Tentáculo")]
+    public int segmentos = 14;
+    public float longitudTentaculo = 3f;
+    public float radioOnda = 0.6f;
+    public float frecuenciaOnda = 6f;
+    public float suavizado = 0.8f;
 
-    private LineRenderer lineRenderer;
+    [Header("Visual")]
+    public float anchoBase = 0.2f;
+    public float anchoFinal = 0.05f;
+    public Color colorInicio = new Color(1f, 0.5f, 1f, 1f);
+    public Color colorFinal = new Color(0.2f, 0f, 0.6f, 0.1f);
+    public Material materialTentaculo;
+
     private Rigidbody2D rb;
-    private float tiempoVida = 0f;
+    private LineRenderer lineRenderer;
+    private float tiempo;
 
     void Start()
     {
-        // Configurar collider
-        CircleCollider2D collider = GetComponent<CircleCollider2D>();
-        if (collider != null)
-        {
-            collider.isTrigger = true;
-            collider.radius = 0.5f;
-        }
-        else
-        {
-            collider = gameObject.AddComponent<CircleCollider2D>();
-            collider.isTrigger = true;
-            collider.radius = 0.5f;
-        }
-
-        // Configurar Rigidbody
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -41,83 +32,75 @@ public class CA_ProyectilHilo : MonoBehaviour
             rb.gravityScale = 0f;
         }
 
-        // Configurar LineRenderer para el efecto sierra
+        // Configurar collider
+        CircleCollider2D col = GetComponent<CircleCollider2D>();
+        if (col == null)
+        {
+            col = gameObject.AddComponent<CircleCollider2D>();
+        }
+        col.isTrigger = true;
+        col.radius = 0.4f;
+
+        // Configurar LineRenderer
         lineRenderer = GetComponent<LineRenderer>();
         if (lineRenderer == null)
-        {
             lineRenderer = gameObject.AddComponent<LineRenderer>();
-        }
 
         ConfigurarLineRenderer();
-
-        // Configurar puntos iniciales del hilo sierra
-        lineRenderer.positionCount = 12;
-        ActualizarFormaSierra();
     }
 
     void ConfigurarLineRenderer()
     {
-        lineRenderer.startWidth = anchoHilo;
-        lineRenderer.endWidth = anchoHilo;
+        lineRenderer.positionCount = segmentos;
+        lineRenderer.startWidth = anchoBase;
+        lineRenderer.endWidth = anchoFinal;
+        lineRenderer.startColor = colorInicio;
+        lineRenderer.endColor = colorFinal;
 
-        if (materialHilo != null)
-        {
-            lineRenderer.material = materialHilo;
-        }
+        if (materialTentaculo != null)
+            lineRenderer.material = materialTentaculo;
         else
-        {
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        }
 
-        lineRenderer.startColor = colorHilo;
-        lineRenderer.endColor = colorHilo;
-        lineRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
-        lineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        lineRenderer.receiveShadows = false;
+        lineRenderer.textureMode = LineTextureMode.Stretch;
+        lineRenderer.numCapVertices = 8; // redondear extremos
         lineRenderer.useWorldSpace = true;
     }
 
     void Update()
     {
-        if (lineRenderer != null)
-        {
-            tiempoVida += Time.deltaTime;
-            ActualizarFormaSierra();
-        }
+        tiempo += Time.deltaTime;
+        ActualizarTentaculo();
 
-        // Destruir después de 5 segundos por seguridad
-        if (tiempoVida > 5f)
-        {
+        // Autodestruir por seguridad
+        if (tiempo > 6f)
             Destroy(gameObject);
-        }
     }
 
-    void ActualizarFormaSierra()
+    void ActualizarTentaculo()
     {
-        if (lineRenderer == null || rb == null) return;
+        if (rb == null || lineRenderer == null) return;
 
-        Vector3 posicionActual = transform.position;
-        Vector3 direccionMovimiento = rb.velocity.normalized;
-        Vector3 normal = Vector3.Cross(direccionMovimiento, Vector3.forward).normalized;
+        Vector3 origen = transform.position;
+        Vector3 direccion = rb.velocity.normalized;
+        Vector3 normal = Vector3.Cross(direccion, Vector3.forward);
 
-        // Crear forma de sierra con múltiples puntos
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < segmentos; i++)
         {
-            float t = i / 11f; // 0 a 1
-            float distancia = t * longitudHilo;
+            float t = i / (float)(segmentos - 1);
+            float distancia = t * longitudTentaculo;
 
-            // Calcular punto base en la dirección del movimiento
-            Vector3 puntoBase = posicionActual - direccionMovimiento * distancia;
+            // posición base a lo largo de la dirección opuesta
+            Vector3 basePos = origen - direccion * distancia;
 
-            // Añadir onda de sierra - más pronunciada cerca del final
-            float amplitudActual = amplitudSierra * (0.5f + t * 0.5f); // Creciente
-            float fase = t * frecuenciaSierra * Mathf.PI * 2f + tiempoVida * 8f;
-            float onda = Mathf.Sin(fase) * amplitudActual;
+            // crear movimiento ondulante circular
+            float fase = (t * frecuenciaOnda + tiempo * 2f) * Mathf.PI * 2f;
+            float radio = radioOnda * (1f - t * suavizado);
 
-            // Aplicar la onda perpendicular a la dirección
-            Vector3 puntoFinal = puntoBase + normal * onda;
+            // forma circular alrededor de la línea base
+            Vector3 offset = normal * Mathf.Sin(fase) * radio + direccion * Mathf.Cos(fase) * (radio * 0.3f);
 
-            lineRenderer.SetPosition(i, puntoFinal);
+            lineRenderer.SetPosition(i, basePos + offset);
         }
     }
 
@@ -125,32 +108,19 @@ public class CA_ProyectilHilo : MonoBehaviour
     {
         if (other == null) return;
 
-        // SIEMPRE destruir al impactar con Player
         if (other.CompareTag("Player"))
         {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-            {
-                playerHealth.RecibirDanio(danio);
-                Debug.Log($"¡Hilo Sierra impactó! {danio} de daño al jugador");
-            }
+            PlayerHealth hp = other.GetComponent<PlayerHealth>();
+            if (hp != null)
+                hp.RecibirDanio(danio);
+
             Destroy(gameObject);
             return;
         }
 
-        // También destruir al impactar con suelo
         if (((1 << other.gameObject.layer) & layerSuelo) != 0)
         {
-            Debug.Log("Hilo Sierra impactó con el suelo");
             Destroy(gameObject);
         }
-    }
-
-    // Método para configurar desde el boss si es necesario
-    public void ConfigurarSierra(float nuevaAmplitud, float nuevaFrecuencia, float nuevaLongitud)
-    {
-        amplitudSierra = nuevaAmplitud;
-        frecuenciaSierra = nuevaFrecuencia;
-        longitudHilo = nuevaLongitud;
     }
 }
