@@ -5,29 +5,45 @@ using TMPro;
 public class IM_NPCs : MonoBehaviour
 {
     [Header("Referencias UI")]
-    [SerializeField] private GameObject dialogueMark;      // Icono "Hablar"
-    [SerializeField] private GameObject dialoguePanel;     // Panel del diálogo
-    [SerializeField] private TMP_Text dialogueText;        // Texto del diálogo
+    [SerializeField] private GameObject dialogueMark;
+    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField] private TMP_Text dialogueText;
     [SerializeField, TextArea(4, 6)] private string[] dialogueLines;
 
     [Header("Decoración")]
-    [SerializeField] private GameObject dialogueMask;      // Ramas o efecto visual decorativo
+    [SerializeField] private GameObject dialogueMask;
 
     [Header("Indicadores de distancia")]
-    [SerializeField] private GameObject arrowIndicator;    // Flecha verde sobre el NPC
-    [SerializeField] private Transform player;             // Referencia al jugador
-    [SerializeField] private float arrowRange = 4f;        // Distancia para mostrar la flecha
-    [SerializeField] private float talkRange = 2f;         // Distancia para mostrar el "Hablar" y las ramas
+    [SerializeField] private GameObject arrowIndicator;
+    [SerializeField] private Transform player;
+    [SerializeField] private float arrowRange = 4f;
+    [SerializeField] private float talkRange = 2f;
 
     [Header("Tiempos y velocidad")]
     [SerializeField] private float typingTime = 0.05f;
 
+    [Header("Posición del Panel")]
+    [SerializeField] private Vector3 panelOffset = new Vector3(0, 2f, 0);
+
     private bool isPlayerInRange;
-    private bool didDialogueStart;
+    public bool didDialogueStart { get; private set; }
     private int lineIndex;
 
-    private CA_PlayerController playerMovement; // Script de movimiento del jugador
+    private CA_PlayerController playerMovement;
 
+    // Seguimiento UI
+    private RectTransform panelRect;
+    private Canvas parentCanvas;
+    private Camera mainCam;
+
+    void Awake()
+    {
+        panelRect = dialoguePanel.GetComponent<RectTransform>();
+        parentCanvas = dialoguePanel.GetComponentInParent<Canvas>();
+        mainCam = Camera.main;
+
+        dialoguePanel.SetActive(false); // Se asegura que no arranque visible
+    }
 
     void Update()
     {
@@ -35,52 +51,54 @@ public class IM_NPCs : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // 🔹 Solo se controla el rango si NO hay diálogo activo
+        // Mostrar indicadores solo si NO estamos en diálogo
         if (!didDialogueStart)
         {
-            // Lejos → nada
             if (distance > arrowRange)
-            {
                 SetIndicatorState(false, false, false);
-            }
-            // Rango medio → solo flecha
             else if (distance <= arrowRange && distance > talkRange)
-            {
                 SetIndicatorState(true, false, false);
-            }
-            // Muy cerca → se quita flecha, aparecen hablar + ramas
             else if (distance <= talkRange)
-            {
                 SetIndicatorState(false, true, true);
-            }
         }
 
-        // 🔹 Control de diálogo
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (!didDialogueStart)
-            {
                 StartDialogue();
-            }
             else if (dialogueText.text == dialogueLines[lineIndex])
-            {
                 NextDialogueLine();
-            }
             else
             {
                 StopAllCoroutines();
                 dialogueText.text = dialogueLines[lineIndex];
             }
         }
+
+        // 🔹 Hace que el panel SIGA al NPC solo cuando el diálogo está activo
+        if (didDialogueStart)
+            FollowPanelPosition();
+    }
+
+    void FollowPanelPosition()
+    {
+        Vector3 screenPos = mainCam.WorldToScreenPoint(transform.position + panelOffset);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentCanvas.transform as RectTransform,
+            screenPos,
+            parentCanvas.worldCamera,
+            out Vector2 localPoint
+        );
+
+        panelRect.localPosition = localPoint;
     }
 
 
     private void StartDialogue()
     {
         didDialogueStart = true;
-
         dialoguePanel.SetActive(true);
-        // 🔹 Al iniciar el diálogo, ocultamos hablar, flecha y ramas
         SetIndicatorState(false, false, false);
 
         lineIndex = 0;
@@ -96,28 +114,19 @@ public class IM_NPCs : MonoBehaviour
     {
         lineIndex++;
         if (lineIndex < dialogueLines.Length)
-        {
             StartCoroutine(ShowLine());
-        }
         else
         {
             didDialogueStart = false;
             dialoguePanel.SetActive(false);
 
-            // 🔹 Reactivar ramas y hablar si sigue cerca al terminar
             float distance = Vector2.Distance(transform.position, player.position);
             if (distance <= talkRange)
-            {
                 SetIndicatorState(false, true, true);
-            }
             else if (distance <= arrowRange)
-            {
                 SetIndicatorState(true, false, false);
-            }
             else
-            {
                 SetIndicatorState(false, false, false);
-            }
 
             if (playerMovement != null)
                 playerMovement.enabled = true;
@@ -127,7 +136,7 @@ public class IM_NPCs : MonoBehaviour
 
     private IEnumerator ShowLine()
     {
-        dialogueText.text = string.Empty;
+        dialogueText.text = "";
         foreach (var letter in dialogueLines[lineIndex])
         {
             dialogueText.text += letter;
@@ -138,14 +147,9 @@ public class IM_NPCs : MonoBehaviour
 
     private void SetIndicatorState(bool arrow, bool mark, bool mask)
     {
-        if (arrowIndicator != null)
-            arrowIndicator.SetActive(arrow);
-
-        if (dialogueMark != null)
-            dialogueMark.SetActive(mark);
-
-        if (dialogueMask != null)
-            dialogueMask.SetActive(mask);
+        if (arrowIndicator != null) arrowIndicator.SetActive(arrow);
+        if (dialogueMark != null) dialogueMark.SetActive(mark);
+        if (dialogueMask != null) dialogueMask.SetActive(mask);
     }
 
 
@@ -157,7 +161,6 @@ public class IM_NPCs : MonoBehaviour
             playerMovement = collision.GetComponent<CA_PlayerController>();
         }
     }
-
 
     private void OnTriggerExit2D(Collider2D collision)
     {
