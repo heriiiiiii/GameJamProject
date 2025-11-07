@@ -78,7 +78,7 @@ public class EspinaBrote : MonoBehaviour
                 Vector2 hitDirection = (other.transform.position - transform.position).normalized;
 
                 // 💥 Llamamos al daño con knockback
-                salud.TakeDamage(dano, hitDirection);
+                salud.TakeDamageWithoutKnockback(dano);
             }
 
             // 💫 Destrucción visual del proyectil
