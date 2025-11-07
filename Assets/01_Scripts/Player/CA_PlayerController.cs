@@ -95,7 +95,7 @@ public class CA_PlayerController : MonoBehaviour
     private float lastRecoilDirection = 0f;
 
     private float gravity;
-    private bool isFacingRight = true;
+    public bool isFacingRight = true;
 
     [Header("Desbloqueo de habilidades")]
     public bool canUseDash = false;
@@ -134,6 +134,12 @@ public class CA_PlayerController : MonoBehaviour
     [Header("Death Settings")]
     [SerializeField] private float deathAnimationDuration = 1.5f; // duración del clip "Death"
     private bool isDead = false;
+    [Header("Camera Stuff")]
+    [SerializeField] private GameObject _cameraFollowGO;
+
+    private NF_CameraFollowOBJECT _cameraFollowObject;
+    public float _fallSpeedYDampingChangeThreshold;
+
     private void Awake()
     {
         if (Instance == null)
@@ -154,6 +160,8 @@ public class CA_PlayerController : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         knockback=GetComponent<NF_Knockback>();
         gravity = rb.gravityScale;
+        _cameraFollowObject=_cameraFollowGO.GetComponent<NF_CameraFollowOBJECT>();
+        _fallSpeedYDampingChangeThreshold = NF_CameraManager.instance._fallSpeedYDampingChangeThreshold;
     }
 
     private void OnDrawGizmos()
@@ -186,32 +194,49 @@ public class CA_PlayerController : MonoBehaviour
         bool touchingWall = IsWalled() && !Grounded();
         anim.SetBool("OnWall", touchingWall);
 
-        if (touchingWall)
-        {
-            // Si el jugador presiona hacia arriba
-            if (Input.GetAxisRaw("Vertical") > 0f)
-            {
-                anim.SetBool("Climb", true);
+        // --- WALL INTERACTION (solo si la habilidad está desbloqueada) ---
+        touchingWall = false;
 
-                // Movimiento vertical controlado (puedes ajustar la velocidad)
-                rb.velocity = new Vector2(rb.velocity.x, 3.5f);
+        if (canUseWallJump)
+        {
+            touchingWall = IsWalled() && !Grounded();
+            anim.SetBool("OnWall", touchingWall);
+
+            if (touchingWall)
+            {
+                // Si el jugador presiona hacia arriba
+                if (Input.GetAxisRaw("Vertical") > 0f)
+                {
+                    anim.SetBool("Climb", true);
+
+                    // Movimiento vertical controlado (puedes ajustar la velocidad)
+                    rb.velocity = new Vector2(rb.velocity.x, 3.5f);
+                }
+                else
+                {
+                    anim.SetBool("Climb", false);
+
+                    // Movimiento de anclaje / deslizamiento lento
+                    rb.velocity = new Vector2(rb.velocity.x, -1.5f);
+                }
+
+                // 🔹 Anclar el cuerpo en la pared
+                rb.gravityScale = 0f;
             }
             else
             {
                 anim.SetBool("Climb", false);
-
-                // Movimiento de anclaje / deslizamiento lento
-                rb.velocity = new Vector2(rb.velocity.x, -1.5f);
+                rb.gravityScale = gravity;
             }
-
-            // 🔹 Anclar el cuerpo en la pared
-            rb.gravityScale = 0f;
         }
         else
         {
+            // 🚫 Sin wall abilities: asegura que se comporta normalmente
+            anim.SetBool("OnWall", false);
             anim.SetBool("Climb", false);
             rb.gravityScale = gravity;
         }
+
         // 2) Si suelta Jump estando en pared, armamos el wall-jump
         if (isWallSliding && Input.GetButtonUp("Jump"))
             wallJumpArmed = true;
@@ -348,6 +373,34 @@ public class CA_PlayerController : MonoBehaviour
         wasGrounded = grounded;
 
     }
+    // 🔓 Habilita o deshabilita TODAS las mecánicas relacionadas con pared
+    public void SetWallJumpAbilities(bool enabled)
+    {
+        canUseWallJump = enabled;
+
+        if (enabled)
+        {
+            Debug.Log("🧗 Wall abilities habilitadas: Wall Slide + Wall Jump activos");
+
+            // Asegura que pueda interactuar con capas de pared
+            rb.gravityScale = gravity; // restablece gravedad por si estaba bloqueada
+            isWallSliding = false;
+            wallJumpArmed = true;
+
+            // opcional: resetear animaciones relacionadas
+            anim.SetBool("OnWall", false);
+            anim.SetBool("Climb", false);
+        }
+        else
+        {
+            Debug.Log("🚫 Wall abilities deshabilitadas");
+            isWallSliding = false;
+            anim.SetBool("OnWall", false);
+            anim.SetBool("Climb", false);
+        }
+    }
+
+
     void UpdateAnimatorState()
     {
         if (anim == null) return;
@@ -395,6 +448,16 @@ public class CA_PlayerController : MonoBehaviour
 
             wasGrounded = true;
             airTime = 0f;
+        }
+
+        if(rb.velocity.y < _fallSpeedYDampingChangeThreshold && !NF_CameraManager.instance.IsLerpingYDamping && !NF_CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            NF_CameraManager.instance.LerpYDamping(true);
+        }
+        if(rb.velocity.y >= 0f && !NF_CameraManager.instance.IsLerpingYDamping && NF_CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            NF_CameraManager.instance.LerpedFromPlayerFalling = false;
+            NF_CameraManager.instance.LerpYDamping(false);
         }
     }
     private void FixedUpdate()
@@ -706,6 +769,7 @@ public class CA_PlayerController : MonoBehaviour
 
     void WallSlide()
     {
+        if (!canUseWallJump) return;
         bool enteringSlide = false;
 
         // ✅ Detectar si está tocando pared y no está en el suelo
@@ -841,22 +905,33 @@ public class CA_PlayerController : MonoBehaviour
     // ====== Utilidades varias ======
     void Flip()
     {
-        if (xAxis < 0)
+        // Solo permitir el giro si hay movimiento horizontal real
+        if (xAxis < 0 && isFacingRight)
         {
             transform.localScale = new Vector2(-1, transform.localScale.y);
+            isFacingRight = false;
             pState.lookingRight = false;
+
+            // 🔹 Avisar a la cámara que el jugador giró
+            _cameraFollowObject.CallTurn();
         }
-        else if (xAxis > 0)
+        else if (xAxis > 0 && !isFacingRight)
         {
             transform.localScale = new Vector2(1, transform.localScale.y);
+            isFacingRight = true;
             pState.lookingRight = true;
+
+            // 🔹 Avisar a la cámara que el jugador giró
+            _cameraFollowObject.CallTurn();
         }
     }
+
 
     void Jump()
     {
 
-        if (isWallSliding || IsWalled()) return;
+        if (isWallSliding || (IsWalled() && !Grounded())) return;
+
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
         {

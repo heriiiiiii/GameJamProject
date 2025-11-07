@@ -54,7 +54,7 @@ public class NF_SkillUnlock : MonoBehaviour
                 player.canUseDash = true;
                 break;
             case SkillType.WallJump:
-                player.canUseWallJump = true;
+                player.SetWallJumpAbilities(true); 
                 break;
             case SkillType.DoubleJump:
                 player.canUseDoubleJump = true;
