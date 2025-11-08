@@ -5,59 +5,72 @@ using UnityEngine.UI;
 public class NF_DeathTransition : MonoBehaviour
 {
     [Header("Fade Settings")]
-    [SerializeField] private Image fadeImage;
-    [SerializeField] private float fadeInDuration = 1.2f;   // tiempo para oscurecer (0 → 1)
-    [SerializeField] private float holdBlackTime = 0.8f;    // tiempo en negro
-    [SerializeField] private float fadeOutDuration = 1.2f;  // tiempo para aclarar (1 → 0)
+    [SerializeField] private Image fadeImage;          // ← arrastra aquí tu Image (aunque esté inactiva)
+    [SerializeField] private float fadeInDuration = 0.6f;  // ⏩ ahora más rápido por defecto
+    [SerializeField] private float holdBlackTime = 0.8f;
+    [SerializeField] private float fadeOutDuration = 1.2f;
 
-    private bool isTransitioning = false;
+    private bool isTransitioning;
+
+    private void Reset()
+    {
+        if (!fadeImage) fadeImage = GetComponent<Image>();
+    }
 
     private void Awake()
     {
-        if (fadeImage == null)
-            fadeImage = GetComponent<Image>();
+        if (!fadeImage)
+        {
+            Debug.LogError("[NF_DeathTransition] Falta asignar 'fadeImage' en el Inspector.");
+            return;
+        }
 
-        // 🔹 La imagen inicia transparente y desactivada
-        Color c = fadeImage.color;
+        var c = fadeImage.color;
         c.a = 0f;
         fadeImage.color = c;
-        fadeImage.enabled = false;
+
+        if (fadeImage.gameObject.activeInHierarchy)
+            fadeImage.enabled = false;
     }
 
-    // 🔸 Llamar este método cuando el jugador toque un obstáculo
     public IEnumerator PlayDeathTransition(System.Action onMidpointAction)
     {
-        if (isTransitioning) yield break;
+        if (!fadeImage || isTransitioning) yield break;
         isTransitioning = true;
 
+        if (!fadeImage.gameObject.activeSelf) fadeImage.gameObject.SetActive(true);
         fadeImage.enabled = true;
+
         Color c = fadeImage.color;
 
-        // 1️⃣ Fade In (pantalla se oscurece)
+        // 1️⃣ Fade In (0 → 1) — ahora más rápido y con curva más suave
         float t = 0f;
         while (t < fadeInDuration)
         {
             t += Time.deltaTime;
-            c.a = Mathf.Lerp(0f, 1f, t / fadeInDuration);
+            // curva acelerada (ease-in rápido)
+            float eased = Mathf.Pow(t / fadeInDuration, 0.7f);
+            c.a = Mathf.Lerp(0f, 1f, eased);
             fadeImage.color = c;
             yield return null;
         }
-
         c.a = 1f;
         fadeImage.color = c;
 
         // 2️⃣ Mantener negro
         yield return new WaitForSeconds(holdBlackTime);
 
-        // 🧩 Punto medio: ejecutar el respawn aquí
+        // ⏺ Respawn (en negro)
         onMidpointAction?.Invoke();
 
-        // 3️⃣ Fade Out (pantalla se aclara)
+        // 3️⃣ Fade Out (1 → 0)
         t = 0f;
         while (t < fadeOutDuration)
         {
             t += Time.deltaTime;
-            c.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);
+            // curva suave al final
+            float eased = Mathf.SmoothStep(0f, 1f, t / fadeOutDuration);
+            c.a = Mathf.Lerp(1f, 0f, eased);
             fadeImage.color = c;
             yield return null;
         }
@@ -65,6 +78,8 @@ public class NF_DeathTransition : MonoBehaviour
         c.a = 0f;
         fadeImage.color = c;
         fadeImage.enabled = false;
+        fadeImage.gameObject.SetActive(false);
+
         isTransitioning = false;
     }
 }
