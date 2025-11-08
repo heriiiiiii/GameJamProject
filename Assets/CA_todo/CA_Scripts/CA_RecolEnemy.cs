@@ -13,8 +13,21 @@ public class CA_RecolEnemy : MonoBehaviour
     [SerializeField] bool isRecoiling = false;
 
     [Header("VFX")]
-    [SerializeField] ParticleSystem hitParticles; // 🌟 prefab del sistema de partículas
-    [SerializeField] Transform particleSpawnPoint; // opcional: punto exacto de aparición
+    [SerializeField] ParticleSystem hitParticles;
+    [SerializeField] Transform particleSpawnPoint;
+
+    // 🔹 Nueva referencia al activador de enemigo
+    [Header("Activador")]
+    public CA_ActivadorEnemigo activador;
+
+    // 🔹 CAMBIO: Referencia al controlador del grupo en lugar del activador
+    [Header("Grupo")]
+    public CA_MiniBossVigiasEsporales grupoController;
+
+    // 🔹 NUEVO: Lista de enemigos que deben morir para desactivar paredes
+    [Header("Grupo de Enemigos")]
+    public List<GameObject> grupoEnemigos; // Lista de todos los enemigos del grupo
+    private List<GameObject> enemigosMuertos = new List<GameObject>(); // Lista de enemigos que ya murieron
 
     private float recoilTimer;
     private Rigidbody2D rb;
@@ -25,6 +38,7 @@ public class CA_RecolEnemy : MonoBehaviour
     {
         { "Enemy", "IsDead" },
     };
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -32,12 +46,24 @@ public class CA_RecolEnemy : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    void Start()
+    {
+        // 🔹 NUEVO: Inicializar la lista si no está asignada
+        if (grupoEnemigos == null)
+        {
+            grupoEnemigos = new List<GameObject>();
+        }
+
+        // 🔹 NUEVO: Asegurarse de que este enemigo esté en la lista
+        if (!grupoEnemigos.Contains(gameObject))
+        {
+            grupoEnemigos.Add(gameObject);
+        }
+    }
+
     void Update()
     {
-        if (health <= 0)
-        {
-            return; // Ya est� muerto
-        }
+        if (health <= 0) return;
 
         if (isRecoiling)
         {
@@ -53,88 +79,113 @@ public class CA_RecolEnemy : MonoBehaviour
 
     public void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
     {
-        if (health <= 0) return; // Ya est� muerto
+        if (health <= 0) return;
 
         health -= _damageDone;
 
-        // ⚡ Efecto de flash (si existe)
         if (_damageFlash != null)
             _damageFlash.CallDamageFlash();
+
         if (health <= 0)
         {
             ActivarMuerte();
             return;
         }
 
-        // 💥 Recoil físico
         if (!isRecoiling && rb != null)
         {
             isRecoiling = true;
             rb.AddForce(-_hitForce * recoilFactor * _hitDirection, ForceMode2D.Impulse);
         }
 
-        // 💫 Partículas de impacto
         if (hitParticles != null)
         {
-            // determina posición (si hay spawn point, úsalo)
             Vector3 spawnPos = particleSpawnPoint != null ? particleSpawnPoint.position : transform.position;
-
-            // instanciar el sistema
             ParticleSystem ps = Instantiate(hitParticles, spawnPos, Quaternion.identity);
             ps.Play();
-
-            // destruir el sistema cuando termina (para evitar basura en escena)
             Destroy(ps.gameObject, ps.main.duration + ps.main.startLifetime.constantMax);
         }
     }
+
     void ActivarMuerte()
     {
-        // Desactivar componentes físicos y de comportamiento
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
             rb.isKinematic = true;
         }
 
-        // Desactivar colliders
         Collider2D[] colliders = GetComponents<Collider2D>();
         foreach (Collider2D col in colliders)
-        {
             col.enabled = false;
-        }
 
-        // Sistema de animación por tag
         string deathParam = ObtenerParametroMuertePorTag();
         if (animator != null && !string.IsNullOrEmpty(deathParam))
-        {
             animator.SetBool(deathParam, true);
-        }
 
-        // Desactivar scripts de comportamiento específicos
         DesactivarComportamientosEnemigo();
 
-        // Destruir después de tiempo (o manejar por evento de animación)
+        // 🔹 MODIFICADO: Verificar si todos los enemigos del grupo han muerto
+        VerificarMuerteGrupo();
+
         StartCoroutine(DestruirDespuesDeAnimacion());
+    }
+
+    // 🔹 NUEVO MÉTODO: Verificar si todos los enemigos del grupo han muerto
+    void VerificarMuerteGrupo()
+    {
+        if (grupoEnemigos == null || grupoEnemigos.Count == 0) return;
+
+        // Agregar este enemigo a la lista de muertos si no está
+        if (!enemigosMuertos.Contains(gameObject))
+        {
+            enemigosMuertos.Add(gameObject);
+        }
+
+        // Verificar si todos los enemigos del grupo han muerto
+        bool todosMuertos = true;
+        foreach (GameObject enemigo in grupoEnemigos)
+        {
+            if (enemigo != null)
+            {
+                CA_RecolEnemy enemyScript = enemigo.GetComponent<CA_RecolEnemy>();
+                if (enemyScript != null && !enemyScript.EstaMuerto())
+                {
+                    todosMuertos = false;
+                    break;
+                }
+            }
+        }
+
+        // 🔹 SOLO desactivar paredes cuando TODOS los enemigos hayan muerto
+        if (todosMuertos)
+        {
+            if (activador != null)
+            {
+                activador.DesactivarParedesBloqueo();
+                activador.gameObject.SetActive(false); // ✅ Esta línea desactiva el activador
+            }
+
+            Debug.Log("¡Todos los enemigos del grupo han sido derrotados! Paredes desactivadas.");
+        }
+        else
+        {
+            Debug.Log($"Enemigos vivos restantes: {grupoEnemigos.Count - enemigosMuertos.Count}");
+        }
     }
 
     string ObtenerParametroMuertePorTag()
     {
-        // Buscar en los tags del GameObject
         foreach (string tag in deathAnimations.Keys)
         {
             if (gameObject.CompareTag(tag))
-            {
                 return deathAnimations[tag];
-            }
         }
-
-        // Tag por defecto si no se encuentra coincidencia
         return "IsDead";
     }
 
     void DesactivarComportamientosEnemigo()
     {
-        // Desactivar scripts comunes de enemigos
         MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
         foreach (MonoBehaviour script in scripts)
         {
@@ -149,26 +200,34 @@ public class CA_RecolEnemy : MonoBehaviour
 
     IEnumerator DestruirDespuesDeAnimacion()
     {
-        // Esperar tiempo suficiente para la animación de muerte
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
 
-    // Método público para forzar muerte (útil para efectos instantáneos)
     public void ForzarMuerte()
     {
         health = 0;
         ActivarMuerte();
     }
 
-    // En la clase CA_RecolEnemy, agregar este método:
-    public float GetHealth()
+    public float GetHealth() => health;
+    public bool EstaMuerto() => health <= 0;
+
+    // 🔹 NUEVO: Método para agregar enemigos al grupo dinámicamente
+    public void AgregarAlGrupo(GameObject nuevoEnemigo)
     {
-        return health;
+        if (grupoEnemigos == null)
+            grupoEnemigos = new List<GameObject>();
+
+        if (!grupoEnemigos.Contains(nuevoEnemigo))
+        {
+            grupoEnemigos.Add(nuevoEnemigo);
+        }
     }
 
-    public bool EstaMuerto()
+    // 🔹 NUEVO: Método para sincronizar el grupo entre todos los enemigos
+    public void SincronizarGrupo(List<GameObject> grupoCompleto)
     {
-        return health <= 0;
+        grupoEnemigos = new List<GameObject>(grupoCompleto);
     }
 }

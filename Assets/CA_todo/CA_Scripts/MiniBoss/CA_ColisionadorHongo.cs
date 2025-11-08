@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +17,7 @@ public class CA_ColisionadorHongo : MonoBehaviour
             miniBoss = miniBossObject.GetComponent<CA_MiniBossVigiasEsporales>();
         }
 
-        // Si no se asignó, buscar en el padre
+        // Si no se asignÃ³, buscar en el padre
         if (miniBoss == null)
         {
             miniBoss = GetComponentInParent<CA_MiniBossVigiasEsporales>();
@@ -36,9 +36,9 @@ public class CA_ColisionadorHongo : MonoBehaviour
         // Detectar cuando el ataque del jugador golpea este hongo
         if (other.CompareTag("AttackHitbox"))
         {
-            Debug.Log("¡Hongo " + indiceHongo + " golpeado por ataque de espada!");
+            Debug.Log("Â¡Hongo " + indiceHongo + " golpeado por ataque de espada!");
 
-            float danoAtaque = 15f; // Ajusta según el balance de tu juego
+            float danoAtaque = 15f; // Ajusta segÃºn el balance de tu juego
 
             if (miniBoss != null)
             {
