@@ -5,7 +5,8 @@ public class HelpTrigger : MonoBehaviour
 {
     public GameObject panelToShow;
 
-    public enum CloseKeyOption { LeftOrRight, X, Z }
+    // 🔥 Ahora con las nuevas opciones
+    public enum CloseKeyOption { LeftOrRight, X, Z, F, C, AnyKey }
     public CloseKeyOption closeKeyOption;
 
     [Header("Tiempo extra antes de poder cerrar (además de la animación)")]
@@ -30,20 +31,19 @@ public class HelpTrigger : MonoBehaviour
             rb = other.GetComponent<Rigidbody2D>();
             anim = other.GetComponentInChildren<Animator>();
 
-            // CONGELAR COMPLETAMENTE
+            // Congelar Player
             if (playerMovement != null) playerMovement.enabled = false;
             if (rb != null) rb.velocity = Vector2.zero;
             if (anim != null) anim.SetFloat("Speed", 0);
 
             seq = panelToShow.GetComponent<UITutorialSequence>();
 
-            // Calculamos duración total de la animación
             float totalTime =
                 seq.panelFadeTime +
                 seq.backgroundFadeTime +
                 (seq.hongosFadeTime * 2f) +
                 seq.keysFadeTime +
-                extraWaitTime; // ← usamos la variable pública aquí
+                extraWaitTime;
 
             StartCoroutine(WaitAndClose(totalTime));
         }
@@ -53,21 +53,38 @@ public class HelpTrigger : MonoBehaviour
     {
         yield return new WaitForSeconds(waitTime);
 
-        // Esperar input correcto
-        if (closeKeyOption == CloseKeyOption.LeftOrRight)
+        // 🔹 Aquí evaluamos qué tecla debe cerrar el panel:
+        switch (closeKeyOption)
         {
-            while (!Input.GetKeyDown(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
-                yield return null;
-        }
-        else if (closeKeyOption == CloseKeyOption.X)
-        {
-            while (!Input.GetKeyDown(KeyCode.X))
-                yield return null;
-        }
-        else if (closeKeyOption == CloseKeyOption.Z)
-        {
-            while (!Input.GetKeyDown(KeyCode.Z))
-                yield return null;
+            case CloseKeyOption.LeftOrRight:
+                while (!Input.GetKeyDown(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
+                    yield return null;
+                break;
+
+            case CloseKeyOption.X:
+                while (!Input.GetKeyDown(KeyCode.X))
+                    yield return null;
+                break;
+
+            case CloseKeyOption.Z:
+                while (!Input.GetKeyDown(KeyCode.Z))
+                    yield return null;
+                break;
+
+            case CloseKeyOption.F:
+                while (!Input.GetKeyDown(KeyCode.F))
+                    yield return null;
+                break;
+
+            case CloseKeyOption.C:
+                while (!Input.GetKeyDown(KeyCode.C))
+                    yield return null;
+                break;
+
+            case CloseKeyOption.AnyKey:
+                while (!Input.anyKeyDown) // cualquier tecla
+                    yield return null;
+                break;
         }
 
         // Descongelar jugador
@@ -76,8 +93,7 @@ public class HelpTrigger : MonoBehaviour
         // Cerrar panel
         panelToShow.SetActive(false);
 
-        // Eliminar trigger para no repetirse
+        // Eliminar trigger
         Destroy(gameObject);
     }
 }
-
