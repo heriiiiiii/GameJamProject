@@ -1158,22 +1158,61 @@ public class CA_PlayerController : MonoBehaviour
 
     private IEnumerator HandleObstacleCollision(Collider2D obstacle)
     {
-        isInvulnerable = true; // ✅ Evita recibir más daño por un momento
+        // 🚫 Evitar recibir daño repetido
+        isInvulnerable = true;
 
-        // 🧭 Calcular la dirección del golpe (desde obstáculo hacia jugador)
+        // 🧭 Dirección del golpe
         Vector2 hitDirection = (transform.position - obstacle.transform.position).normalized;
 
-        // 💥 Aplicar daño con knockback
+        // 💥 Aplicar daño al jugador
         playerHealthScript.TakeDamage(1, hitDirection);
 
-        if (playerHealthScript.currentHealth > 0)
+        // 🔍 Referencias
+        NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
+        NF_DeathTransition transition = FindObjectOfType<NF_DeathTransition>();
+
+        // 🧩 Desactivar movimiento temporalmente
+        CA_PlayerController controller = GetComponent<CA_PlayerController>();
+        if (controller != null)
+            controller.enabled = false;
+
+        // ===========================
+        //   💫 TRANSICIÓN DE MUERTE
+        // ===========================
+        if (transition != null)
         {
-            NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
-            StartCoroutine(gc.Respawn(0.5f, "Parkour"));
+            yield return transition.PlayDeathTransition(() =>
+            {
+                // 🕳️ Acción en el punto negro: respawn
+                if (playerHealthScript.currentHealth > 0)
+                {
+                    // muerte por obstáculo → respawn Parkour
+                    gc.StartCoroutine(gc.Respawn(0f, "Parkour"));
+                }
+                else
+                {
+                    // muerte total → respawn Zone
+                    gc.StartCoroutine(gc.Respawn(0f, "Zone"));
+                }
+            });
+        }
+        else
+        {
+            // ⚠️ Si no hay transición, hacer respawn directo
+            if (playerHealthScript.currentHealth > 0)
+                StartCoroutine(gc.Respawn(0.5f, "Parkour"));
+            else
+                StartCoroutine(gc.Respawn(1f, "Zone"));
         }
 
+        // 🕒 Esperar tiempo de invulnerabilidad antes de permitir más daño
         yield return new WaitForSeconds(invulnerabilityTime);
-        isInvulnerable = false; // ✅ Vuelve a permitir recibir daño
+
+        // ✅ Reactivar movimiento
+        if (controller != null)
+            controller.enabled = true;
+
+        isInvulnerable = false;
     }
 
 }
