@@ -15,7 +15,7 @@ public class NF_CheckpointZone : MonoBehaviour
     private void Update()
     {
         // Si el jugador está dentro del área y presiona E, guarda el checkpoint
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        if (playerInRange && Input.GetKeyDown(KeyCode.F))
         {
             gameController.UpdateCheckpoint(transform.position, "Zone");
             playerHealth.HealToFull(); // Cura al guardar

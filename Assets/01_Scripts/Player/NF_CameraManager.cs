@@ -42,6 +42,19 @@ public class NF_CameraManager : MonoBehaviour
         _normYPanAmount=_framingTransposer.m_YDamping;
         _startingTrackedObjectsOffset=_framingTransposer.m_TrackedObjectOffset;
     }
+    public void ForceResetToDefaultCamera()
+    {
+        foreach (var cam in FindObjectsOfType<CinemachineVirtualCamera>())
+            cam.enabled = false;
+
+        if (_allVirtualCameras != null && _allVirtualCameras.Length > 0)
+        {
+            // Activa la primera cámara del array (tu "Virtual Camera" por defecto)
+            _allVirtualCameras[0].enabled = true;
+            _currentCamera = _allVirtualCameras[0];
+            _framingTransposer = _currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+    }
     public void PanCameraOnContact(float panDistance,float panTime,PanDirection panDirection, bool panToStartingPos)
     {
         _panCameraCoroutine=StartCoroutine(PanCamera(panDistance,panTime,panDirection,panToStartingPos));
