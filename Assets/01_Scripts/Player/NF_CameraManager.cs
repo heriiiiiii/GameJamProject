@@ -29,6 +29,12 @@ public class NF_CameraManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject); // ✅ No destruir al cambiar de escena
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
         }
 
         for (int i = 0; i < _allVirtualCameras.Length; i++)
