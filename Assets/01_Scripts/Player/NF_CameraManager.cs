@@ -29,13 +29,13 @@ public class NF_CameraManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // ✅ No destruir al cambiar de escena
+            /*DontDestroyOnLoad(gameObject);*/ // ✅ No destruir al cambiar de escena
         }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        //else
+        //{
+        //    Destroy(gameObject);
+        //    return;
+        //}
 
         for (int i = 0; i < _allVirtualCameras.Length; i++)
         {
@@ -48,6 +48,7 @@ public class NF_CameraManager : MonoBehaviour
         _normYPanAmount=_framingTransposer.m_YDamping;
         _startingTrackedObjectsOffset=_framingTransposer.m_TrackedObjectOffset;
     }
+
     public void ForceResetToDefaultCamera()
     {
         foreach (var cam in FindObjectsOfType<CinemachineVirtualCamera>())
