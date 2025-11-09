@@ -10,6 +10,8 @@ public class CA_ActivadorEnemigo : MonoBehaviour
 
     private MonoBehaviour scriptEnemigo;        // Referencia genérica al script del enemigo
     private bool enfrentamientoActivo = false;  // Control para evitar múltiples activaciones
+    public GameObject prefabCorazon; // Arrastra aquí el corazón DESACTIVADO en la escena
+
 
     void Start()
     {
@@ -113,4 +115,6 @@ public class CA_ActivadorEnemigo : MonoBehaviour
 
         enfrentamientoActivo = false;
     }
+
+
 }

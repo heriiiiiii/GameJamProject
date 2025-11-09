@@ -62,7 +62,7 @@ public class IM_NPCs : MonoBehaviour
                 SetIndicatorState(false, true, true);
         }
 
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.UpArrow))
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.G))
         {
             if (!didDialogueStart)
                 StartDialogue();
