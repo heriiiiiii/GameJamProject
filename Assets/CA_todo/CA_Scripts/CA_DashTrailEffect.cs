@@ -17,26 +17,44 @@ public class CA_DashTrailEffect : MonoBehaviour
     [Tooltip("Color del rastro")]
     public Color trailColor = new Color(0.2f, 0.8f, 1f, 0.7f);
 
+    [Header("REFERENCIAS PARA PERSONAJE CON HUESOS")]
+    [Tooltip("Si el personaje usa bones/rigging, asignar aquí el GameObject raíz")]
+    public GameObject characterRoot;
+
     [Header("AJUSTES AVANZADOS")]
     [Tooltip("Tiempo que tarda cada sprite en desaparecer")]
     public float fadeDuration = 0.5f;
 
-    [Tooltip("Si debe copiar el flip del sprite original")]
-    public bool copySpriteFlip = true;
-
     // Variables privadas
-    private SpriteRenderer mainRenderer;
+    private SpriteRenderer[] allRenderers; // Para personajes con múltiples partes
+    private SpriteRenderer mainRenderer;   // Para personajes simples
     private bool isTrailActive = false;
     private Coroutine trailCoroutine;
     private List<GameObject> activeTrails = new List<GameObject>();
 
     void Start()
     {
-        // Obtener el SpriteRenderer del enemigo
-        mainRenderer = GetComponent<SpriteRenderer>();
-        if (mainRenderer == null)
+        // Intentar encontrar todos los SpriteRenderers para personajes con huesos
+        if (characterRoot != null)
         {
-            Debug.LogError("No se encontró SpriteRenderer en " + gameObject.name);
+            allRenderers = characterRoot.GetComponentsInChildren<SpriteRenderer>(true);
+        }
+        else
+        {
+            // Buscar en este GameObject y sus hijos
+            allRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        }
+
+        // Para compatibilidad con personajes simples
+        mainRenderer = GetComponent<SpriteRenderer>();
+
+        if (allRenderers == null || allRenderers.Length == 0)
+        {
+            Debug.LogError("No se encontraron SpriteRenderers en " + gameObject.name);
+        }
+        else
+        {
+            Debug.Log($"Encontrados {allRenderers.Length} SpriteRenderers para efectos de trail");
         }
     }
 
@@ -79,8 +97,8 @@ public class CA_DashTrailEffect : MonoBehaviour
 
         while (Time.time - startTime < trailDuration && isTrailActive)
         {
-            // Crear un nuevo sprite de rastro
-            CreateTrailSprite();
+            // Crear trails para todos los sprites
+            CreateTrailForAllSprites();
 
             // Esperar antes de crear el siguiente
             yield return new WaitForSeconds(spawnInterval);
@@ -90,27 +108,60 @@ public class CA_DashTrailEffect : MonoBehaviour
     }
 
     /// <summary>
-    /// Crea un sprite individual de rastro
+    /// Crea trails para todos los SpriteRenderers del personaje
     /// </summary>
-    private void CreateTrailSprite()
+    private void CreateTrailForAllSprites()
     {
-        if (mainRenderer == null || !mainRenderer.enabled || mainRenderer.sprite == null)
-            return;
+        if (allRenderers == null || allRenderers.Length == 0) return;
 
-        // Crear nuevo GameObject para el rastro
-        GameObject trailObject = new GameObject("TrailSprite");
-        trailObject.transform.position = transform.position;
-        trailObject.transform.rotation = transform.rotation;
-        trailObject.transform.localScale = transform.localScale;
+        // Crear un contenedor padre para este frame de trail
+        GameObject trailFrame = new GameObject("TrailFrame");
+        trailFrame.transform.position = transform.position;
+        trailFrame.transform.rotation = transform.rotation;
+        trailFrame.transform.localScale = transform.localScale;
+
+        // Para cada SpriteRenderer en el personaje, crear un trail
+        foreach (SpriteRenderer originalRenderer in allRenderers)
+        {
+            if (originalRenderer == null || !originalRenderer.enabled || originalRenderer.sprite == null)
+                continue;
+
+            CreateIndividualTrail(originalRenderer, trailFrame.transform);
+        }
+
+        // Añadir a la lista de trails activos
+        activeTrails.Add(trailFrame);
+
+        // Iniciar fade out y destrucción
+        StartCoroutine(FadeAndDestroyTrailFrame(trailFrame));
+    }
+
+    /// <summary>
+    /// Crea un trail individual para un SpriteRenderer específico
+    /// </summary>
+    private void CreateIndividualTrail(SpriteRenderer originalRenderer, Transform parent)
+    {
+        // Crear nuevo GameObject para el trail individual
+        GameObject trailObject = new GameObject($"Trail_{originalRenderer.gameObject.name}");
+        trailObject.transform.SetParent(parent);
+
+        // Mantener la posición relativa al personaje
+        trailObject.transform.position = originalRenderer.transform.position;
+        trailObject.transform.rotation = originalRenderer.transform.rotation;
+        trailObject.transform.localScale = originalRenderer.transform.localScale;
 
         // Añadir SpriteRenderer
         SpriteRenderer trailRenderer = trailObject.AddComponent<SpriteRenderer>();
 
         // Copiar propiedades del sprite original
-        trailRenderer.sprite = mainRenderer.sprite;
+        trailRenderer.sprite = originalRenderer.sprite;
         trailRenderer.color = trailColor;
-        trailRenderer.sortingLayerID = mainRenderer.sortingLayerID;
-        trailRenderer.sortingOrder = mainRenderer.sortingOrder - 1; // Detrás del original
+        trailRenderer.sortingLayerID = originalRenderer.sortingLayerID;
+        trailRenderer.sortingOrder = originalRenderer.sortingOrder - 1; // Detrás del original
+
+        // Copiar flip
+        trailRenderer.flipX = originalRenderer.flipX;
+        trailRenderer.flipY = originalRenderer.flipY;
 
         // Aplicar el material especial
         if (trailMaterial != null)
@@ -119,48 +170,38 @@ public class CA_DashTrailEffect : MonoBehaviour
         }
         else
         {
-            // Usar material por defecto si no hay uno asignado
-            trailRenderer.material = mainRenderer.material;
+            trailRenderer.material = originalRenderer.material;
         }
-
-        // Copiar flip si está habilitado
-        if (copySpriteFlip)
-        {
-            trailRenderer.flipX = mainRenderer.flipX;
-            trailRenderer.flipY = mainRenderer.flipY;
-        }
-
-        // Añadir a la lista de trails activos
-        activeTrails.Add(trailObject);
-
-        // Iniciar fade out y destrucción
-        StartCoroutine(FadeAndDestroyTrail(trailObject, trailRenderer));
     }
 
     /// <summary>
-    /// Hace que el sprite se desvanezca y luego se destruya
+    /// Hace que todo el frame de trail se desvanezca y luego se destruya
     /// </summary>
-    private IEnumerator FadeAndDestroyTrail(GameObject trailObject, SpriteRenderer trailRenderer)
+    private IEnumerator FadeAndDestroyTrailFrame(GameObject trailFrame)
     {
         float elapsedTime = 0f;
-        Color startColor = trailRenderer.color;
-        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+        SpriteRenderer[] trailRenderers = trailFrame.GetComponentsInChildren<SpriteRenderer>();
 
-        // Fade out gradual
-        while (elapsedTime < fadeDuration)
+        // Fade out gradual para todos los sprites del frame
+        while (elapsedTime < fadeDuration && trailFrame != null)
         {
-            if (trailRenderer != null)
+            foreach (SpriteRenderer trailRenderer in trailRenderers)
             {
-                float progress = elapsedTime / fadeDuration;
-                trailRenderer.color = Color.Lerp(startColor, endColor, progress);
+                if (trailRenderer != null)
+                {
+                    Color currentColor = trailRenderer.color;
+                    float alpha = Mathf.Lerp(trailColor.a, 0f, elapsedTime / fadeDuration);
+                    trailRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, alpha);
+                }
             }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
         // Remover de la lista y destruir
-        activeTrails.Remove(trailObject);
-        Destroy(trailObject);
+        activeTrails.Remove(trailFrame);
+        if (trailFrame != null)
+            Destroy(trailFrame);
     }
 
     /// <summary>

@@ -11,89 +11,101 @@ public class MohoSensorial : MonoBehaviour
     [Header("Animaciones")]
     private Animator animator;
 
+    [Header("Referencias")]
+    public Transform puntoAtraccion;
+
     // Parámetros del Animator
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsInmovilizing = Animator.StringToHash("IsInmovilizing");
+    private static readonly int IsDead = Animator.StringToHash("IsDead");
 
     private bool jugadorEnContacto = false;
     private GameObject jugador;
     private Coroutine danioCoroutine;
     private Coroutine inmovilizacionCoroutine;
     private Vector3 posicionCentro;
+    private bool estaMuerto = false;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, false);
+        animator.SetBool(IsDead, false);
         posicionCentro = transform.position;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        // Si está muerto, no hacer nada
+        if (estaMuerto) return;
+
         if (collision.CompareTag("Player") && !jugadorEnContacto)
         {
             jugador = collision.gameObject;
             jugadorEnContacto = true;
 
-            // Comienza la animación de ataque inicial
-            animator.SetBool(IsAttacking, true);
-            animator.SetBool(IsInmovilizing, false);
-
-            // Esperar antes de atrapar
-            StartCoroutine(PrepararAtrapamiento());
+            // Atrapar inmediatamente sin esperar
+            AtraparJugadorInmediatamente();
         }
     }
 
-    IEnumerator PrepararAtrapamiento()
+    void AtraparJugadorInmediatamente()
     {
-        // Espera 1 segundo antes de atrapar (para centrar al player)
-        yield return new WaitForSeconds(1f);
+        if (estaMuerto || jugador == null) return;
 
-        if (jugadorEnContacto && jugador != null)
+        // Centrar al jugador inmediatamente
+        //jugador.transform.position = posicionCentro;
+        jugador.transform.position = puntoAtraccion.position;
+
+        // Cambiar directamente a la animación de inmovilización
+        animator.SetBool(IsAttacking, false);
+        animator.SetBool(IsInmovilizing, true);
+
+        // Desactivar movimiento del jugador
+        Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
+        if (rb != null)
         {
-            jugador.transform.position = posicionCentro;
-
-            animator.SetBool(IsAttacking, false);
-            animator.SetBool(IsInmovilizing, true);
-
-            // Desactivar movimiento del jugador
-            Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.velocity = Vector2.zero;
-                rb.gravityScale = 0f;
-            }
-
-            CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
-            if (movimiento != null)
-                movimiento.enabled = false;
-
-            // Daño periódico
-            danioCoroutine = StartCoroutine(DanioConstante());
-
-            // Inicia la fase de atrapamiento
-            inmovilizacionCoroutine = StartCoroutine(FaseInmovilizacion());
+            rb.velocity = Vector2.zero;
+            rb.gravityScale = 0f;
         }
+
+        CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
+        if (movimiento != null)
+            movimiento.enabled = false;
+
+        // Daño periódico
+        danioCoroutine = StartCoroutine(DanioConstante());
+
+        // Iniciar fase de inmovilización
+        inmovilizacionCoroutine = StartCoroutine(FaseInmovilizacion());
     }
 
     IEnumerator FaseInmovilizacion()
     {
-        //  Esperar (duracionInmovilizacion - 1 segundo)
-        // porque queremos que el último segundo sea de animación Idle
+        // Si está muerto, cancelar
+        if (estaMuerto) yield break;
+
+        // Tiempo que estará atrapado (duración total menos un pequeño tiempo para la transición)
         float tiempoIdlePrevio = 0.5f;
         float tiempoAtrapado = Mathf.Max(0f, duracionInmovilizacion - tiempoIdlePrevio);
 
-        // Mantener animación de atrapado durante la primera parte
+        // Mantener animación de atrapado durante la mayor parte del tiempo
         yield return new WaitForSeconds(tiempoAtrapado);
 
-        //  Cambiar a Idle 1 segundo antes de liberar
+        // Si está muerto durante la espera, cancelar
+        if (estaMuerto) yield break;
+
+        // Cambiar a Idle un poco antes de liberar
         animator.SetBool(IsInmovilizing, false);
 
-        // Esperar 1 segundo más (Idle visible mientras aún está atrapado)
+        // Esperar un poco más (Idle visible mientras aún está atrapado)
         yield return new WaitForSeconds(tiempoIdlePrevio);
 
-        //  Ahora liberar al jugador
+        // Si está muerto durante la espera, cancelar
+        if (estaMuerto) yield break;
+
+        // Liberar al jugador
         SoltarJugador();
     }
 
@@ -122,16 +134,20 @@ public class MohoSensorial : MonoBehaviour
         if (inmovilizacionCoroutine != null)
             StopCoroutine(inmovilizacionCoroutine);
 
-        //  Mantener Idle después de liberar
+        // Volver a estado normal
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, false);
     }
 
     void OnTriggerExit2D(Collider2D collision)
     {
+        // Si está muerto, no hacer nada
+        if (estaMuerto) return;
+
+        // Solo permitir salir si no ha comenzado la inmovilización
         if (collision.CompareTag("Player") && jugadorEnContacto)
         {
-            if (animator.GetBool(IsAttacking) && !animator.GetBool(IsInmovilizing))
+            if (!animator.GetBool(IsInmovilizing))
             {
                 jugadorEnContacto = false;
 
@@ -148,19 +164,48 @@ public class MohoSensorial : MonoBehaviour
     {
         NF_PlayerHealth salud = jugador.GetComponent<NF_PlayerHealth>();
 
-        while (jugadorEnContacto && animator.GetBool(IsInmovilizing))
+        while (jugadorEnContacto && animator.GetBool(IsInmovilizing) && !estaMuerto)
         {
             if (salud != null)
-                salud.TakeDamageWithoutKnockback(danoPorSegundo); // ✅ sin knockback
+                salud.TakeDamageWithoutKnockback(danoPorSegundo);
 
             yield return new WaitForSeconds(1f);
         }
     }
 
+    // Método para activar la muerte del enemigo
+    public void Morir()
+    {
+        if (estaMuerto) return;
+
+        estaMuerto = true;
+
+        // Liberar al jugador si estaba atrapado
+        if (jugadorEnContacto)
+        {
+            SoltarJugador();
+        }
+
+        // Detener todas las corrutinas
+        if (danioCoroutine != null)
+            StopCoroutine(danioCoroutine);
+        if (inmovilizacionCoroutine != null)
+            StopCoroutine(inmovilizacionCoroutine);
+
+        // Activar animación de muerte
+        animator.SetBool(IsDead, true);
+        animator.SetBool(IsAttacking, false);
+        animator.SetBool(IsInmovilizing, false);
+
+        // Opcional: Deshabilitar colisiones
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null)
+            collider.enabled = false;
+    }
 
     void Update()
     {
-        if (jugadorEnContacto)
+        if (jugadorEnContacto && !estaMuerto)
         {
             Debug.Log("Jugador atrapado: " + animator.GetBool(IsInmovilizing));
         }

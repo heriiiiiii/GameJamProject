@@ -140,6 +140,7 @@ public class NF_PlayerHealth : MonoBehaviour
         // 💡 2️⃣ Actualizar UI inmediatamente
         UpdateHealthUI();
         UpdateWeakState();
+        NF_CameraManager.instance.ForceResetToDefaultCamera();
         //StartCoroutine(gameController.Respawn(1f, "Zone"));
         CA_PlayerController.Instance.Die();
     }

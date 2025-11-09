@@ -353,7 +353,9 @@ MonoBehaviour:
   tiempoEntreRafagas: 2
   tiempoEntreBalas: 0.5
   rangoDeteccion: 7
-  velocidadMovimiento: 2
+  velocidadMovimiento: 3
+  velocidadPatrulla: 3
+  areaVuelo: {x: 20, y: 7}
 --- !u!212 &6878081398580559930
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -505,3 +507,6 @@ MonoBehaviour:
   recoilLength: 0
   recoilFactor: 0
   isRecoiling: 0
+  hitParticles: {fileID: 0}
+  particleSpawnPoint: {fileID: 0}
+  activador: {fileID: 0}

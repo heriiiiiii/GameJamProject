@@ -51,6 +51,13 @@ public class Esporantula : MonoBehaviour
     private bool esAtaqueAlJugador = false;
     private bool preparandoAtaque = false;
 
+    private bool estaMuerto = false;
+
+    // Parámetros Animator - SIMPLIFICADOS
+    private static readonly int IsIdle = Animator.StringToHash("IsIdle");
+    private static readonly int IsDead = Animator.StringToHash("IsDead"); // NUEVO
+    private static readonly int IsAttackingPlayer = Animator.StringToHash("IsAttackingPlayer"); // HV_Sporantulaatac
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -68,12 +75,11 @@ public class Esporantula : MonoBehaviour
 
     void ResetearAnimaciones()
     {
-        animator.SetBool(IsJumping, false);
-        animator.SetBool(IsFalling, false);
-        animator.SetBool(IsLanding, false);
+        animator.SetBool(IsIdle, true);      // HV_Sporantulaidle (INICIO EN IDLE)
+        animator.SetBool(IsJumping, false);  // HV_Sporantulajump
         animator.SetBool(IsAttacking, false);
-        animator.SetBool(IsJumpIdle, false);
-        animator.SetBool(IsDetectingPlayer, false);
+        animator.SetBool(IsDead, false);
+        animator.SetBool(IsAttackingPlayer, false);  // HV_Sporantulaatac - NUEVO
     }
 
 
@@ -135,48 +141,89 @@ public class Esporantula : MonoBehaviour
             transform.position = destinoActual;
             movimientoActivo = false;
 
-            // Cambia a animación de aterrizaje (HV_Sporantulajump)
-            animator.SetBool(IsJumping, true);  // Jump = llegada
-            animator.SetBool(IsFalling, false);
+            // DESACTIVAR HV_Sporantulajump SOLO AL FINAL
+            animator.SetBool(IsJumping, false);  // <-- SE DESACTIVA AL ATERRIZAR
+            animator.SetBool(IsIdle, true);
             animator.SetBool(IsAttacking, false);
+            animator.SetBool(IsAttackingPlayer, false);
 
             StartCoroutine(CompletarAterrizaje());
             return;
         }
 
-        // Calcular posición horizontal
+        // Calcular posición durante el salto
         Vector3 posicionHorizontal = Vector3.Lerp(posicionInicialSalto, destinoActual, progreso);
-
-        // Calcular altura con una curva senoidal
         float altura = Mathf.Sin(progreso * Mathf.PI) * alturaMaximaSalto;
-
-        // Aplicar nueva posición
         transform.position = new Vector3(posicionHorizontal.x, posicionHorizontal.y + altura, posicionHorizontal.z);
 
-        // ANIMACIÓN: mientras está en el aire, debe reproducir HV_Sporantulafall
-        if (!animator.GetBool(IsFalling))
-        {
-            animator.SetBool(IsJumping, false);
-            animator.SetBool(IsFalling, true);
-        }
+        // NO CAMBIAR ANIMACIONES DURANTE EL SALTO - HV_Sporantulajump SE MANTIENE ACTIVO
+        // La animación de salto ya está activa desde IniciarSalto
     }
 
+    // MÉTODO PARA ACTIVAR LA MUERTE
+    public void Morir()
+    {
+        if (estaMuerto) return;
+
+        estaMuerto = true;
+
+        // Detener todas las corrutinas
+        StopAllCoroutines();
+
+        // Activar animación de muerte y desactivar todas las demás
+        animator.SetBool(IsIdle, false);
+        animator.SetBool(IsJumping, false);
+        animator.SetBool(IsAttacking, false);
+        animator.SetBool(IsAttackingPlayer, false); // DESACTIVAR ATAQUE AL JUGADOR
+        animator.SetBool(IsDead, true);
+
+        // Desactivar colisiones y movimiento
+        if (GetComponent<Collider2D>() != null)
+            GetComponent<Collider2D>().enabled = false;
+
+        movimientoActivo = false;
+        saltando = false;
+
+        Debug.Log(" Esporantula murió");
+    }
 
     IEnumerator CompletarAterrizaje()
     {
-        // Pequeña pausa para mostrar la animación de HV_Sporantulajump (aterrizaje)
-        yield return new WaitForSeconds(0.3f);
+        // Pequeña pausa para mostrar la transición
+        yield return new WaitForSeconds(0.1f);
 
-        // Reiniciar estados para volver al ciclo normal
-        animator.SetBool(IsJumping, false);
-        animator.SetBool(IsFalling, false);
-        animator.SetBool(IsLanding, false);
+        // Asegurar que todas las animaciones estén desactivadas correctamente
+        animator.SetBool(IsJumping, false);  // <-- CONFIRMAR QUE JUMP ESTÉ APAGADO
+        animator.SetBool(IsAttackingPlayer, false);
         animator.SetBool(IsAttacking, false);
+        animator.SetBool(IsIdle, true);      // <-- ACTIVAR IDLE
 
         saltando = false;
         esAtaqueAlJugador = false;
     }
 
+    void IniciarSalto(Vector3 destino, bool esAtaque)
+    {
+        posicionInicialSalto = transform.position;
+        float distanciaTotal = Vector3.Distance(posicionInicialSalto, destino);
+
+        duracionSaltoActual = distanciaTotal / velocidadSalto;
+        tiempoTranscurridoSalto = 0f;
+        alturaMaximaSalto = Mathf.Min(distanciaTotal * 0.3f, 2f);
+
+        movimientoActivo = true;
+
+        // ANIMACIÓN: ACTIVAR HV_Sporantulajump INMEDIATAMENTE AL INICIAR EL SALTO
+        animator.SetBool(IsIdle, false);
+        animator.SetBool(IsJumping, true);  // <-- ESTA LÍNEA SE ACTIVA AL INICIO
+        animator.SetBool(IsAttacking, esAtaque);
+
+        // ACTIVAR ANIMACIÓN DE ATAQUE AL JUGADOR SI ES ATAQUE
+        if (esAtaque)
+        {
+            animator.SetBool(IsAttackingPlayer, true);
+        }
+    }
 
     void DetectarJugador()
     {
@@ -312,28 +359,6 @@ public class Esporantula : MonoBehaviour
         animator.SetBool(IsJumpIdle, false);
     }
 
-    void IniciarSalto(Vector3 destino, bool esAtaque)
-    {
-        posicionInicialSalto = transform.position;
-        float distanciaTotal = Vector3.Distance(posicionInicialSalto, destino);
-
-        duracionSaltoActual = distanciaTotal / velocidadSalto;
-        tiempoTranscurridoSalto = 0f;
-        alturaMaximaSalto = Mathf.Min(distanciaTotal * 0.3f, 2f);
-
-        movimientoActivo = true;
-
-        // ANIMACIÓN: INICIAR SALTO
-        animator.SetBool(IsJumping, true);
-        animator.SetBool(IsFalling, false);
-        animator.SetBool(IsLanding, false);
-
-        if (esAtaque)
-        {
-            animator.SetBool(IsAttacking, true);
-        }
-    }
-
     IEnumerator MostrarTelaArana(Vector3 destino)
     {
         lineRendererTela.enabled = true;
@@ -422,4 +447,6 @@ public class Esporantula : MonoBehaviour
             Gizmos.DrawLine(transform.position, jugador.position);
         }
     }
+
+
 }

@@ -15,7 +15,10 @@ public class CA_HongoVolador : MonoBehaviour
 
     [Header("Movimiento")]
     public float velocidadMovimiento = 2f;
+    public float velocidadPatrulla = 1.5f;
+    public Vector2 areaVuelo = new Vector2(5f, 3f);
     private Vector3 posicionInicial;
+    private Vector3 objetivoPatrulla;
     private bool siguiendo;
 
     [Header("Animación")]
@@ -23,12 +26,22 @@ public class CA_HongoVolador : MonoBehaviour
     private CA_RecolEnemy recolEnemy;
     private bool estaMuerto = false;
 
+    [Header("Flip")]
+    private bool mirandoDerecha = true;
+    private Vector3 escalaOriginal;
+
     void Start()
     {
         jugador = GameObject.FindGameObjectWithTag("Player").transform;
         posicionInicial = transform.position;
         animator = GetComponent<Animator>();
         recolEnemy = GetComponent<CA_RecolEnemy>();
+
+        // Guardar la escala original para mantener las proporciones
+        escalaOriginal = transform.localScale;
+
+        // Generar primer objetivo de patrulla
+        GenerarNuevoObjetivoPatrulla();
 
         // INICIALIZAR PARÁMETROS DEL ANIMATOR
         if (animator != null)
@@ -53,6 +66,7 @@ public class CA_HongoVolador : MonoBehaviour
         }
 
         Mover();
+        ActualizarFlip();
         ActualizarAnimaciones();
     }
 
@@ -60,25 +74,84 @@ public class CA_HongoVolador : MonoBehaviour
     {
         if (jugador == null || estaMuerto) return;
 
-        float distancia = Vector2.Distance(transform.position, jugador.position);
-        if (distancia < rangoDeteccion)
+        float distanciaAlJugador = Vector2.Distance(transform.position, jugador.position);
+
+        if (distanciaAlJugador < rangoDeteccion)
         {
+            // Seguir al jugador
             siguiendo = true;
             transform.position = Vector2.MoveTowards(transform.position, jugador.position, velocidadMovimiento * Time.deltaTime);
         }
         else
         {
+            // Patrullar por el área definida
             siguiendo = false;
-            transform.position = Vector2.MoveTowards(transform.position, posicionInicial, velocidadMovimiento * Time.deltaTime);
+            Patrullar();
         }
+    }
+
+    void Patrullar()
+    {
+        // Moverse hacia el objetivo de patrulla
+        transform.position = Vector2.MoveTowards(transform.position, objetivoPatrulla, velocidadPatrulla * Time.deltaTime);
+
+        // Si llegó al objetivo, generar uno nuevo
+        if (Vector2.Distance(transform.position, objetivoPatrulla) < 0.1f)
+        {
+            GenerarNuevoObjetivoPatrulla();
+        }
+    }
+
+    void GenerarNuevoObjetivoPatrulla()
+    {
+        // Generar una posición aleatoria dentro del área de vuelo
+        float randomX = Random.Range(-areaVuelo.x / 2f, areaVuelo.x / 2f);
+        float randomY = Random.Range(-areaVuelo.y / 2f, areaVuelo.y / 2f);
+
+        objetivoPatrulla = posicionInicial + new Vector3(randomX, randomY, 0f);
+    }
+
+    void ActualizarFlip()
+    {
+        if (estaMuerto) return;
+
+        Vector3 objetivo = siguiendo ? jugador.position : objetivoPatrulla;
+
+        // Determinar dirección basada en la posición X del objetivo
+        bool deberiaMirarDerecha = objetivo.x > transform.position.x;
+
+        // Aplicar flip solo si la dirección cambió
+        if (deberiaMirarDerecha != mirandoDerecha)
+        {
+            Flip(deberiaMirarDerecha);
+        }
+    }
+
+    void Flip(bool mirarDerecha)
+    {
+        mirandoDerecha = mirarDerecha;
+
+        Vector3 nuevaEscala = escalaOriginal;
+
+        // INVERTIR LA LÓGICA SI ESTÁ AL REVÉS
+        if (!mirarDerecha) // Cambié mirarDerecha por !mirarDerecha
+        {
+            nuevaEscala.x = Mathf.Abs(escalaOriginal.x);
+        }
+        else
+        {
+            nuevaEscala.x = -Mathf.Abs(escalaOriginal.x);
+        }
+
+        transform.localScale = nuevaEscala;
     }
 
     void ActualizarAnimaciones()
     {
         if (animator == null || estaMuerto) return;
 
-        // Siempre volando mientras está vivo
         animator.SetBool("IsFlying", true);
+        // La animación de ataque se controla en la corrutina de ráfagas
     }
 
     IEnumerator Rafagas()
@@ -121,7 +194,7 @@ public class CA_HongoVolador : MonoBehaviour
         {
             GameObject nuevaBala = Instantiate(balaPrefab, punto.position, Quaternion.identity);
             Vector2 direccion = (jugador.position - punto.position).normalized;
-            // Asegúrate de que CA_BalaVolador tenga el método SetDireccion
+
             CA_BalaVolador balaScript = nuevaBala.GetComponent<CA_BalaVolador>();
             if (balaScript != null)
             {
@@ -154,7 +227,21 @@ public class CA_HongoVolador : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
+        // Dibujar rango de detección
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, rangoDeteccion);
+
+        // Dibujar área de vuelo
+        Gizmos.color = Color.blue;
+        Vector3 drawPosition = Application.isPlaying ? posicionInicial : transform.position;
+        Gizmos.DrawWireCube(drawPosition, new Vector3(areaVuelo.x, areaVuelo.y, 0f));
+
+        // Dibujar objetivo de patrulla actual (solo en play mode)
+        if (Application.isPlaying && !siguiendo)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(objetivoPatrulla, 0.2f);
+            Gizmos.DrawLine(transform.position, objetivoPatrulla);
+        }
     }
 }

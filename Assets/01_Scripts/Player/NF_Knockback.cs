@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class NF_Knockback : MonoBehaviour
 {
-    [Header("Knockback Settings (Hollow Knight Style v2)")]
+    [Header("Knockback Settings")]
     [Tooltip("Fuerza lateral del empuje")]
     public float horizontalForce = 12f;     // 🔹 antes 10.5
     [Tooltip("Impulso vertical leve para simular rebote")]

@@ -57,12 +57,12 @@ public class CA_HongoCaballero : MonoBehaviour
     public CA_DashTrailEffect dashTrailEffect;
 
     [Header("Generación de Enemigos")]
-    public GameObject enemigoParaGenerar; // Prefab del enemigo a spawnear
+    public GameObject enemigoParaGenerar;
     public float tiempoEntreSpawn = 3f;
-    public int vidaParaEmpezarSpawn = 50; // Vida a la mitad si salud máxima es 100
+    public int vidaParaEmpezarSpawn = 50;
     public float radioSpawn = 2f;
 
-    // Variables privadas para spawn
+    // Variables privadas
     private bool puedeGenerarEnemigos = false;
     private float tiempoUltimoSpawn = 0f;
     private bool spawnActivado = false;
@@ -77,7 +77,6 @@ public class CA_HongoCaballero : MonoBehaviour
     private Collider2D colisionador;
     private Rigidbody2D rb;
     private CA_RecolEnemy recolEnemy;
-    private string estadoAnterior = "";
     private Vector3 posicionInicial;
     private bool moviendoDerecha = true;
     private float limiteIzquierdo;
@@ -94,6 +93,15 @@ public class CA_HongoCaballero : MonoBehaviour
     private bool estaMuerto = false;
     private float saludAnterior;
     private bool inicializado = false;
+
+    // Parámetros Animator
+    private static readonly int IsDead = Animator.StringToHash("IsDead");
+    private static readonly int JugadorEnRango = Animator.StringToHash("JugadorEnRango");
+    private static readonly int JugadorEnRangoCorte = Animator.StringToHash("JugadorEnRangoCorte");
+    private static readonly int JugadorEnRangoEstocada = Animator.StringToHash("JugadorEnRangoEstocada");
+    private static readonly int PuedeAtacar = Animator.StringToHash("PuedeAtacar");
+    private static readonly int ContadorCortes = Animator.StringToHash("ContadorCortes");
+    private static readonly int CortesParaEstocada = Animator.StringToHash("CortesParaEstocada");
 
     void Start()
     {
@@ -121,58 +129,131 @@ public class CA_HongoCaballero : MonoBehaviour
         moviendoDerecha = true;
         destinoPatrulla = new Vector3(limiteDerecho, centroArea.y, transform.position.z);
 
-        // Inicializar detección de daño
         InicializarDeteccionDano();
+        ResetearAnimator();
+    }
+
+    void ResetearAnimator()
+    {
+        // Resetear todos los parámetros al inicio
+        anim.SetBool(IsDead, false);
+        anim.SetBool(JugadorEnRango, false);
+        anim.SetBool(JugadorEnRangoCorte, false);
+        anim.SetBool(JugadorEnRangoEstocada, false);
+        anim.SetBool(PuedeAtacar, true);
+        anim.SetInteger(ContadorCortes, 0);
+        anim.SetInteger(CortesParaEstocada, cortesParaEstocada);
+
+        // Resetear triggers
+        anim.ResetTrigger("Cortar");
+        anim.ResetTrigger("Estocar");
     }
 
     void InicializarDeteccionDano()
     {
         if (recolEnemy != null)
         {
-            // Guardar salud inicial para detectar cambios
             saludAnterior = recolEnemy.GetHealth();
             inicializado = true;
-            Debug.Log("🔍 Sistema de detección de daño inicializado");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ CA_RecolEnemy no encontrado, teletransporte por daño no funcionará");
         }
     }
 
     void Update()
     {
+        // VERIFICACIÓN DE MUERTE - LO PRIMERO Y MÁS IMPORTANTE
+        if (!estaMuerto && recolEnemy != null && recolEnemy.EstaMuerto())
+        {
+            Morir();
+            return;
+        }
+
+        // SI ESTÁ MUERTO, NO HACER NADA MÁS
         if (estaMuerto) return;
 
-        // Detectar cambios en la salud
+        // El resto del código solo se ejecuta si NO está muerto
         DetectarDanoRecibido();
-
-        // VERIFICAR SI DEBE GENERAR ENEMIGOS (NUEVO)
         VerificarGeneracionEnemigos();
-
         ActualizarDeteccionJugador();
         ActualizarDireccion();
         ActualizarParametrosAnimator();
-        DetectarCambioDeEstado();
         ActualizarPatrulla();
         ActualizarPersecucionYAtaque();
     }
 
+    void Morir()
+    {
+        if (estaMuerto) return;
+
+        estaMuerto = true;
+        Debug.Log("💀 Hongo Caballero MURIENDO");
+
+        // SOLUCIÓN TEMPORAL: REVERTIR KINEMATIC INMEDIATAMENTE
+        if (rb != null)
+        {
+            // Esperar un frame y luego revertir kinematic
+            StartCoroutine(RevertirKinematic());
+        }
+
+        StopAllCoroutines();
+
+        if (colisionador != null)
+            colisionador.enabled = false;
+
+        if (dashTrailEffect != null)
+            dashTrailEffect.StopTrail();
+
+        anim.SetBool(JugadorEnRango, false);
+        anim.SetBool(JugadorEnRangoCorte, false);
+        anim.SetBool(JugadorEnRangoEstocada, false);
+        anim.SetBool(PuedeAtacar, false);
+        anim.ResetTrigger("Cortar");
+        anim.ResetTrigger("Estocar");
+
+        anim.SetBool(IsDead, true);
+        anim.Update(0f);
+
+        StartCoroutine(DesactivarCompletamente());
+    }
+
+    IEnumerator RevertirKinematic()
+    {
+        yield return null; // Esperar un frame para que CA_RecolEnemy aplique kinematic
+
+        if (rb != null)
+        {
+            rb.isKinematic = false; // Revertir a no kinematic
+            rb.velocity = Vector2.zero;
+            rb.gravityScale = 0f;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+    }
+
+    IEnumerator DesactivarCompletamente()
+    {
+        // Esperar un frame para asegurar que el Animator procesó el cambio
+        yield return null;
+
+        // Deshabilitar este script pero mantener el GameObject para la animación
+        enabled = false;
+
+        Debug.Log("✅ Script deshabilitado - Enemigo en estado de muerte permanente");
+    }
+
     void VerificarGeneracionEnemigos()
     {
-        if (!inicializado || recolEnemy == null || spawnActivado) return;
+        if (!inicializado || recolEnemy == null || estaMuerto) return;
 
         float saludActual = recolEnemy.GetHealth();
 
-        // Activar generación cuando la vida esté a la mitad o menos
+        // Activar la generación de enemigos cuando la salud llega al umbral
         if (saludActual <= vidaParaEmpezarSpawn && !puedeGenerarEnemigos)
         {
             puedeGenerarEnemigos = true;
             spawnActivado = true;
-            Debug.Log("👥 Activando generación de enemigos - Vida a la mitad");
+            Debug.Log($"🔄 Generación de enemigos ACTIVADA. Salud: {saludActual}, Umbral: {vidaParaEmpezarSpawn}");
         }
 
-        // Generar enemigos cada 3 segundos si está activado
+        // Generar enemigos continuamente mientras puedaGenerarEnemigos sea true
         if (puedeGenerarEnemigos && Time.time - tiempoUltimoSpawn > tiempoEntreSpawn)
         {
             GenerarEnemigo();
@@ -182,23 +263,30 @@ public class CA_HongoCaballero : MonoBehaviour
 
     void GenerarEnemigo()
     {
-        if (enemigoParaGenerar == null) return;
+        if (enemigoParaGenerar == null || estaMuerto) return;
 
-        // Calcular posición aleatoria alrededor del enemigo
         Vector2 posicionSpawn = (Vector2)transform.position + Random.insideUnitCircle * radioSpawn;
 
-        // Verificar que la posición sea válida (no en obstáculos)
         if (!HayObstaculoEnPosicion(posicionSpawn))
         {
             Instantiate(enemigoParaGenerar, posicionSpawn, Quaternion.identity);
-            Debug.Log("👥 Enemigo generado en posición: " + posicionSpawn);
-
-            // Efecto visual opcional
-            CrearEfectoEstocada(); // Reutilizar efecto existente
+            CrearEfectoEstocada();
+            Debug.Log($"🎯 Enemigo generado en posición: {posicionSpawn}");
         }
         else
         {
-            Debug.Log("🚫 No se pudo generar enemigo - posición bloqueada");
+            // Intentar con una posición alternativa si la primera está obstruida
+            for (int i = 0; i < 5; i++)
+            {
+                posicionSpawn = (Vector2)transform.position + Random.insideUnitCircle * radioSpawn;
+                if (!HayObstaculoEnPosicion(posicionSpawn))
+                {
+                    Instantiate(enemigoParaGenerar, posicionSpawn, Quaternion.identity);
+                    CrearEfectoEstocada();
+                    Debug.Log($"🎯 Enemigo generado en posición alternativa: {posicionSpawn}");
+                    break;
+                }
+            }
         }
     }
 
@@ -210,30 +298,22 @@ public class CA_HongoCaballero : MonoBehaviour
 
     void DetectarDanoRecibido()
     {
-        if (!inicializado || recolEnemy == null || estaTeletransportandose) return;
+        if (!inicializado || recolEnemy == null || estaTeletransportandose || estaMuerto) return;
 
         float saludActual = recolEnemy.GetHealth();
 
-        // Si la salud disminuyó, se recibió daño
         if (saludActual < saludAnterior && saludActual > 0)
         {
-            float danoRecibido = saludAnterior - saludActual;
-            Debug.Log($"💥 Detectado daño recibido: {danoRecibido}");
-
-            // Iniciar teletransporte
             IniciarTeletransportePorDaño();
         }
 
-        // Actualizar salud anterior para el próximo frame
         saludAnterior = saludActual;
     }
 
-    // MÉTODO PARA TELETRANSPORTE
     public void IniciarTeletransportePorDaño()
     {
         if (estaMuerto || estaTeletransportandose || !puedeTeletransportarse) return;
 
-        Debug.Log("🔮 Iniciando teletransporte por daño");
         StartCoroutine(TeletransportarYAtacar());
     }
 
@@ -242,25 +322,16 @@ public class CA_HongoCaballero : MonoBehaviour
         estaTeletransportandose = true;
         puedeAtacar = false;
 
-        // FASE 1: INICIAR EFECTO DASH TRAIL
         if (dashTrailEffect != null)
-        {
             dashTrailEffect.StartTrail();
-            Debug.Log("🌈 Dash Trail activado para teletransporte");
-        }
 
-        // Pequeña pausa dramática antes de teletransportarse
         yield return new WaitForSeconds(0.1f);
 
-        // FASE 2: CALCULAR Y APLICAR TELETRANSPORTE
         Vector3 nuevaPosicion = CalcularPosicionTeletransporteSegura();
         transform.position = nuevaPosicion;
-        Debug.Log($"🔮 Teletransportado a posición segura: {nuevaPosicion}");
 
-        // FASE 3: ESPERAR UN FRAME PARA QUE EL PUNTO DE ATAQUE ESTÉ EN POSICIÓN
         yield return null;
 
-        // FASE 4: FORZAR MIRADA HACIA EL JUGADOR
         if (jugador != null)
         {
             bool deberiaMirarDerecha = jugador.position.x > transform.position.x;
@@ -270,38 +341,25 @@ public class CA_HongoCaballero : MonoBehaviour
             }
         }
 
-        // FASE 5: DISPARAR CORTE A DISTANCIA
         if (jugador != null && proyectilCorte != null && puntoAtaque != null)
         {
             StartCoroutine(DisparoConRetraso());
         }
-        else
-        {
-            Debug.LogWarning("❌ No se puede disparar - Jugador, proyectil o puntoAtaque nulo");
-        }
 
-        // FASE 6: MANTENER EFECTO DASH POR UN MOMENTO
         yield return new WaitForSeconds(0.2f);
 
-        // FASE 7: DETENER EFECTO DASH TRAIL
         if (dashTrailEffect != null)
-        {
             dashTrailEffect.StopTrail();
-            Debug.Log("🌈 Dash Trail detenido");
-        }
 
-        // FASE 8: REACTIVAR ATAQUES NORMALES
         puedeAtacar = true;
         estaTeletransportandose = false;
     }
-
 
     private Vector3 CalcularPosicionTeletransporteSegura()
     {
         Vector3 mejorPosicion = transform.position;
         float mejorDistancia = 0f;
 
-        // Probar varias direcciones para encontrar una posición segura
         for (int i = 0; i < 8; i++)
         {
             float angulo = i * 45f * Mathf.Deg2Rad;
@@ -309,16 +367,13 @@ public class CA_HongoCaballero : MonoBehaviour
 
             Vector3 posicionCandidata = transform.position + direccion * distanciaTeletransporte;
 
-            // Asegurar que esté dentro del área de patrulla
             posicionCandidata.x = Mathf.Clamp(posicionCandidata.x, limiteIzquierdo, limiteDerecho);
             posicionCandidata.y = Mathf.Clamp(posicionCandidata.y, centroArea.y - areaPatrulla.y / 2f, centroArea.y + areaPatrulla.y / 2f);
 
-            // Verificar si hay obstáculos en esa dirección
             if (!HayObstaculoEnDireccion(transform.position, posicionCandidata))
             {
                 float distanciaAlJugador = jugador != null ? Vector3.Distance(posicionCandidata, jugador.position) : 0f;
 
-                // Preferir posiciones más lejanas al jugador
                 if (distanciaAlJugador > mejorDistancia)
                 {
                     mejorDistancia = distanciaAlJugador;
@@ -336,63 +391,16 @@ public class CA_HongoCaballero : MonoBehaviour
         float distancia = Vector3.Distance(desde, hasta);
 
         RaycastHit2D hit = Physics2D.Raycast(desde, direccion, distancia, capasObstaculos);
-
-        if (hit.collider != null)
-        {
-            Debug.Log($"🚫 Obstáculo detectado: {hit.collider.gameObject.name}");
-            return true;
-        }
-
-        return false;
+        return hit.collider != null;
     }
-
-    private void DispararCorteADistancia()
-    {
-        if (proyectilCorte == null || jugador == null || puntoAtaque == null) return;
-
-        // Forzar a mirar al jugador
-        bool deberiaMirarDerecha = jugador.position.x > transform.position.x;
-        if (deberiaMirarDerecha != mirandoDerecha)
-        {
-            Voltear();
-        }
-
-        // Instanciar el prefab en el punto de ataque
-        GameObject proyectil = Instantiate(proyectilCorte, puntoAtaque.position, Quaternion.identity);
-
-        // Calcular dirección hacia el jugador
-        Vector3 direccion = (jugador.position - puntoAtaque.position).normalized;
-
-        // Aplicar movimiento inicial si el prefab tiene Rigidbody2D
-        Rigidbody2D rb = proyectil.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            rb.velocity = direccion * velocidadProyectil;
-        }
-
-        // Escalar el efecto visual del proyectil si quieres
-        proyectil.transform.localScale = Vector3.one;
-
-        // Opcional: rotar hacia el jugador
-        float angulo = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
-        proyectil.transform.rotation = Quaternion.AngleAxis(angulo, Vector3.forward);
-
-        Debug.Log("⚔️ Proyectil instanciado y disparado hacia el jugador");
-    }
-
 
     private IEnumerator DisparoConRetraso()
     {
-        // Esperar un frame
         yield return null;
 
-        // Calcular dirección hacia el jugador
         Vector3 direccion = (jugador.position - puntoAtaque.position).normalized;
-
-        // Instanciar proyectil
         GameObject proyectil = Instantiate(proyectilCorte, puntoAtaque.position, Quaternion.identity);
 
-        // Configurar proyectil
         ProyectilCorte scriptProyectil = proyectil.GetComponent<ProyectilCorte>();
         if (scriptProyectil != null)
         {
@@ -404,7 +412,6 @@ public class CA_HongoCaballero : MonoBehaviour
             scriptProyectil.Configurar(direccion, velocidadProyectil, danoProyectil, gameObject, capasObstaculos);
         }
 
-        // Efecto visual en el punto de ataque
         if (efectoSlash != null)
         {
             GameObject slash = Instantiate(efectoSlash, puntoAtaque.position, Quaternion.identity);
@@ -418,12 +425,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
             Destroy(slash, 1f);
         }
-
-        Debug.Log("⚔️ Corte a distancia disparado desde punto de ataque");
     }
 
-
-    // CLASE INTERNA PARA EL PROYECTIL
     [System.Serializable]
     public class ProyectilCorte : MonoBehaviour
     {
@@ -442,11 +445,9 @@ public class CA_HongoCaballero : MonoBehaviour
             dueño = owner;
             capasObstaculos = obstaculos;
 
-            // Orientar el proyectil hacia la dirección
             float angulo = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angulo, Vector3.forward);
 
-            // Auto-destrucción después de tiempo
             Destroy(gameObject, 3f);
         }
 
@@ -461,9 +462,8 @@ public class CA_HongoCaballero : MonoBehaviour
         void OnTriggerEnter2D(Collider2D other)
         {
             if (haGolpeado) return;
-            if (other.gameObject == dueño) return; // Ignorar al dueño
+            if (other.gameObject == dueño) return;
 
-            // Verificar si es un obstáculo
             if ((capasObstaculos.value & (1 << other.gameObject.layer)) != 0)
             {
                 haGolpeado = true;
@@ -473,12 +473,10 @@ public class CA_HongoCaballero : MonoBehaviour
 
             if (other.CompareTag("Player"))
             {
-                // Aplicar daño al jugador
                 NF_PlayerHealth salud = other.GetComponent<NF_PlayerHealth>();
                 if (salud != null)
                 {
                     salud.TakeDamageWithoutKnockback((int)dano);
-                    Debug.Log($"💥 Proyectil hizo {dano} de daño al jugador");
                 }
 
                 haGolpeado = true;
@@ -487,7 +485,6 @@ public class CA_HongoCaballero : MonoBehaviour
         }
     }
 
-    // EL RESTO DE LOS MÉTODOS EXISTENTES SE MANTIENEN IGUAL...
     void ActualizarDeteccionJugador()
     {
         if (jugador == null || estaMuerto) return;
@@ -580,69 +577,23 @@ public class CA_HongoCaballero : MonoBehaviour
         return Vector2.Distance(transform.position, destinoPatrulla) < 0.2f;
     }
 
-    void DetectarCambioDeEstado()
-    {
-        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        string estadoActual = "";
-
-        if (stateInfo.IsName("Patrulla"))
-            estadoActual = "Patrulla";
-        else if (stateInfo.IsName("Persecucion"))
-            estadoActual = "Persecucion";
-        else if (stateInfo.IsName("Corte"))
-            estadoActual = "Corte";
-        else if (stateInfo.IsName("Estocada"))
-            estadoActual = "Estocada";
-
-        if (estadoActual != estadoAnterior)
-        {
-            switch (estadoAnterior)
-            {
-                case "Estocada":
-                    DetenerEfectoDash();
-                    break;
-                case "Corte":
-                    StartCoroutine(ReactivarAtaqueDespuesDeCorte());
-                    break;
-            }
-
-            switch (estadoActual)
-            {
-                case "Corte":
-                    IniciarCorte();
-                    break;
-                case "Estocada":
-                    IniciarEstocada();
-                    break;
-            }
-
-            estadoAnterior = estadoActual;
-        }
-    }
-
-    IEnumerator ReactivarAtaqueDespuesDeCorte()
-    {
-        yield return new WaitForSeconds(tiempoEntreCortes);
-        enSecuenciaAtaque = false;
-    }
-
     void ActualizarParametrosAnimator()
     {
-        if (jugador == null) return;
+        if (jugador == null || estaMuerto) return;
 
         float distanciaAlJugador = Vector2.Distance(transform.position, jugador.position);
 
-        anim.SetBool("JugadorEnRango", jugadorDetectado);
-        anim.SetBool("JugadorEnRangoCorte", distanciaAlJugador <= rangoCorte);
-        anim.SetBool("JugadorEnRangoEstocada", distanciaAlJugador <= rangoEstocada);
-        anim.SetBool("PuedeAtacar", puedeAtacar);
-        anim.SetInteger("ContadorCortes", contadorCortes);
-        anim.SetInteger("CortesParaEstocada", cortesParaEstocada);
+        anim.SetBool(JugadorEnRango, jugadorDetectado);
+        anim.SetBool(JugadorEnRangoCorte, distanciaAlJugador <= rangoCorte);
+        anim.SetBool(JugadorEnRangoEstocada, distanciaAlJugador <= rangoEstocada);
+        anim.SetBool(PuedeAtacar, puedeAtacar);
+        anim.SetInteger(ContadorCortes, contadorCortes);
+        anim.SetInteger(CortesParaEstocada, cortesParaEstocada);
     }
 
     void ActualizarDireccion()
     {
-        if (jugador == null) return;
+        if (jugador == null || estaMuerto) return;
 
         bool deberiaMirarDerecha = mirandoDerecha;
 
@@ -665,6 +616,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void Voltear()
     {
+        if (estaMuerto) return;
+
         mirandoDerecha = !mirandoDerecha;
 
         Vector3 escala = transform.localScale;
@@ -679,21 +632,23 @@ public class CA_HongoCaballero : MonoBehaviour
         }
     }
 
-    void IniciarCorte()
+    public void IniciarCorte()
     {
+        if (estaMuerto) return;
         CrearEfectoSlash();
         AplicarDañoCorte();
         IncrementarContadorCortes();
     }
 
-    void IniciarEstocada()
+    public void IniciarEstocada()
     {
+        if (estaMuerto) return;
         // La estocada se maneja en el StateBehaviour
     }
 
     public void IniciarEfectoDash()
     {
-        if (dashTrailEffect != null)
+        if (dashTrailEffect != null && !estaMuerto)
         {
             dashTrailEffect.StartTrail();
         }
@@ -709,6 +664,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void AplicarDañoCorte()
     {
+        if (estaMuerto) return;
+
         Vector2 puntoGolpe = (Vector2)transform.position +
                             (mirandoDerecha ? Vector2.right : Vector2.left) * 3f;
 
@@ -737,6 +694,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void AplicarDañoEstocada()
     {
+        if (estaMuerto) return;
+
         Collider2D[] objetivos = Physics2D.OverlapCircleAll(transform.position, 3f);
 
         foreach (Collider2D objetivo in objetivos)
@@ -763,7 +722,7 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void CrearEfectoSlash()
     {
-        if (efectoSlash != null && puntoAtaque != null)
+        if (efectoSlash != null && puntoAtaque != null && !estaMuerto)
         {
             Vector3 posicionEfecto = puntoAtaque.position + (mirandoDerecha ? Vector3.right : Vector3.left) * 1.5f;
             GameObject slash = Instantiate(efectoSlash, posicionEfecto, Quaternion.identity);
@@ -779,7 +738,7 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void CrearEfectoEstocada()
     {
-        if (efectoEstocada != null)
+        if (efectoEstocada != null && !estaMuerto)
         {
             GameObject efecto = Instantiate(efectoEstocada, transform.position, Quaternion.identity);
             efecto.transform.localScale = Vector3.one * 1.5f;
@@ -789,7 +748,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void IncrementarContadorCortes()
     {
-        contadorCortes++;
+        if (!estaMuerto)
+            contadorCortes++;
     }
 
     public void ReiniciarContadorCortes()
@@ -799,7 +759,8 @@ public class CA_HongoCaballero : MonoBehaviour
 
     public void SetPuedeAtacar(bool valor)
     {
-        puedeAtacar = valor;
+        if (!estaMuerto)
+            puedeAtacar = valor;
     }
 
     void OnDrawGizmosSelected()

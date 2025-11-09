@@ -104,23 +104,18 @@ public class CA_ProyectilHilo : MonoBehaviour
         }
     }
 
+    // En tu script CA_ProyectilHilo, asegúrate de que el daño se aplique correctamente:
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other == null) return;
-
         if (other.CompareTag("Player"))
         {
-            PlayerHealth hp = other.GetComponent<PlayerHealth>();
-            if (hp != null)
-                hp.RecibirDanio(danio);
-
-            Destroy(gameObject);
-            return;
-        }
-
-        if (((1 << other.gameObject.layer) & layerSuelo) != 0)
-        {
-            Destroy(gameObject);
+            NF_PlayerHealth playerHealth = other.GetComponent<NF_PlayerHealth>();
+            if (playerHealth != null)
+            {
+                Vector2 hitDirection = (other.transform.position - transform.position).normalized;
+                playerHealth.TakeDamage(danio, hitDirection);
+                Destroy(gameObject);
+            }
         }
     }
 }

@@ -15,11 +15,18 @@ public class CA_BalaVolador : MonoBehaviour
     public void SetDireccion(Vector2 dir)
     {
         direccion = dir.normalized;
+
+        // Rotar el prefab completo hacia la dirección del movimiento
+        if (direccion != Vector2.zero)
+        {
+            float angulo = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, angulo);
+        }
     }
 
     void Update()
     {
-        transform.Translate(direccion * velocidad * Time.deltaTime);
+        transform.Translate(Vector2.right * velocidad * Time.deltaTime);
     }
 
     void OnTriggerEnter2D(Collider2D col)

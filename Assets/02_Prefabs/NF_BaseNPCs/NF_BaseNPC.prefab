@@ -368,7 +368,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8570318626632497359}
-  - component: {fileID: 7375596415118221571}
   - component: {fileID: 2321943889050547938}
   - component: {fileID: 781344127023513656}
   m_Layer: 7
@@ -395,25 +394,6 @@ Transform:
   - {fileID: 489725200242556415}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7375596415118221571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7598952214957153288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85c985978f9b5ce43aba71d88ac8aef6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueMark: {fileID: 5515792709192342782}
-  dialoguePanel: {fileID: 0}
-  dialogueText: {fileID: 0}
-  dialogueLines:
-  - "Hola buenas tardes\t"
-  - como esta
-  typingTime: 0.05
 --- !u!212 &2321943889050547938
 SpriteRenderer:
   m_ObjectHideFlags: 0
