@@ -20,7 +20,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/00_Scenes/03_JQG_Zona2.unity
     guid: 4240418067660974b83a6470e34a7560
-  - enabled: 1
-    path: Assets/00_Scenes/NF_PruebaNivel.unity
-    guid: 60f618b6a5b471a4dba4f7297fae96fa
   m_configObjects: {}
