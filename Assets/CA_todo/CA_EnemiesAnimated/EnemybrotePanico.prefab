@@ -1845,6 +1845,9 @@ MonoBehaviour:
   isRecoiling: 0
   hitParticles: {fileID: 4888326188288633987, guid: 5752c285a9e1b1649a079c0b24969f3c, type: 3}
   particleSpawnPoint: {fileID: 4284500868255529776}
+  activador: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
 --- !u!114 &2805353808833720684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1859,7 +1862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rangoDeteccion: 7
   tagJugador: Player
-  prefabEspina: {fileID: 368870556342478484, guid: de8a8bc3f1ae4f14dafeba8bb6062ca4, type: 3}
+  prefabEspina: {fileID: 368870556342478484, guid: 7dad71c6689463c49b347d4cc8ced27d, type: 3}
   tiempoEntreDisparos: 4
   puntoDisparo: {fileID: 6598299319721928604}
   danoContacto: 1
