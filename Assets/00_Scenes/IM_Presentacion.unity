@@ -157,7 +157,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6, y: -12}
+  m_AnchoredPosition: {x: 6, y: 46}
   m_SizeDelta: {x: 1264.6, y: 105.4841}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &13072860
@@ -180,10 +180,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Somos del Pantano de Savia, cuantos son?
-
-
-'
+  m_text: "La vida dej\xF3 de renovarse.\nLo que no puede morir\u2026 se pudre.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
@@ -5239,8 +5236,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "No hay tiempo, La red se pudre y la comunci\xF3n se va\n\xBFHay alguien
-    que me escuche?"
+  m_text: Y el ciclo se detuvo.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
@@ -5550,7 +5546,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2, y: -70.78}
+  m_AnchoredPosition: {x: 2, y: -30}
   m_SizeDelta: {x: 1264.6, y: 74.2808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1038292340
@@ -5573,7 +5569,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: somos cuatro, no podremos aguantar necesitamos ayuda
+  m_text: "De esa podredumbre naci\xF3 Noxar,\nla voluntad natural del ciclo,\nel
+    llamado a dejar ir."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
@@ -15365,7 +15362,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4, y: -212}
+  m_AnchoredPosition: {x: 4, y: -234}
   m_SizeDelta: {x: 1264.6, y: 74.2808}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1216122199
@@ -15388,7 +15385,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\xBFAmigo?"
+  m_text: El mundo se prepara para volver a respirar.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
@@ -15512,7 +15509,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2, y: 243}
+  m_AnchoredPosition: {x: -2, y: 316}
   m_SizeDelta: {x: 1264.6318, y: 74.0323}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1262394777
@@ -15535,7 +15532,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Mando este mensaje a toda Micelia
+  m_text: 'MICELIA, tierra sostenida por la Red Micelial.
+
+    Un ciclo eterno de
+    vida, muerte y renacimiento.
 
 
 
@@ -15879,7 +15879,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.031861, y: 143.22}
+  m_AnchoredPosition: {x: -2.031861, y: 219}
   m_SizeDelta: {x: 1264.6318, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1509465712
@@ -15902,8 +15902,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Una fuerza nos ataco desprevenidos, se robo el corazon eterno y rompio
-    la red.
+  m_text: "Pero hubo quienes temieron desaparecer.\nLos Sabios Hongos forjaron el
+    Coraz\xF3n Est\xE1tico,\nun cristal para conservar cada memoria,\npara que nada
+    muriera jam\xE1s."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
@@ -16448,10 +16449,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Ya ve...
-
-
-'
+  m_text: "Ahora, el Santuario Ra\xEDz tiembla.\nEl Coraz\xF3n Est\xE1tico est\xE1
+    por romperse.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
   m_sharedMaterial: {fileID: 2027405757658763541, guid: 0b6a9a50fa5cc0a448b165f00f06217a, type: 2}
