@@ -4,6 +4,11 @@ using TMPro;
 
 public class IM_NPCs : MonoBehaviour
 {
+
+    [Header("🔊 Audio")]
+    [SerializeField] private AudioSource audioSource;   // lo arrastras en inspector
+    [SerializeField] private AudioClip startDialogueClip; // el sonido de iniciar diálogo
+
     [Header("Referencias UI")]
     [SerializeField] private GameObject dialogueMark;
     [SerializeField] private GameObject dialoguePanel;
@@ -102,6 +107,10 @@ public class IM_NPCs : MonoBehaviour
         SetIndicatorState(false, false, false);
 
         lineIndex = 0;
+
+        // 🔊 Reproducir sonido SOLO al comenzar el diálogo
+        if (audioSource != null && startDialogueClip != null)
+            audioSource.PlayOneShot(startDialogueClip, 0.9f);
 
         if (playerMovement != null)
             playerMovement.enabled = false;

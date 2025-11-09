@@ -2,6 +2,11 @@
 
 public class EnemigoCuadradoKnockback : MonoBehaviour
 {
+    [Header("🔊 Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip deathClip;
+
+
     [Header("Ruta del cuadrado")]
     public Transform[] waypoints;
     public float velocidad = 2f;
@@ -134,14 +139,23 @@ public class EnemigoCuadradoKnockback : MonoBehaviour
 
     void Morir()
     {
+        // ✅ Reproducir sonido de muerte
+        if (audioSource != null && deathClip != null)
+            audioSource.PlayOneShot(deathClip, 0.9f);
         estaMuerto = true;
         animator.SetBool(IsWalking, false);
         animator.SetBool(IsDead, true);
 
+
+
         // Desactivar movimiento y colisiones
         if (GetComponent<Collider2D>() != null)
             GetComponent<Collider2D>().enabled = false;
+
+        // (Opcional) Si quieres que desaparezca después
+        Destroy(gameObject, 1.2f); // ajusta el tiempo según la animación
     }
+
 
     void OnCollisionEnter2D(Collision2D collision)
     {

@@ -6,6 +6,16 @@ using UnityEngine;
 
 public class CA_PlayerController : MonoBehaviour
 {
+    [Header("🔊 Audio del Jugador")]
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private AudioClip walkClip;
+    [SerializeField] private AudioClip dashClip;
+    [SerializeField] private AudioClip attackClip;
+    [SerializeField] private AudioClip jumpClip;
+
+    private bool isWalkingSoundPlaying = false;
+
     [Header("Movimiento Horizontal")]
     private Rigidbody2D rb;
     [SerializeField] private float walkSpeed = 1;
@@ -161,10 +171,13 @@ public class CA_PlayerController : MonoBehaviour
         pState = GetComponent<CA_PlayerStateList>();
         playerHealthScript = GetComponent<NF_PlayerHealth>();
         anim = GetComponentInChildren<Animator>();
-        knockback=GetComponent<NF_Knockback>();
+        knockback = GetComponent<NF_Knockback>();
         gravity = rb.gravityScale;
-        _cameraFollowObject=_cameraFollowGO.GetComponent<NF_CameraFollowOBJECT>();
+        _cameraFollowObject = _cameraFollowGO.GetComponent<NF_CameraFollowOBJECT>();
         _fallSpeedYDampingChangeThreshold = NF_CameraManager.instance._fallSpeedYDampingChangeThreshold;
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
     }
 
     private void OnDrawGizmos()
@@ -453,11 +466,11 @@ public class CA_PlayerController : MonoBehaviour
             airTime = 0f;
         }
 
-        if(rb.velocity.y < _fallSpeedYDampingChangeThreshold && !NF_CameraManager.instance.IsLerpingYDamping && !NF_CameraManager.instance.LerpedFromPlayerFalling)
+        if (rb.velocity.y < _fallSpeedYDampingChangeThreshold && !NF_CameraManager.instance.IsLerpingYDamping && !NF_CameraManager.instance.LerpedFromPlayerFalling)
         {
             NF_CameraManager.instance.LerpYDamping(true);
         }
-        if(rb.velocity.y >= 0f && !NF_CameraManager.instance.IsLerpingYDamping && NF_CameraManager.instance.LerpedFromPlayerFalling)
+        if (rb.velocity.y >= 0f && !NF_CameraManager.instance.IsLerpingYDamping && NF_CameraManager.instance.LerpedFromPlayerFalling)
         {
             NF_CameraManager.instance.LerpedFromPlayerFalling = false;
             NF_CameraManager.instance.LerpYDamping(false);
@@ -480,6 +493,25 @@ public class CA_PlayerController : MonoBehaviour
         {
             rb.velocity = new Vector2(rb.velocity.x, -wallSlidingSpeed);
         }
+
+        bool isMovingOnGround = Grounded() && Mathf.Abs(rb.velocity.x) > 0.1f;
+
+        if (isMovingOnGround && !isWalkingSoundPlaying)
+        {
+            if (walkClip != null)
+            {
+                audioSource.clip = walkClip;
+                audioSource.loop = true;
+                audioSource.Play();
+                isWalkingSoundPlaying = true;
+            }
+        }
+        else if (!isMovingOnGround && isWalkingSoundPlaying)
+        {
+            audioSource.Stop();
+            isWalkingSoundPlaying = false;
+        }
+
     }
 
 
@@ -544,6 +576,7 @@ public class CA_PlayerController : MonoBehaviour
     IEnumerator Dash()
     {
         pState.dashing = true;
+        if (dashClip) audioSource.PlayOneShot(dashClip, 1f);
         float prevGrav = rb.gravityScale;
         rb.gravityScale = 0f;
 
@@ -653,6 +686,8 @@ public class CA_PlayerController : MonoBehaviour
         anim.ResetTrigger("Attack");
         anim.SetInteger("AttackIndex", attackIndex);
         anim.SetTrigger("Attack");
+
+        if (attackClip) audioSource.PlayOneShot(attackClip, 0.8f);
 
         // ⚙️ Estado interno
         canAttack = false;
@@ -948,6 +983,7 @@ public class CA_PlayerController : MonoBehaviour
             if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                if (jumpClip) audioSource.PlayOneShot(jumpClip, 0.9f);
                 pState.jumping = true;
                 jumpBufferCounter = 0;
 
@@ -971,6 +1007,7 @@ public class CA_PlayerController : MonoBehaviour
                 airJumpCounter++;
 
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                if (jumpClip) audioSource.PlayOneShot(jumpClip, 0.9f);
                 pState.jumping = true;
 
                 if (anim != null)
@@ -987,6 +1024,7 @@ public class CA_PlayerController : MonoBehaviour
                 _doubleJumpFXFlag = true;  // <- avisar al ParticleController que hubo doble salto
 
             }
+
         }
     }
 
