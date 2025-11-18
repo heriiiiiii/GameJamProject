@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
+
 public class NF_CameraManager : MonoBehaviour
 {
     public static NF_CameraManager instance;

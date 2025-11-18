@@ -2,36 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
-using UnityEditor;
 
 public class NF_CameraControlTrigger : MonoBehaviour
 {
     public CustomInspectorObjects customInspectorObjects;
 
     private Collider2D _coll;
+
     private void Start()
     {
         _coll = GetComponent<Collider2D>();
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             if (customInspectorObjects.panCameraOnContact)
             {
-                NF_CameraManager.instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection,false);
+                NF_CameraManager.instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection, false);
             }
         }
     }
+
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))  
+        if (collision.CompareTag("Player"))
         {
-            Vector2 exitDirection=(collision.transform.position - _coll.bounds.center).normalized;
+            Vector2 exitDirection = (collision.transform.position - _coll.bounds.center).normalized;
+
             if (customInspectorObjects.swapCameras && customInspectorObjects.cameraOnLeft != null && customInspectorObjects.cameraOnRight != null)
             {
                 NF_CameraManager.instance.SwapCamera(customInspectorObjects.cameraOnLeft, customInspectorObjects.cameraOnRight, exitDirection);
             }
+
             if (customInspectorObjects.panCameraOnContact)
             {
                 NF_CameraManager.instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection, true);
@@ -39,6 +43,7 @@ public class NF_CameraControlTrigger : MonoBehaviour
         }
     }
 }
+
 [System.Serializable]
 public class CustomInspectorObjects
 {
@@ -59,65 +64,4 @@ public enum PanDirection
     Down,
     Left,
     Right
-}
-
-[CustomEditor(typeof(NF_CameraControlTrigger))]
-public class MyScriptEditor : Editor
-{
-    NF_CameraControlTrigger cameraControlTrigger;
-
-    private void OnEnable()
-    {
-        cameraControlTrigger = (NF_CameraControlTrigger)target;
-    }
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        if (cameraControlTrigger.customInspectorObjects.swapCameras)
-        {
-            cameraControlTrigger.customInspectorObjects.cameraOnLeft =
-                (CinemachineVirtualCamera)EditorGUILayout.ObjectField(
-                    "Camera on Left",
-                    cameraControlTrigger.customInspectorObjects.cameraOnLeft,
-                    typeof(CinemachineVirtualCamera),
-                    true
-                );
-
-            cameraControlTrigger.customInspectorObjects.cameraOnRight =
-                (CinemachineVirtualCamera)EditorGUILayout.ObjectField(
-                    "Camera on Right",
-                    cameraControlTrigger.customInspectorObjects.cameraOnRight,
-                    typeof(CinemachineVirtualCamera),
-                    true
-                );
-        }
-
-        if (cameraControlTrigger.customInspectorObjects.panCameraOnContact)
-        {
-            cameraControlTrigger.customInspectorObjects.panDirection =
-                (PanDirection)EditorGUILayout.EnumPopup(
-                    "Camera Pan Direction",
-                    cameraControlTrigger.customInspectorObjects.panDirection
-                );
-
-            cameraControlTrigger.customInspectorObjects.panDistance =
-                EditorGUILayout.FloatField(
-                    "Pan Distance",
-                    cameraControlTrigger.customInspectorObjects.panDistance
-                );
-
-            cameraControlTrigger.customInspectorObjects.panTime =
-                EditorGUILayout.FloatField(
-                    "Pan Time",
-                    cameraControlTrigger.customInspectorObjects.panTime
-                );
-        }
-
-        if (GUI.changed)
-        {
-            EditorUtility.SetDirty(cameraControlTrigger);
-        }
-    }
-
 }
