@@ -554,6 +554,9 @@ public class CA_PlayerController : MonoBehaviour
         if (pState.dashing || pState.recoillingX) return;
         rb.velocity = new Vector2(walkSpeed * xAxis, rb.velocity.y);
     }
+
+
+
     void StartDash()
     {
 
@@ -614,6 +617,51 @@ public class CA_PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+
+    public void ResetMovementState()
+    {
+        xAxis = 0f;
+        yAxis = 0f;
+
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
+
+    public void ForceIdleState()
+    {
+        // 1) Resetear input
+        xAxis = 0f;
+        yAxis = 0f;
+
+        // 2) Frenar la física
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
+        // 3) Forzar animación Idle base
+        if (anim != null)
+        {
+            anim.ResetTrigger("Jump");
+            anim.ResetTrigger("DoubleJump");
+            anim.ResetTrigger("Attack");
+            anim.ResetTrigger("Dash");
+            anim.ResetTrigger("Land");
+
+            anim.Play("HV_idle 0", 0, 0f);
+            anim.SetFloat("Speed", 0f);
+            anim.SetBool("IsFalling", false);
+        }
+
+        // 4) Apagar sonido de caminar
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
+
+        isWalkingSoundPlaying = false;
+
+    }
+
 
 
     // ====== Ataque ======

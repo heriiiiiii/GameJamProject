@@ -28,9 +28,48 @@ public class UITutorialSequence : MonoBehaviour
     public float hongosFadeTime = 0.8f;
     public float keysFadeTime = 1f;
 
+    // 🔧 Player
+    private CA_PlayerController player;
+    private Rigidbody2D playerRb;
+
     private void OnEnable()
     {
+        // Obtener player
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p)
+            {
+                player = p.GetComponent<CA_PlayerController>();
+                playerRb = p.GetComponent<Rigidbody2D>();
+            }
+        }
+
+        FreezePlayer(); // ⭐ Detiene caminata + animación + sonido
+
         StartCoroutine(PlaySequence());
+    }
+
+    private void FreezePlayer()
+    {
+        if (player != null)
+        {
+            player.enabled = false;
+            player.ResetMovementState();
+            player.ForceIdleState(); // ⭐ APAGA SONIDO DE CAMINAR
+        }
+
+        if (playerRb != null)
+        {
+            playerRb.velocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+    }
+
+    public void UnfreezePlayer()
+    {
+        if (player != null)
+            player.enabled = true;
     }
 
     IEnumerator PlaySequence()
@@ -52,7 +91,7 @@ public class UITutorialSequence : MonoBehaviour
 
     IEnumerator FadeCanvas(CanvasGroup cg, float start, float end, float time)
     {
-        if (!cg) yield break; // Seguridad
+        if (!cg) yield break;
 
         float t = 0;
         cg.alpha = start;
@@ -60,15 +99,14 @@ public class UITutorialSequence : MonoBehaviour
         while (t < time)
         {
             t += Time.deltaTime;
-            if (cg) cg.alpha = Mathf.Lerp(start, end, t / time);
+            cg.alpha = Mathf.Lerp(start, end, t / time);
             yield return null;
         }
     }
 
     IEnumerator TypeText()
     {
-        if (!text)
-            yield break;
+        if (!text) yield break;
 
         text.text = "";
         foreach (char c in fullText)
@@ -80,13 +118,12 @@ public class UITutorialSequence : MonoBehaviour
 
     IEnumerator BlinkPressText()
     {
-        if (!pressKeyGroup)
-            yield break;
+        if (!pressKeyGroup) yield break;
 
         while (true)
         {
-            yield return StartCoroutine(FadeCanvas(pressKeyGroup, 0f, 1f, 0.8f));
-            yield return StartCoroutine(FadeCanvas(pressKeyGroup, 1f, 0f, 0.8f));
+            yield return FadeCanvas(pressKeyGroup, 0f, 1f, 0.8f);
+            yield return FadeCanvas(pressKeyGroup, 1f, 0f, 0.8f);
         }
     }
 }
