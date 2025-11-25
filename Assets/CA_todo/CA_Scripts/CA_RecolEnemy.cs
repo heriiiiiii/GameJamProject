@@ -16,18 +16,14 @@ public class CA_RecolEnemy : MonoBehaviour
     [SerializeField] ParticleSystem hitParticles;
     [SerializeField] Transform particleSpawnPoint;
 
-    // 🔹 Nueva referencia al activador de enemigo
-    [Header("Activador")]
+    [Header("Referencias")]
     public CA_ActivadorEnemigo activador;
-
-    // 🔹 CAMBIO: Referencia al controlador del grupo en lugar del activador
-    [Header("Grupo")]
+    public CA_BossBattleManager battleManager;
     public CA_MiniBossVigiasEsporales grupoController;
 
-    // 🔹 NUEVO: Lista de enemigos que deben morir para desactivar paredes
     [Header("Grupo de Enemigos")]
-    public List<GameObject> grupoEnemigos; // Lista de todos los enemigos del grupo
-    private List<GameObject> enemigosMuertos = new List<GameObject>(); // Lista de enemigos que ya murieron
+    public List<GameObject> grupoEnemigos;
+    private List<GameObject> enemigosMuertos = new List<GameObject>();
 
     private float recoilTimer;
     private Rigidbody2D rb;
@@ -48,17 +44,18 @@ public class CA_RecolEnemy : MonoBehaviour
 
     void Start()
     {
-        // 🔹 NUEVO: Inicializar la lista si no está asignada
+        // Inicializar lista de grupo si es necesario
         if (grupoEnemigos == null)
         {
             grupoEnemigos = new List<GameObject>();
         }
 
-        // 🔹 NUEVO: Asegurarse de que este enemigo esté en la lista
         if (!grupoEnemigos.Contains(gameObject))
         {
             grupoEnemigos.Add(gameObject);
         }
+
+        Debug.Log("Boss inicializado - Salud: " + health);
     }
 
     void Update()
@@ -124,25 +121,20 @@ public class CA_RecolEnemy : MonoBehaviour
             animator.SetBool(deathParam, true);
 
         DesactivarComportamientosEnemigo();
-
-        // 🔹 MODIFICADO: Verificar si todos los enemigos del grupo han muerto
         VerificarMuerteGrupo();
 
         StartCoroutine(DestruirDespuesDeAnimacion());
     }
 
-    // 🔹 NUEVO MÉTODO: Verificar si todos los enemigos del grupo han muerto
     void VerificarMuerteGrupo()
     {
         if (grupoEnemigos == null || grupoEnemigos.Count == 0) return;
 
-        // Agregar este enemigo a la lista de muertos si no está
         if (!enemigosMuertos.Contains(gameObject))
         {
             enemigosMuertos.Add(gameObject);
         }
 
-        // Verificar si todos los enemigos del grupo han muerto
         bool todosMuertos = true;
         foreach (GameObject enemigo in grupoEnemigos)
         {
@@ -157,20 +149,20 @@ public class CA_RecolEnemy : MonoBehaviour
             }
         }
 
-        // 🔹 SOLO desactivar paredes cuando TODOS los enemigos hayan muerto
         if (todosMuertos)
         {
             if (activador != null)
             {
                 activador.DesactivarParedesBloqueo();
-                activador.gameObject.SetActive(false); // ✅ Esta línea desactiva el activador
+                activador.gameObject.SetActive(false);
             }
 
-            Debug.Log("¡Todos los enemigos del grupo han sido derrotados! Paredes desactivadas.");
-        }
-        else
-        {
-            Debug.Log($"Enemigos vivos restantes: {grupoEnemigos.Count - enemigosMuertos.Count}");
+            if (battleManager != null)
+            {
+                battleManager.BossDerrotado();
+            }
+
+            Debug.Log("¡Todos los enemigos del grupo han sido derrotados!");
         }
     }
 
@@ -212,22 +204,4 @@ public class CA_RecolEnemy : MonoBehaviour
 
     public float GetHealth() => health;
     public bool EstaMuerto() => health <= 0;
-
-    // 🔹 NUEVO: Método para agregar enemigos al grupo dinámicamente
-    public void AgregarAlGrupo(GameObject nuevoEnemigo)
-    {
-        if (grupoEnemigos == null)
-            grupoEnemigos = new List<GameObject>();
-
-        if (!grupoEnemigos.Contains(nuevoEnemigo))
-        {
-            grupoEnemigos.Add(nuevoEnemigo);
-        }
-    }
-
-    // 🔹 NUEVO: Método para sincronizar el grupo entre todos los enemigos
-    public void SincronizarGrupo(List<GameObject> grupoCompleto)
-    {
-        grupoEnemigos = new List<GameObject>(grupoCompleto);
-    }
 }

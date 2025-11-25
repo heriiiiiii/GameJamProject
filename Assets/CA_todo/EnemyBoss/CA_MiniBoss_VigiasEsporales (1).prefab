@@ -80,7 +80,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &172862764851995189
 Transform:
   m_ObjectHideFlags: 0
@@ -162,8 +162,10 @@ MonoBehaviour:
   frecuenciaCambioDireccion: 1
   duracionMovimientoEvasivo: 7
   proyectilEspora: {fileID: 8657926899857033571, guid: 75bb82cedd1279f409b67e2b67d850a6, type: 3}
+  proyectilGiratorio: {fileID: 0}
   materialHilo: {fileID: 0}
   tiempoEntreAtaques: 0.5
+  secuenciaAtaques: 01000000010000000200000002000000020000000000000000000000
   radioHilos: 3
   numeroHilos: 5
   velocidadRotacionHilos: 90
@@ -188,6 +190,7 @@ MonoBehaviour:
   tiempoEntreDisparosLentos: 2
   danioContacto: 1
   tiempoEntreDanioContacto: 1
+  activador: {fileID: 0}
 --- !u!82 &2289588902980631998
 AudioSource:
   m_ObjectHideFlags: 0
@@ -303,6 +306,9 @@ MonoBehaviour:
   hitParticles: {fileID: 0}
   particleSpawnPoint: {fileID: 0}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
 --- !u!1 &2221932545274453030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,6 +1157,9 @@ MonoBehaviour:
   hitParticles: {fileID: 0}
   particleSpawnPoint: {fileID: 0}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
 --- !u!114 &3852121188858017928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1691,6 +1700,9 @@ MonoBehaviour:
   hitParticles: {fileID: 0}
   particleSpawnPoint: {fileID: 0}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
 --- !u!114 &5127350000630937062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2226,6 +2238,9 @@ MonoBehaviour:
   hitParticles: {fileID: 0}
   particleSpawnPoint: {fileID: 0}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
 --- !u!114 &7467453490395659253
 MonoBehaviour:
   m_ObjectHideFlags: 0

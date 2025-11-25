@@ -2,6 +2,7 @@
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.UI;
+using System;
 
 public class NF_PlayerHealth : MonoBehaviour
 {
@@ -18,11 +19,13 @@ public class NF_PlayerHealth : MonoBehaviour
     [SerializeField] private Animator uiAnimator;  
     [SerializeField] private bool useUI = true;
 
+    // 🔹 NUEVO: Evento para notificar la muerte del jugador
+    public event Action OnPlayerDeath;
+
     private void Awake()
     {
         // Busca el GameController en la escena
         gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
-      
     }
 
     private void Start()
@@ -30,16 +33,18 @@ public class NF_PlayerHealth : MonoBehaviour
         // Inicializa la vida al máximo y obtiene el componente Knockback
         currentHealth = maxHealth;
         knockback = GetComponent<NF_Knockback>();
-          impulseSource=GetComponent<CinemachineImpulseSource>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
 
         UpdateHealthUI();
         UpdateWeakState();
     }
+
     private void Update()
     {
         UpdateHealthUI();
         UpdateWeakState();
     }
+
     public void TakeDamage(int damage, Vector2 hitDirection)
     {
         NF_CameraShakeManager.instance.CameraShake(impulseSource);
@@ -57,16 +62,16 @@ public class NF_PlayerHealth : MonoBehaviour
         {
             currentHealth = 0;
             Die();
+            return; // 🔹 IMPORTANTE: Salir para evitar ejecución adicional
         }
 
         // 🧠 HITSTOP (ralentiza el tiempo brevemente)
         StartCoroutine(HitStop(0.05f));
 
-       
-
         // 💫 KNOCKBACK (retroceso físico del jugador)
         knockback.CallKnockback(hitDirection);
     }
+
     // 💀 Versión sin knockback (para daño pasivo o atrapamientos tipo moho)
     public void TakeDamageWithoutKnockback(int damage)
     {
@@ -83,6 +88,7 @@ public class NF_PlayerHealth : MonoBehaviour
         {
             currentHealth = 0;
             Die();
+            return; // 🔹 IMPORTANTE: Salir para evitar ejecución adicional
         }
 
         // 🔹 Solo efecto de impacto (no knockback)
@@ -93,25 +99,20 @@ public class NF_PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
     }
+
     public void UpdateHealthUI()
     {
         if (!useUI || healthFill == null) return;
         healthFill.fillAmount = (float)currentHealth / (float)maxHealth;
     }
-    //public void Heal(int amount)
-    //{
-    //    currentHealth += amount;
-    //    currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-    //    UpdateHealthUI();
-    //    UpdateWeakState();
-    //}
     public void UpdateWeakState()
     {
         if (!useUI || uiAnimator == null) return;
         bool isWeak = currentHealth <= Mathf.CeilToInt(maxHealth * 0.25f); // ≤25% de vida
         uiAnimator.SetBool("isWeak", isWeak);
     }
+
     private bool isHitStopping = false;
 
     private IEnumerator HitStop(float duration)
@@ -131,17 +132,30 @@ public class NF_PlayerHealth : MonoBehaviour
         isHitStopping = false;
     }
 
-
     private void Die()
     {
         Debug.Log("☠️ El jugador ha muerto. Respawn en Zone.");
+        
+        // 🔹 NUEVO: Disparar evento de muerte ANTES de resetear la salud
+        OnPlayerDeath?.Invoke();
+
         currentHealth = maxHealth;
 
         // 💡 2️⃣ Actualizar UI inmediatamente
         UpdateHealthUI();
         UpdateWeakState();
-        NF_CameraManager.instance.ForceResetToDefaultCamera();
+        
+        if (NF_CameraManager.instance != null)
+            NF_CameraManager.instance.ForceResetToDefaultCamera();
+            
         //StartCoroutine(gameController.Respawn(1f, "Zone"));
         CA_PlayerController.Instance.Die();
+    }
+
+    // 🔹 NUEVO: Método para limpiar suscripciones
+    private void OnDestroy()
+    {
+        // Limpiar todas las suscripciones al evento
+        OnPlayerDeath = null;
     }
 }
