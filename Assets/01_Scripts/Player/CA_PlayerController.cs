@@ -1184,7 +1184,13 @@ public class CA_PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Obstacle") && !isInvulnerable)
+        // 🛡️ Agregar chequeo de invulnerabilidad y estado de muerte
+        if (isInvulnerable || isDead)
+        {
+            return; // Ignora la colisión si ya está invulnerable o en proceso de muerte
+        }
+
+        if (collision.CompareTag("Obstacle"))
         {
             StartCoroutine(HandleObstacleCollision(collision));
         }
@@ -1276,7 +1282,7 @@ public class CA_PlayerController : MonoBehaviour
         this.enabled = true;
 
         // 🛡️ Invulnerabilidad breve tras respawn
-        StartCoroutine(TemporaryInvulnerability(invulnerabilityTime * 0.5f));
+      StartCoroutine(TemporaryInvulnerability(invulnerabilityTime * 0.5f));
     }
 
     private IEnumerator DeathSequence()
@@ -1300,33 +1306,39 @@ public class CA_PlayerController : MonoBehaviour
     }
     private IEnumerator HandleObstacleCollision(Collider2D obstacle)
     {
-        // 🚫 Evitar recibir daño repetido
+        // 🛡️ 1. SEGURIDAD: Evitar golpes dobles
+        if (isInvulnerable || isDead) yield break;
+
+        // 🔒 Bloquear inmediatamente
         isInvulnerable = true;
 
-        // 🧭 Dirección del golpe
+        // 💥 Calcular dirección y daño
         Vector2 hitDirection = (transform.position - obstacle.transform.position).normalized;
-
-        // 💀 Determinar si el jugador morirá con este golpe antes de aplicar daño
-        bool willDie = playerHealthScript.currentHealth - 1 <= 0;
-
-        // 💥 Aplicar daño real
+        bool willDie = playerHealthScript.currentHealth <= 1;
         playerHealthScript.TakeDamage(1, hitDirection);
 
-        // 🔍 Referencias
-        NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
-        NF_DeathTransition transition = deathTransition; // referencia asignada en el inspector
+        // 💀 Si muere, delegar a Die()
+        if (willDie)
+        {
+            Die();
+            yield break;
+        }
 
+        // =======================================================
+        // CASO: PARKOUR RESPAWN (Sincronizado con Transición)
+        // =======================================================
+
+        NF_GameController gc = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
+        NF_DeathTransition transition = deathTransition;
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         Animator anim = GetComponentInChildren<Animator>();
-
         bool prevFacingRight = isFacingRight;
 
-        // =============================
-        // 🔒 BLOQUEAR TODO MOVIMIENTO Y ANIMACIÓN
-        // =============================
-        if (this.enabled)
-            this.enabled = false;
+        // 🛑 2. CONGELAR AL JUGADOR (Inicio de la secuencia)
+        // Quitamos el control para que no pueda caminar ni saltar
+        if (this.enabled) this.enabled = false;
 
+        // Frenamos las físicas totalmente
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
@@ -1334,79 +1346,71 @@ public class CA_PlayerController : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        if (anim != null)
-            anim.speed = 0f; // pausa animaciones
+        // Pausamos la animación actual (ej. la de recibir daño)
+        if (anim != null) anim.speed = 0f;
 
-        // =============================
-        // 💫 EJECUTAR TRANSICIÓN DE MUERTE
-        // =============================
+        // 🎬 3. EJECUTAR TRANSICIÓN Y ESPERAR A QUE TERMINE
         if (transition != null)
         {
+            // 'yield return' es la clave: El código se detiene AQUÍ y no baja
+            // hasta que termine el Fade Out -> Callback -> Fade In.
             yield return transition.PlayDeathTransition(() =>
             {
-                // 🕳️ Seleccionar tipo de respawn según si morirá o no
-                if (willDie)
-                {
-                    // 💀 Murió completamente → Zone checkpoint
-                    gc.StartCoroutine(gc.Respawn(0f, "Zone"));
-                    gc.HealPlayerAtSpawn(); // ❤️ restaura salud completa
-                    Debug.Log("🔁 Respawn en Zone (vida restaurada).");
-                }
-                else
-                {
-                    // ⚠️ Solo tocó obstáculo → Parkour checkpoint
-                    gc.StartCoroutine(gc.Respawn(0f, "Parkour"));
-                    Debug.Log("🏁 Respawn en Parkour (obstáculo).");
-                }
+                // --- ESTE BLOQUE SE EJECUTA EN EL MOMENTO DE PANTALLA NEGRA ---
 
-                // =============================
-                // 🧍‍♂️ ANIMACIÓN Y ESTADO AL REAPARECER
-                // =============================
+                // A) Mover al jugador al checkpoint
+                gc.StartCoroutine(gc.Respawn(0f, "Parkour"));
+
+                // B) Preparar la animación de Idle para cuando se vea de nuevo
                 if (anim != null)
                 {
-                    anim.speed = 1f;
+                    anim.speed = 1f; // Restaurar velocidad
                     anim.ResetTrigger("Attack");
                     anim.ResetTrigger("Jump");
-                    anim.ResetTrigger("DoubleJump");
-                    anim.ResetTrigger("Land");
                     anim.ResetTrigger("Dash");
                     anim.ResetTrigger("DeathTrigger");
-                    anim.Play("HV_idle 0", 0, 0f); // Idle inmediato
+                    anim.Play("HV_idle 0", 0, 0f);
                 }
 
-                // 🔓 Descongelar físicas y control
-                if (rb != null)
-                {
-                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                    rb.gravityScale = 1f;
-                }
-
+                // C) Restaurar dirección de mirada
                 Vector3 ls = transform.localScale;
                 ls.x = Mathf.Abs(ls.x) * (prevFacingRight ? 1 : -1);
                 transform.localScale = ls;
                 isFacingRight = prevFacingRight;
 
-                this.enabled = true;
+                // ⚠️ IMPORTANTE: Aquí NO devolvemos el control todavía.
+                // El jugador sigue congelado mientras la pantalla se empieza a aclarar.
             });
         }
         else
         {
-            // Fallback sin transición
-            if (willDie)
-            {
-                gc.StartCoroutine(gc.Respawn(0f, "Zone"));
-                gc.HealPlayerAtSpawn();
-            }
-            else
-            {
-                gc.StartCoroutine(gc.Respawn(0f, "Parkour"));
-            }
+            // Fallback por si no hay transición asignada
+            yield return new WaitForSeconds(0.5f);
+            gc.StartCoroutine(gc.Respawn(0f, "Parkour"));
+            yield return new WaitForSeconds(0.5f);
         }
 
-        // 🛡️ Invulnerabilidad post-respawn sin bloquear movimiento
-        StartCoroutine(TemporaryInvulnerability(invulnerabilityTime * 0.4f));
-    }
+        // =======================================================
+        // 🔓 4. DESCONGELAR (SOLO AL TERMINAR TODA LA TRANSICIÓN)
+        // =======================================================
 
+        // Si el código llega aquí, significa que la transición visual ha finalizado.
+
+        // Restaurar físicas normales
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Liberar X e Y
+            rb.gravityScale = 1f;
+        }
+
+        if (anim != null) anim.speed = 1f;
+
+        // ✅ Reactivar Inputs del jugador
+        this.enabled = true;
+
+        // 🛡️ Quitar invulnerabilidad (Ya puede recibir daño de nuevo)
+        isInvulnerable = false;
+    }
     private IEnumerator TemporaryInvulnerability(float duration)
     {
         isInvulnerable = true;

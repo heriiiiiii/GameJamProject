@@ -8,7 +8,8 @@ public class NF_GameController : MonoBehaviour
 
     private Vector2 checkpointZonePos;
     private Vector2 checkpointParkourPos;
-    public int lifeRespawn; 
+    public int lifeRespawn;
+
     private void Awake()
     {
         playerHealth = player.GetComponent<NF_PlayerHealth>();
@@ -30,6 +31,7 @@ public class NF_GameController : MonoBehaviour
             Debug.Log($"🏁 Checkpoint Parkour guardado en: {pos}");
         }
     }
+
     public void HealPlayerAtSpawn()
     {
         if (playerHealth == null)
@@ -53,11 +55,13 @@ public class NF_GameController : MonoBehaviour
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
         NF_PlayerHealth health = player.GetComponent<NF_PlayerHealth>();
 
-        // 🔸 Desactiva movimiento y oculta al jugador temporalmente
+        // 🔹 Desactivar movimiento mientras reaparece
         if (controller != null)
             controller.enabled = false;
-        if (sr != null)
-            sr.enabled = false;
+
+        // ❗ YA NO SE OCULTA EL JUGADOR → se evita invulnerabilidad accidental
+        // if (sr != null) sr.enabled = false;
+
         if (rb != null)
             rb.velocity = Vector2.zero;
 
@@ -68,29 +72,29 @@ public class NF_GameController : MonoBehaviour
         {
             player.transform.position = checkpointParkourPos;
 
-            // Si murió y revivió aquí, le damos 1 de vida mínima
             if (health != null && health.currentHealth <= 0)
                 health.currentHealth = 1;
         }
-        else // 🔹 Respawn Zone
+        else
         {
             player.transform.position = checkpointZonePos;
 
-            // 🩸 Curar vida completa al reaparecer en Zone
             if (health != null)
-                health.currentHealth = health.maxHealth; // o lifeRespawn, si querés mantenerlo variable
+                health.currentHealth = health.maxHealth;
         }
 
-        // 🔹 💡 Actualiza inmediatamente la interfaz de vida
+        // 🔹 Actualiza la interfaz de vida
         if (health != null)
         {
             health.UpdateHealthUI();
             health.UpdateWeakState();
         }
 
-        // 🔸 Reactiva todo
+        // 🔹 Reactivar sprite (por si lo controlas en animaciones)
         if (sr != null)
             sr.enabled = true;
+
+        // 🔹 Reactivar movimiento
         if (controller != null)
             controller.enabled = true;
     }

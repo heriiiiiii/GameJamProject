@@ -5,22 +5,22 @@ using UnityEngine.SceneManagement;
 public class NF_SceneTransition : MonoBehaviour
 {
     [Header("Configuración de transición")]
-    [Tooltip("Nombre exacto de la escena a la que se viajará")]
-    [SerializeField] private string targetSceneName;
+    [Tooltip("Nombre de la escena destino")]
+    public string targetSceneName;
 
-    [Tooltip("Nombre del punto de spawn en la nueva escena")]
-    [SerializeField] private string targetSpawnPoint;
+    [Tooltip("ID del spawn point en la escena destino")]
+    public string targetSpawnID;
 
     [Header("Efectos opcionales")]
-    [SerializeField] private Animator transitionAnimator; // fade opcional
-    [SerializeField] private float transitionTime = 1f;
+    public Animator transitionAnimator;
+    public float transitionTime = 1f;
 
     private bool isTransitioning = false;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isTransitioning) return;
         if (!collision.CompareTag("Player")) return;
+        if (isTransitioning) return;
 
         isTransitioning = true;
         StartCoroutine(TransitionCoroutine());
@@ -28,42 +28,50 @@ public class NF_SceneTransition : MonoBehaviour
 
     private IEnumerator TransitionCoroutine()
     {
-        // 🔹 Guardar estado del jugador (habilidades, etc.)
+        // Guardar habilidades del jugador
         NF_GameData.SavePlayerState();
 
-        // 🔹 Reproducir fade o animación de transición
+        // Fade opcional
         if (transitionAnimator != null)
         {
             transitionAnimator.SetTrigger("Start");
             yield return new WaitForSeconds(transitionTime);
         }
 
-        // 🔹 Guardar el spawn al que debemos ir en la siguiente escena
-        NF_GameData.nextSpawnName = targetSpawnPoint;
+        // Guardar el ID del spawn
+        NF_GameData.nextSpawnName = targetSpawnID;
 
-        // 🔹 Cargar la escena destino
+        // Cargar la escena destino
         SceneManager.LoadScene(targetSceneName);
     }
 
-    // 🔸 Llamar esto desde Start() en cada escena para colocar al jugador
+    // Colocar al jugador en el spawn correcto
     public static void PlacePlayerAtSpawn()
     {
-        string spawnName = NF_GameData.nextSpawnName;
-        if (string.IsNullOrEmpty(spawnName))
-            return;
+        string spawnID = NF_GameData.nextSpawnName;
+        if (string.IsNullOrEmpty(spawnID)) return;
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        GameObject spawn = GameObject.Find(spawnName);
+        if (player == null) return;
 
-        if (player != null && spawn != null)
+        // Buscar spawns en la escena
+        NF_SpawnPoint[] spawns = GameObject.FindObjectsOfType<NF_SpawnPoint>();
+
+        foreach (NF_SpawnPoint sp in spawns)
         {
-            player.transform.position = spawn.transform.position;
+            if (sp.spawnID == spawnID)
+            {
+                player.transform.position = sp.transform.position;
+
+                if (player.TryGetComponent(out CA_PlayerController controller))
+                {
+                    NF_GameData.LoadPlayerState(controller);
+                }
+
+                return; // ← se encontró
+            }
         }
 
-        // Restaurar habilidades persistentes
-        if (player.TryGetComponent(out CA_PlayerController controller))
-        {
-            NF_GameData.LoadPlayerState(controller);
-        }
+        Debug.LogWarning("⚠ No se encontró spawnID: " + spawnID);
     }
 }
