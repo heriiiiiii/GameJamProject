@@ -5,29 +5,29 @@ using UnityEngine;
 public class CA_ActivadorEnemigo : MonoBehaviour
 {
     [Header("Configuración General")]
-    public GameObject enemigoPrefab;            // Enemigo a activar (puede ser cualquier prefab)
-    public GameObject[] paredesBloqueo;         // Paredes de bloqueo opcionales
+    public GameObject[] paredesBloqueo;
 
-    private MonoBehaviour scriptEnemigo;        // Referencia genérica al script del enemigo
-    private bool enfrentamientoActivo = false;  // Control para evitar múltiples activaciones
-    public GameObject prefabCorazon; // Arrastra aquí el corazón DESACTIVADO en la escena
+    [System.NonSerialized] public bool enfrentamientoActivo = false;
+    public GameObject prefabCorazon;
 
+    [Header("Gestor de Boss Battle")]
+    public CA_BossBattleManager battleManager;
 
     void Start()
     {
-        // Buscar automáticamente las paredes si no se asignaron manualmente
+        // Buscar paredes si no están asignadas
         if (paredesBloqueo == null || paredesBloqueo.Length == 0)
         {
             BuscarParedesBloqueo();
         }
 
-        if (enemigoPrefab != null)
+        // Buscar battle manager si no está asignado
+        if (battleManager == null)
         {
-            scriptEnemigo = enemigoPrefab.GetComponent<MonoBehaviour>();
+            battleManager = GetComponentInParent<CA_BossBattleManager>();
         }
 
-        Debug.Log("Activador listo. Enemigo asignado: " + (enemigoPrefab != null));
-        Debug.Log("Paredes de bloqueo asignadas: " + (paredesBloqueo != null ? paredesBloqueo.Length : 0));
+        Debug.Log("Activador listo. Battle Manager: " + (battleManager != null));
     }
 
     void BuscarParedesBloqueo()
@@ -37,50 +37,30 @@ public class CA_ActivadorEnemigo : MonoBehaviour
         {
             paredesBloqueo = paredes;
         }
-        else
-        {
-            GameObject pared = GameObject.Find("ParedesBloqueo");
-            if (pared != null)
-            {
-                paredesBloqueo = new GameObject[] { pared };
-            }
-        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // SOLO activar si no hay enfrentamiento activo
         if (other.CompareTag("Player") && !enfrentamientoActivo)
         {
-            enfrentamientoActivo = true;
-            Debug.Log("Jugador activó el enfrentamiento con " + enemigoPrefab.name);
-            ActivarEnfrentamiento();
+            if (battleManager != null && !battleManager.bossDerrotado)
+            {
+                // Usar el battle manager
+                battleManager.IniciarEnfrentamiento();
+            }
         }
     }
 
-    void ActivarEnfrentamiento()
+    // Método para que el manager active el enfrentamiento
+    public void IniciarEnfrentamientoDesdeManager()
     {
-        if (enemigoPrefab != null)
+        if (!enfrentamientoActivo)
         {
-            enemigoPrefab.SetActive(true);
-
-            if (scriptEnemigo != null)
-            {
-                var metodo = scriptEnemigo.GetType().GetMethod("ActivarBoss");
-                if (metodo == null)
-                    metodo = scriptEnemigo.GetType().GetMethod("ActivarEnemigo");
-
-                if (metodo != null)
-                    metodo.Invoke(scriptEnemigo, null);
-                else
-                    Debug.LogWarning("El enemigo no tiene un método ActivarBoss() ni ActivarEnemigo()");
-            }
+            enfrentamientoActivo = true;
+            Debug.Log("Activando enfrentamiento desde manager");
+            ActivarParedesBloqueo();
         }
-        else
-        {
-            Debug.LogError("Enemigo no asignado en el activador");
-        }
-
-        ActivarParedesBloqueo();
     }
 
     void ActivarParedesBloqueo()
@@ -94,13 +74,8 @@ public class CA_ActivadorEnemigo : MonoBehaviour
             }
             Debug.Log("Paredes activadas.");
         }
-        else
-        {
-            Debug.LogWarning("No se encontraron paredes de bloqueo para activar");
-        }
     }
 
-    // Método público para desactivar las paredes asignadas
     public void DesactivarParedesBloqueo()
     {
         if (paredesBloqueo != null && paredesBloqueo.Length > 0)
@@ -114,7 +89,19 @@ public class CA_ActivadorEnemigo : MonoBehaviour
         }
 
         enfrentamientoActivo = false;
+
+        // NOTIFICAR al battle manager si el boss fue derrotado
+        if (battleManager != null && !battleManager.bossDerrotado)
+        {
+            // Verificar si el boss fue derrotado
+            GameObject bossInstance = battleManager.GetBossInstance();
+            if (bossInstance == null)
+            {
+                // Boss fue derrotado
+                battleManager.BossDerrotado();
+                // Desactivar este activador permanentemente
+                this.gameObject.SetActive(false);
+            }
+        }
     }
-
-
 }
