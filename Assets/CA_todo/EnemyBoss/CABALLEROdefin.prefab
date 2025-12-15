@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33f2058bf6a1b03408f9ce52ba4687bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 4
+  health: 12
   recoilLength: 0.2
   recoilFactor: 1
   isRecoiling: 0
@@ -447,39 +447,58 @@ MonoBehaviour:
   centroArea: {x: 0, y: 0}
   usarPosicionInicialComoCentro: 1
   velocidadPatrulla: 3
-  velocidadPersecucion: 5
+  velocidadPersecucion: 6
   velocidadEstocada: 30
-  rangoDeteccion: 4
+  rangoDeteccion: 6
   rangoEstocada: 10
   rangoMinimoPersecucion: 1
-  danoCorte: 3
+  danoCorte: 1
   duracionCorte: 0.2
-  tiempoEntreCortes: 0.3
-  escalaEfectoCorte: 0.3
-  rangoCorte: 3
+  tiempoEntreCortes: 0.2
+  escalaEfectoCorte: 0.5
+  rangoCorte: 5
   "areaDa\xF1oCorte": 4
   cortesParaEstocada: 2
   proyectilCorte: {fileID: 368870556342478484, guid: 3f5f94e2aa7e33543a6e7d0c159f458c, type: 3}
   velocidadProyectil: 7
-  danoProyectil: 2
-  danoEstocada: 2
+  danoProyectil: 1
+  danoEstocada: 1
   alturaSalto: 8
   tiempoPreparacion: 0.1
   tiempoEstocada: 0.4
   tiempoRecuperacion: 0.3
-  fuerzaEmpuje: 25
-  distanciaTeletransporte: 8
+  fuerzaEmpuje: 40
+  activarAtaqueSierra: 1
+  danoSierra: 1
+  velocidadRotacionSierra: 3500
+  velocidadMovimientoSierra: 12
+  tiempoPreparacionSierra: 0.5
+  tiempoDuracionSierra: 0.6
+  fuerzaEmpujeSierra: 30
+  "radioDa\xF1oSierra": 2
+  efectoSierra: {fileID: 0}
+  escalaBola: 0.4
+  saludMinimaParaSierra: 6
+  distanciaTeletransporte: 4
   tiempoTeletransporte: 0.5
   puedeTeletransportarse: 1
   capasObstaculos:
     serializedVersion: 2
     m_Bits: 8
+  activarRetrocesoPorGolpe: 1
+  fuerzaRetrocesoVertical: 8
+  fuerzaRetrocesoHorizontal: 3
+  duracionRetroceso: 0.3
+  activarTeletransportePorGolpe: 1
+  saludParaActivarTeletransporte: 8
+  cantidadProyectilesTeletransporte: 2
+  anguloDispersionProyectiles: 30
   efectoSlash: {fileID: 3188800768891569814, guid: 939bccf0e85c1ad40a39e05d6545a7c6, type: 3}
   efectoEstocada: {fileID: 1013564298748553241, guid: 1f4a796ab92bb3542a3e3ee61e73d454, type: 3}
   dashTrailEffect: {fileID: 5325708884193437768}
   enemigoParaGenerar: {fileID: 2173202079836644707, guid: 24cfe23f14bdc324a8b45ad5abb95882, type: 3}
-  tiempoEntreSpawn: 4
-  vidaParaEmpezarSpawn: 2
+  tiempoEntreSpawn: 7
+  vidaParaEmpezarSpawn: 8
   radioSpawn: 3
   mirandoDerecha: 1
   contadorCortes: 0

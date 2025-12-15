@@ -149,6 +149,7 @@ public class CA_RecolEnemy : MonoBehaviour
             }
         }
 
+        // 🔹 CORREGIDO: Solo notificar si TODOS están muertos
         if (todosMuertos)
         {
             if (activador != null)
