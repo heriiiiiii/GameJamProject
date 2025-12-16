@@ -4,10 +4,9 @@ using TMPro;
 
 public class IM_NPCs : MonoBehaviour
 {
-
     [Header("🔊 Audio")]
-    [SerializeField] private AudioSource audioSource;   // lo arrastras en inspector
-    [SerializeField] private AudioClip startDialogueClip; // el sonido de iniciar diálogo
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip startDialogueClip;
 
     [Header("Referencias UI")]
     [SerializeField] private GameObject dialogueMark;
@@ -35,8 +34,8 @@ public class IM_NPCs : MonoBehaviour
     private int lineIndex;
 
     private CA_PlayerController playerMovement;
+    private Rigidbody2D playerRb;
 
-    // Seguimiento UI
     private RectTransform panelRect;
     private Canvas parentCanvas;
     private Camera mainCam;
@@ -47,7 +46,7 @@ public class IM_NPCs : MonoBehaviour
         parentCanvas = dialoguePanel.GetComponentInParent<Canvas>();
         mainCam = Camera.main;
 
-        dialoguePanel.SetActive(false); // Se asegura que no arranque visible
+        dialoguePanel.SetActive(false);
     }
 
     void Update()
@@ -56,7 +55,6 @@ public class IM_NPCs : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // Mostrar indicadores solo si NO estamos en diálogo
         if (!didDialogueStart)
         {
             if (distance > arrowRange)
@@ -80,7 +78,6 @@ public class IM_NPCs : MonoBehaviour
             }
         }
 
-        // 🔹 Hace que el panel SIGA al NPC solo cuando el diálogo está activo
         if (didDialogueStart)
             FollowPanelPosition();
     }
@@ -99,7 +96,7 @@ public class IM_NPCs : MonoBehaviour
         panelRect.localPosition = localPoint;
     }
 
-
+    // ⏳ Inicio de diálogo
     private void StartDialogue()
     {
         didDialogueStart = true;
@@ -108,51 +105,81 @@ public class IM_NPCs : MonoBehaviour
 
         lineIndex = 0;
 
-        // 🔊 Reproducir sonido SOLO al comenzar el diálogo
         if (audioSource != null && startDialogueClip != null)
             audioSource.PlayOneShot(startDialogueClip, 0.9f);
 
-        if (playerMovement != null)
-            playerMovement.enabled = false;
+        FreezePlayer();
 
         StartCoroutine(ShowLine());
     }
 
+    // 🧊 Congelar todo el movimiento + animación + sonido
+    private void FreezePlayer()
+    {
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = false;
+
+            // 🔥 Reset de inputs + Idle + apagar sonido
+            playerMovement.ResetMovementState();
+            playerMovement.ForceIdleState();
+        }
+
+        if (playerRb != null)
+        {
+            playerRb.velocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+    }
+
+    // 🔓 Liberar al jugador
+    private void UnfreezePlayer()
+    {
+        if (playerRb != null)
+        {
+            playerRb.velocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+
+        if (playerMovement != null)
+            playerMovement.enabled = true;
+    }
 
     private void NextDialogueLine()
     {
         lineIndex++;
+
         if (lineIndex < dialogueLines.Length)
+        {
             StartCoroutine(ShowLine());
+        }
         else
         {
             didDialogueStart = false;
             dialoguePanel.SetActive(false);
 
+            UnfreezePlayer();
+
             float distance = Vector2.Distance(transform.position, player.position);
+
             if (distance <= talkRange)
                 SetIndicatorState(false, true, true);
             else if (distance <= arrowRange)
                 SetIndicatorState(true, false, false);
             else
                 SetIndicatorState(false, false, false);
-
-            if (playerMovement != null)
-                playerMovement.enabled = true;
         }
     }
-
 
     private IEnumerator ShowLine()
     {
         dialogueText.text = "";
-        foreach (var letter in dialogueLines[lineIndex])
+        foreach (var c in dialogueLines[lineIndex])
         {
-            dialogueText.text += letter;
+            dialogueText.text += c;
             yield return new WaitForSeconds(typingTime);
         }
     }
-
 
     private void SetIndicatorState(bool arrow, bool mark, bool mask)
     {
@@ -161,13 +188,14 @@ public class IM_NPCs : MonoBehaviour
         if (dialogueMask != null) dialogueMask.SetActive(mask);
     }
 
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             isPlayerInRange = true;
+
             playerMovement = collision.GetComponent<CA_PlayerController>();
+            playerRb = collision.GetComponent<Rigidbody2D>();
         }
     }
 
