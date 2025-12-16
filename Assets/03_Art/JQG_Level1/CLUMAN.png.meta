@@ -1,0 +1,174 @@
+fileFormatVersion: 2
+guid: ee248d34445056b408e51f63b80da248
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: CLUMAN_0
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 227
+        width: 642
+        height: 1992
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad58afec2f01f2a44a105f5e62a49285
+      internalID: 1050549458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      CLUMAN_0: 1050549458
+      CLUMAN_1: -1116384324
+      CLUMAN_10: 1699521322
+      CLUMAN_11: -214441261
+      CLUMAN_12: -543186278
+      CLUMAN_13: -2014818418
+      CLUMAN_14: 1042860553
+      CLUMAN_15: -1560697509
+      CLUMAN_16: 763113293
+      CLUMAN_17: 1238872299
+      CLUMAN_18: -1820630291
+      CLUMAN_19: 1379044306
+      CLUMAN_2: -1271288969
+      CLUMAN_20: -379735566
+      CLUMAN_21: -948679
+      CLUMAN_22: 1501397197
+      CLUMAN_23: 1326725274
+      CLUMAN_24: 164883170
+      CLUMAN_25: 1707652538
+      CLUMAN_26: 432283243
+      CLUMAN_27: 1839665134
+      CLUMAN_28: 36136306
+      CLUMAN_29: -2029784208
+      CLUMAN_3: -1794785577
+      CLUMAN_30: -1317563454
+      CLUMAN_31: 1927062562
+      CLUMAN_32: -1856389792
+      CLUMAN_33: 545782686
+      CLUMAN_34: -608138720
+      CLUMAN_35: -897602250
+      CLUMAN_36: 1502764918
+      CLUMAN_37: -1245908964
+      CLUMAN_38: -871524756
+      CLUMAN_4: 1972222492
+      CLUMAN_5: 966182231
+      CLUMAN_6: 223501456
+      CLUMAN_7: 193143208
+      CLUMAN_8: 1338476082
+      CLUMAN_9: -1872134297
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

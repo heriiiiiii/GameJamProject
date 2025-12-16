@@ -1,0 +1,339 @@
+fileFormatVersion: 2
+guid: 1219e6af1b9e01845b99dccddce091cd
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TIKLEMAP_3
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 6604
+        width: 974
+        height: 1900
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 74a222e7247a7d6448f42da80389e164
+      internalID: 1556611645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_18
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 6596
+        width: 914
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a117cf008e84384883105310ac3399e
+      internalID: 2092910821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_22
+      rect:
+        serializedVersion: 2
+        x: 122
+        y: 5374
+        width: 1294
+        height: 425
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae06d2b779d85ad46bbfc9012d88f6c8
+      internalID: 1202121545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_23
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 4114
+        width: 1060
+        height: 476
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a11facb41127fca47a83fcd4877e0514
+      internalID: 547480120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_24
+      rect:
+        serializedVersion: 2
+        x: 1336
+        y: 3566
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e3e50ce4918cdf49b1e28a53a6d485a
+      internalID: 1245703371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_25
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 2726
+        width: 1218
+        height: 507
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a17b5da780e9a04f8e6506cde61c461
+      internalID: 317677476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_30
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 312
+        width: 874
+        height: 1800
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee2e68f225083e54dbe54d57cc8d1ade
+      internalID: -208446087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TIKLEMAP_45
+      rect:
+        serializedVersion: 2
+        x: 1298
+        y: 1075
+        width: 4
+        height: 4
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 87fca36aee8ad434e9ae5ee802de5a44
+      internalID: -1110572480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      TIKLEMAP_0: 1759148356
+      TIKLEMAP_1: 1186806634
+      TIKLEMAP_10: -1051256396
+      TIKLEMAP_11: 182872657
+      TIKLEMAP_12: -1885639745
+      TIKLEMAP_13: -1539115490
+      TIKLEMAP_14: 389804927
+      TIKLEMAP_15: 863283430
+      TIKLEMAP_16: 581340168
+      TIKLEMAP_17: 1572639989
+      TIKLEMAP_18: 2092910821
+      TIKLEMAP_19: 478862578
+      TIKLEMAP_2: -2044000022
+      TIKLEMAP_20: -904630976
+      TIKLEMAP_21: -1674957377
+      TIKLEMAP_22: 1202121545
+      TIKLEMAP_23: 547480120
+      TIKLEMAP_24: 1245703371
+      TIKLEMAP_25: 317677476
+      TIKLEMAP_26: -904086658
+      TIKLEMAP_27: 1850724056
+      TIKLEMAP_28: -1660021634
+      TIKLEMAP_29: 871998893
+      TIKLEMAP_3: 1556611645
+      TIKLEMAP_30: -208446087
+      TIKLEMAP_31: -600724168
+      TIKLEMAP_32: -12897676
+      TIKLEMAP_33: 350949672
+      TIKLEMAP_34: -997467131
+      TIKLEMAP_35: -2058508134
+      TIKLEMAP_36: 243828092
+      TIKLEMAP_37: -499834460
+      TIKLEMAP_38: -835342242
+      TIKLEMAP_39: 1423737662
+      TIKLEMAP_4: 1718257031
+      TIKLEMAP_40: -925816760
+      TIKLEMAP_41: -151535030
+      TIKLEMAP_42: 449920359
+      TIKLEMAP_43: -1564495518
+      TIKLEMAP_44: -1470006201
+      TIKLEMAP_45: -1110572480
+      TIKLEMAP_46: 1587296989
+      TIKLEMAP_47: 533877558
+      TIKLEMAP_48: 619849432
+      TIKLEMAP_49: -1229538224
+      TIKLEMAP_5: -408330813
+      TIKLEMAP_50: 272376751
+      TIKLEMAP_51: 544641815
+      TIKLEMAP_52: -2089876313
+      TIKLEMAP_53: -860776730
+      TIKLEMAP_54: -1268066262
+      TIKLEMAP_55: 885713896
+      TIKLEMAP_56: 1481558138
+      TIKLEMAP_6: -60820708
+      TIKLEMAP_7: 610698276
+      TIKLEMAP_8: -1520556455
+      TIKLEMAP_9: 1376683010
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

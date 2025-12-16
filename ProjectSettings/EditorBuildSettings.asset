@@ -4,5 +4,20 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/00_Scenes/MainMenu.unity
+    guid: 36e2f72895990c34ab0e82a43c6075c5
+  - enabled: 1
+    path: Assets/00_Scenes/IM_Presentacion.unity
+    guid: 357a3f2e2651ac74487651517577b300
+  - enabled: 1
+    path: Assets/00_Scenes/JQ_Cinematica.unity
+    guid: 69ec6c8604c81834da3f441f2e7b2f1f
+  - enabled: 1
+    path: Assets/00_Scenes/01_JZona1.unity
+    guid: 7417c6030123aa749a2760b7a9317485
+  - enabled: 1
+    path: Assets/00_Scenes/03_JQG_Zona2.unity
+    guid: 4240418067660974b83a6470e34a7560
   m_configObjects: {}
