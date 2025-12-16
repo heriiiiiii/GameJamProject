@@ -1330,4 +1330,10 @@ public class CA_MiniBossVigiasEsporales : MonoBehaviour
 
         Debug.Log("Mini Boss reseteado completamente");
     }
+
+    // 🔹 NUEVO: Método para que el Battle Manager verifique si el mini boss está vivo
+    public bool IsMiniBossAlive()
+    {
+        return hongosVivos > 0;
+    }
 }
