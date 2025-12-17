@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activadorBoss: {fileID: 1282740456}
-  bossPrefab: {fileID: 1786700437423102997, guid: 29fa56a0179ec2e41ab5352e8543eb5f, type: 3}
+  bossPrefab: {fileID: 1699196580815411168, guid: 19d131d6c4cfd364286d7dd5fe8976f5, type: 3}
   bossSpawnPoint: {fileID: 2132366645}
   enfrentamientoActivo: 0
   bossDerrotado: 0

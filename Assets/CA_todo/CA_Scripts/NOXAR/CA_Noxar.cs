@@ -9,6 +9,24 @@ public class CA_Noxar : MonoBehaviour
     public Transform centroDisparo;
     public GameObject prefabBala;
 
+    [Header("ANIMACIONES - Sistema Directo")]
+    public Animator animatorNoxar;
+
+    [Header("Nombres de Animaciones")]
+    public string animIdle = "hv_idleNoxar";
+    public string animAttack = "hd_atackNoxar";
+    public string animMeteor = "hv_meteorNoxar";
+    public string animSword = "hv_swordNoxar";
+    public string animDeath = "hv_deathNoxar";
+
+    [Header("Parámetros Básicos")]
+    public string paramIsMoving = "IsMoving";
+    public string paramIsAttacking = "IsAttacking";
+    public string paramIsDead = "IsDead";
+
+    [Header("Probabilidades de Animación")]
+    [Range(0, 100)] public int probabilidadAttack = 70; // 70% ataque, 30% idle
+
     [Header("Configuración de Puntos de Spawn para Espadas")]
     public int cantidadPuntosSpawn = 5;
     public float alturaDesdeLimiteInferior = 0.5f;
@@ -111,6 +129,12 @@ public class CA_Noxar : MonoBehaviour
     private float tiempoUltimoAtaque = 0f;
     private int faseActual = 1;
 
+    // Variables de estado
+    private bool estaAtacando = false;
+    private bool estaEnPreparacion = false;
+    private bool estaMovimientoActivo = true;
+    private Color colorOriginal;
+
     private bool jugadorDetectado = false;
     private Vector3 posicionInicial;
     private Vector3 destinoPatrulla;
@@ -119,11 +143,6 @@ public class CA_Noxar : MonoBehaviour
     private List<GameObject> balasActivas = new List<GameObject>();
     private List<GameObject> espadasActivas = new List<GameObject>();
     private bool anilloActivo = false;
-
-    // Estados visuales
-    private bool estaAtacando = false;
-    private bool estaEnPreparacion = false;
-    private Color colorOriginal;
 
     // Variables para movimiento constante
     private Vector3 direccionMovimiento = Vector3.right;
@@ -150,49 +169,26 @@ public class CA_Noxar : MonoBehaviour
         colisionador = GetComponent<Collider2D>();
         recolEnemy = GetComponent<CA_RecolEnemy>();
 
-        // Configurar Rigidbody para no girar
+        // Inicializar Animator
+        if (animatorNoxar == null)
+        {
+            animatorNoxar = GetComponent<Animator>();
+        }
+
+        // Configurar Rigidbody
         if (rb != null)
         {
             rb.bodyType = RigidbodyType2D.Kinematic;
             rb.gravityScale = 0f;
             rb.freezeRotation = true;
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        }
-
-        // Asegurar que tenemos un sprite renderer
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-            // Crear sprite básico circular
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Texture2D tex = new Texture2D(64, 64);
-            Color colorSphere = new Color(0.2f, 0.2f, 0.8f, 1f);
-
-            for (int x = 0; x < 64; x++)
-            {
-                for (int y = 0; y < 64; y++)
-                {
-                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(32, 32));
-                    if (dist < 32)
-                        tex.SetPixel(x, y, colorSphere);
-                    else
-                        tex.SetPixel(x, y, Color.clear);
-                }
-            }
-            tex.Apply();
-
-            Sprite sphereSprite = Sprite.Create(tex, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f));
-            Destroy(sphere);
-
-            spriteRenderer.sprite = sphereSprite;
-            spriteRenderer.color = new Color(0.2f, 0.2f, 0.8f);
         }
 
         // Guardar color y material original
-        colorOriginal = spriteRenderer.color;
-        materialOriginal = spriteRenderer.material;
-        spriteRenderer.enabled = true;
+        if (spriteRenderer != null)
+        {
+            colorOriginal = spriteRenderer.color;
+            materialOriginal = spriteRenderer.material;
+        }
 
         // Buscar jugador si no está asignado
         if (jugador == null)
@@ -200,8 +196,6 @@ public class CA_Noxar : MonoBehaviour
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
                 jugador = playerObj.transform;
-            else
-                Debug.LogWarning("Noxar: No se encontró jugador con tag 'Player'");
         }
 
         // Configurar posición inicial
@@ -209,7 +203,7 @@ public class CA_Noxar : MonoBehaviour
         if (usarPosicionInicialComoCentro)
             centroArea = posicionInicial;
 
-        // Crear puntos de spawn para espadas EN EL LÍMITE INFERIOR
+        // Crear puntos de spawn para espadas
         CrearPuntosSpawnEnLimiteInferior();
 
         // Iniciar con movimiento constante
@@ -218,50 +212,62 @@ public class CA_Noxar : MonoBehaviour
         // Inicializar listas de ataques por fase
         InicializarListasAtaques();
 
-        Debug.Log($"Noxar inicializado con {puntosSpawnCreados.Count} puntos de spawn para espadas");
+        // Iniciar animación idle
+        SetParametrosIniciales();
+
+        Debug.Log($"Noxar inicializado");
+    }
+
+    void SetParametrosIniciales()
+    {
+        if (animatorNoxar != null)
+        {
+            // Estado inicial: moviéndose, no atacando, no muerto
+            SetParametrosAnimacion(true, false, false);
+        }
+    }
+
+    void SetParametrosAnimacion(bool isMoving, bool isAttacking, bool isDead)
+    {
+        if (animatorNoxar != null)
+        {
+            if (!string.IsNullOrEmpty(paramIsMoving))
+                animatorNoxar.SetBool(paramIsMoving, isMoving);
+
+            if (!string.IsNullOrEmpty(paramIsAttacking))
+                animatorNoxar.SetBool(paramIsAttacking, isAttacking);
+
+            if (!string.IsNullOrEmpty(paramIsDead))
+                animatorNoxar.SetBool(paramIsDead, isDead);
+        }
     }
 
     void CrearPuntosSpawnEnLimiteInferior()
     {
-        // Limpiar puntos anteriores si existen
         LimpiarPuntosSpawnAnteriores();
 
-        // Calcular el límite inferior del área
         float limiteInferiorY = centroArea.y - (areaPatrulla.y / 2f);
-
-        // Calcular el ancho disponible (un poco menos que el área completa)
         float anchoDisponible = areaPatrulla.x * 0.8f;
         float inicioX = centroArea.x - (anchoDisponible / 2f);
         float separacionX = anchoDisponible / (cantidadPuntosSpawn - 1);
 
-        Debug.Log($"Creando {cantidadPuntosSpawn} puntos de spawn en Y={limiteInferiorY + alturaDesdeLimiteInferior}");
-
-        // Crear puntos distribuidos horizontalmente en el límite inferior
         for (int i = 0; i < cantidadPuntosSpawn; i++)
         {
             GameObject punto = new GameObject($"PuntoEspada_{i}");
-
-            // Posicionar en el límite inferior del área
             float posX = inicioX + (i * separacionX);
             float posY = limiteInferiorY + alturaDesdeLimiteInferior;
 
             punto.transform.position = new Vector3(posX, posY, 0);
-            punto.transform.parent = null; // Sin parent
-
+            punto.transform.parent = null;
             puntosSpawnCreados.Add(punto.transform);
-
-            // Agregar un componente para debugging visual
-            punto.AddComponent<SpawnPointVisualizer>();
         }
-
-        Debug.Log($"Creados {cantidadPuntosSpawn} puntos de spawn en el límite inferior");
     }
 
     void LimpiarPuntosSpawnAnteriores()
     {
         foreach (Transform punto in puntosSpawnCreados)
         {
-            if (punto != null && punto.gameObject != null)
+            if (punto != null)
                 Destroy(punto.gameObject);
         }
         puntosSpawnCreados.Clear();
@@ -309,6 +315,11 @@ public class CA_Noxar : MonoBehaviour
         if (movimientoConstanteActivo && !estaEnPreparacion)
         {
             MovimientoConstante();
+            SetParametrosAnimacion(true, estaAtacando, false);
+        }
+        else
+        {
+            SetParametrosAnimacion(false, estaAtacando, false);
         }
 
         // Sistema de ataques aleatorios
@@ -342,13 +353,6 @@ public class CA_Noxar : MonoBehaviour
                 ataqueDoble = true;
             }
 
-            // Posibilidad de ataque triple en fase 3
-            bool ataqueTriple = false;
-            if (faseActual == 3 && Random.value > 0.7f)
-            {
-                ataqueTriple = true;
-            }
-
             // Ejecutar el ataque principal
             yield return StartCoroutine(ataquesDisponibles[indiceAtaque]());
 
@@ -357,24 +361,9 @@ public class CA_Noxar : MonoBehaviour
             {
                 yield return new WaitForSeconds(Random.Range(0.1f, 0.3f));
 
-                // Seleccionar otro ataque (puede ser el mismo o diferente)
-                int segundoIndice = Random.value > 0.5f ? indiceAtaque : Random.Range(0, ataquesDisponibles.Count);
+                // Seleccionar otro ataque
+                int segundoIndice = Random.Range(0, ataquesDisponibles.Count);
                 yield return StartCoroutine(ataquesDisponibles[segundoIndice]());
-            }
-
-            // Posibilidad de ataque triple (solo fase 3)
-            if (ataqueTriple && !estaMuerto && ataqueDoble)
-            {
-                yield return new WaitForSeconds(Random.Range(0.1f, 0.2f));
-
-                // Tercer ataque (siempre diferente)
-                int tercerIndice;
-                do
-                {
-                    tercerIndice = Random.Range(0, ataquesDisponibles.Count);
-                } while (tercerIndice == indiceAtaque);
-
-                yield return StartCoroutine(ataquesDisponibles[tercerIndice]());
             }
         }
 
@@ -424,6 +413,65 @@ public class CA_Noxar : MonoBehaviour
         }
     }
 
+    // ============================================
+    // SISTEMA DE ANIMACIONES
+    // ============================================
+
+    void IniciarAnimacionAtaque()
+    {
+        if (estaMuerto) return;
+
+        // Decidir aleatoriamente qué animación usar para ataques generales
+        if (Random.Range(0, 100) < probabilidadAttack)
+        {
+            // Usar animación de ataque
+            if (animatorNoxar != null && !string.IsNullOrEmpty(animAttack))
+            {
+                animatorNoxar.Play(animAttack, 0, 0f);
+            }
+        }
+        else
+        {
+            // Usar animación idle (ataque "tranquilo")
+            if (animatorNoxar != null && !string.IsNullOrEmpty(animIdle))
+            {
+                animatorNoxar.Play(animIdle, 0, 0f);
+            }
+        }
+    }
+
+    void IniciarAnimacionMeteoritos()
+    {
+        if (estaMuerto) return;
+
+        // Siempre usar animación específica de meteoritos
+        if (animatorNoxar != null && !string.IsNullOrEmpty(animMeteor))
+        {
+            animatorNoxar.Play(animMeteor, 0, 0f);
+        }
+    }
+
+    void IniciarAnimacionEspadas()
+    {
+        if (estaMuerto) return;
+
+        // Siempre usar animación específica de espadas
+        if (animatorNoxar != null && !string.IsNullOrEmpty(animSword))
+        {
+            animatorNoxar.Play(animSword, 0, 0f);
+        }
+    }
+
+    void RegresarAIdle()
+    {
+        if (estaMuerto) return;
+
+        if (animatorNoxar != null && !string.IsNullOrEmpty(animIdle))
+        {
+            animatorNoxar.Play(animIdle, 0, 0f);
+        }
+    }
+
     void MovimientoConstante()
     {
         // Cambiar dirección periódicamente
@@ -460,7 +508,7 @@ public class CA_Noxar : MonoBehaviour
                 centroArea.y + areaPatrulla.y / 2f);
         }
 
-        // Mover al jefe (SOLO MOVIMIENTO, SIN ROTACIÓN)
+        // Mover al jefe
         transform.position = nuevaPosicion;
     }
 
@@ -554,12 +602,16 @@ public class CA_Noxar : MonoBehaviour
     }
 
     // ============================================
-    // ATAQUES PRINCIPALES - MODIFICADOS PARA ATAQUES ALEATORIOS
+    // ATAQUES PRINCIPALES CON ANIMACIONES
     // ============================================
 
     IEnumerator AtaqueRadialBasicoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         estaAtacando = true;
         puedeAtacar = false;
@@ -572,6 +624,8 @@ public class CA_Noxar : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -580,6 +634,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AtaqueRadialMejoradoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         estaAtacando = true;
         puedeAtacar = false;
@@ -598,6 +656,8 @@ public class CA_Noxar : MonoBehaviour
 
         yield return new WaitForSeconds(0.3f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -606,6 +666,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AtaqueTorbellinoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         estaAtacando = true;
         estaEnPreparacion = true;
@@ -679,6 +743,8 @@ public class CA_Noxar : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -687,6 +753,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AtaqueTorbellinoMejoradoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         estaAtacando = true;
         estaEnPreparacion = true;
@@ -711,6 +781,8 @@ public class CA_Noxar : MonoBehaviour
 
         yield return new WaitForSeconds(duracionTorbellino * 1.2f + 0.2f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -719,6 +791,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator LluviaDeMeteoritosCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación ESPECÍFICA de meteoritos
+        IniciarAnimacionMeteoritos();
+        SetParametrosAnimacion(false, true, false);
 
         puedeAtacar = false;
         estaAtacando = true;
@@ -766,6 +842,8 @@ public class CA_Noxar : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -774,6 +852,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AnilloDeProteccionCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         puedeAtacar = false;
         anilloActivo = true;
@@ -836,6 +918,8 @@ public class CA_Noxar : MonoBehaviour
         balasAnilloActual.Clear();
 
         anilloActivo = false;
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -844,6 +928,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AnilloDeProteccionMejoradoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         puedeAtacar = false;
         anilloActivo = true;
@@ -883,6 +971,8 @@ public class CA_Noxar : MonoBehaviour
         balasAnilloActual.Clear();
 
         anilloActivo = false;
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -891,6 +981,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator AtaqueMasivo360Coroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         puedeAtacar = false;
         estaAtacando = true;
@@ -915,6 +1009,8 @@ public class CA_Noxar : MonoBehaviour
         SetInvencible(false);
         yield return new WaitForSeconds(0.5f);
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -923,6 +1019,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator TeletransporteYDispareCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación (aleatoria entre attack e idle)
+        IniciarAnimacionAtaque();
+        SetParametrosAnimacion(false, true, false);
 
         puedeAtacar = false;
         estaAtacando = true;
@@ -952,24 +1052,31 @@ public class CA_Noxar : MonoBehaviour
         DisparoRadial(cantidadBalasRadial * 2, velocidadBalaRadial * 1.2f, danoBalaRadial, false);
 
         yield return new WaitForSeconds(0.3f);
+
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
     }
 
     // ============================================
-    // ATAQUE DE ESPADAS DEL SUELO - MODIFICADO PARA USAR PUNTOS DINÁMICOS
+    // ATAQUE DE ESPADAS DEL SUELO CON ANIMACIÓN ESPECÍFICA
     // ============================================
 
     IEnumerator EspadasDelSueloCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
 
+        // Iniciar animación ESPECÍFICA de espadas
+        IniciarAnimacionEspadas();
+        SetParametrosAnimacion(false, true, false);
+
         estaAtacando = true;
         puedeAtacar = false;
         enSecuenciaAtaque = true;
 
-        Debug.Log("Noxar: Espadas del Suelo (usando puntos dinámicos)");
+        Debug.Log("Noxar: Espadas del Suelo");
 
         CrearEfectoCarga();
         yield return new WaitForSeconds(0.3f);
@@ -977,26 +1084,18 @@ public class CA_Noxar : MonoBehaviour
         // Verificar que tenemos puntos de spawn
         if (puntosSpawnCreados.Count == 0)
         {
-            Debug.LogWarning("No hay puntos de spawn creados. Creando puntos ahora...");
             CrearPuntosSpawnEnLimiteInferior();
         }
 
         // Usar los puntos de spawn creados dinámicamente
         int espadasASpawnear = Mathf.Min(cantidadEspadas, puntosSpawnCreados.Count);
 
-        Debug.Log($"Spawneando {espadasASpawnear} espadas en {puntosSpawnCreados.Count} puntos disponibles");
-
         for (int i = 0; i < espadasASpawnear; i++)
         {
             Transform puntoSpawn = puntosSpawnCreados[i];
-            if (puntoSpawn == null)
-            {
-                Debug.LogWarning($"Punto de spawn {i} es null");
-                continue;
-            }
+            if (puntoSpawn == null) continue;
 
             Vector3 posicionSpawn = puntoSpawn.position;
-            Debug.Log($"Espada {i} en posición: {posicionSpawn}");
 
             if (efectoSalidaEspada != null)
             {
@@ -1017,6 +1116,8 @@ public class CA_Noxar : MonoBehaviour
         }
         espadasActivas.Clear();
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -1025,6 +1126,10 @@ public class CA_Noxar : MonoBehaviour
     IEnumerator EspadasDelSueloMejoradoCoroutine()
     {
         if (!puedeAtacar || estaMuerto) yield break;
+
+        // Iniciar animación ESPECÍFICA de espadas
+        IniciarAnimacionEspadas();
+        SetParametrosAnimacion(false, true, false);
 
         estaAtacando = true;
         puedeAtacar = false;
@@ -1071,6 +1176,8 @@ public class CA_Noxar : MonoBehaviour
         }
         espadasActivas.Clear();
 
+        SetParametrosAnimacion(true, false, false);
+        RegresarAIdle();
         estaAtacando = false;
         puedeAtacar = true;
         enSecuenciaAtaque = false;
@@ -1518,6 +1625,15 @@ public class CA_Noxar : MonoBehaviour
         estaMuerto = true;
         Debug.Log("💀 Noxar MURIENDO");
 
+        // Establecer parámetros de muerte
+        SetParametrosAnimacion(false, false, true);
+
+        // Reproducir animación de muerte
+        if (animatorNoxar != null && !string.IsNullOrEmpty(animDeath))
+        {
+            animatorNoxar.Play(animDeath, 0, 0f);
+        }
+
         StopAllCoroutines();
         movimientoConstanteActivo = false;
 
@@ -1549,6 +1665,9 @@ public class CA_Noxar : MonoBehaviour
 
     IEnumerator DesvanecerYDestruir()
     {
+        // Esperar a que termine la animación de muerte
+        yield return new WaitForSeconds(1.0f);
+
         if (spriteRenderer != null)
         {
             float duracion = 1.5f;
