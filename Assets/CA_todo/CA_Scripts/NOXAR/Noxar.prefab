@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5270800639660836275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1419610108861730915}
+  m_Layer: 7
+  m_Name: firepoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1419610108861730915
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270800639660836275}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2177961789272872338}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5701051908158500911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2177961789272872338}
+  - component: {fileID: 143926965616628744}
+  - component: {fileID: 6350794403691664399}
+  - component: {fileID: 4807045293048467443}
+  - component: {fileID: 7736685711528034081}
+  - component: {fileID: 343082884509484780}
+  m_Layer: 7
+  m_Name: Noxar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2177961789272872338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 116.61593, y: 11.021757, z: 0.1855411}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1419610108861730915}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &143926965616628744
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Color: {r: 0.084905684, g: 0.082102194, b: 0.082102194, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &6350794403691664399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 186d0db0463501345b54a498a0d8748e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jugador: {fileID: 0}
+  centroDisparo: {fileID: 1419610108861730915}
+  prefabBala: {fileID: 4545565109753746486, guid: 153836894518dbd4b973e19abc4e9462, type: 3}
+  puntosSpawnEspadas:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  puntosSpawnNecesarios: 5
+  radioCreacionPuntos: 3
+  prefabBalaBasica: {fileID: 2552985784184034705, guid: a9d7cd2234bd1fd408902e76a58779bf, type: 3}
+  prefabBalaAvanzada: {fileID: 4545565109753746486, guid: 2ab2efc993623944da8990955dfbea27, type: 3}
+  prefabMeteoritoEspecial: {fileID: 4545565109753746486, guid: 153836894518dbd4b973e19abc4e9462, type: 3}
+  prefabEspadaSuelo: {fileID: 8657926899857033571, guid: e76ea63d229780f449b49bb1acbb3ef1, type: 3}
+  areaPatrulla: {x: 25, y: 8}
+  centroArea: {x: 0, y: 0}
+  usarPosicionInicialComoCentro: 1
+  velocidadPatrulla: 2
+  velocidadPersecucion: 3
+  velocidadFaseFinal: 3.5
+  velocidadMovimientoConstante: 1.5
+  rangoDeteccion: 7
+  rangoMinimoPersecucion: 2
+  distanciaParaSaltoAtras: 1.5
+  cantidadBalasRadial: 8
+  velocidadBalaRadial: 3
+  danoBalaRadial: 1
+  tiempoEntreRafagas: 0.8
+  tiempoEntreBalasEnRafaga: 0.1
+  cantidadBalasTorbellino: 16
+  velocidadBalaTorbellino: 2
+  danoBalaTorbellino: 1
+  tiempoPreparacionTorbellino: 1
+  duracionTorbellino: 2
+  radioInicialTorbellino: 1.5
+  velocidadExpansionTorbellino: 1
+  velocidadRotacionTorbellino: 180
+  cantidadMeteoritos: 12
+  anchoAreaLluvia: 6
+  alturaInicialMeteoritos: 8
+  danoMeteorito: 2
+  tiempoPreparacionLluvia: 1.5
+  tiempoEntreMeteoritos: 0.2
+  efectoZonaImpacto: {fileID: 0}
+  tamanoMeteorito: 0.4
+  cantidadBalasAnillo: 16
+  radioAnillo: 2
+  velocidadRotacionAnillo: 90
+  danoBalaAnillo: 1
+  duracionAnillo: 3
+  cantidadEspadas: 5
+  alturaMaximaEspadas: 3
+  velocidadSubidaEspadas: 2
+  velocidadOscilacionEspadas: 2
+  amplitudOscilacion: 1.5
+  danoEspada: 2
+  duracionEspadas: 4
+  efectoSalidaEspada: {fileID: 0}
+  usarPuntosFijos: 1
+  saludFase2: 18
+  saludFase3: 6
+  aumentoVelocidadFase2: 4
+  aumentoVelocidadFase3: 6
+  distanciaTeletransporte: 4
+  tiempoEntreTeletransportes: 2
+  efectoTeletransporte: {fileID: 0}
+  efectoCarga: {fileID: 0}
+  efectoImpacto: {fileID: 0}
+  auraFase2: {fileID: 0}
+  auraFase3: {fileID: 0}
+  materialInvencible: {fileID: 0}
+--- !u!114 &4807045293048467443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33f2058bf6a1b03408f9ce52ba4687bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 20
+  recoilLength: 0.2
+  recoilFactor: 1
+  isRecoiling: 0
+  hitParticles: {fileID: 0}
+  particleSpawnPoint: {fileID: 0}
+  activador: {fileID: 0}
+  battleManager: {fileID: 0}
+  grupoController: {fileID: 0}
+  grupoEnemigos: []
+--- !u!70 &7736685711528034081
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 2}
+  m_Direction: 0
+--- !u!50 &343082884509484780
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5701051908158500911}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4

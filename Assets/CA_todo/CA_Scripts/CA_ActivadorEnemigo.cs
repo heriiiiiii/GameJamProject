@@ -90,12 +90,11 @@ public class CA_ActivadorEnemigo : MonoBehaviour
 
         enfrentamientoActivo = false;
 
-        // NOTIFICAR al battle manager si el boss fue derrotado
+        // 🔹 CORREGIDO: Solo notificar al battle manager si el boss fue realmente derrotado
         if (battleManager != null && !battleManager.bossDerrotado)
         {
-            // Verificar si el boss fue derrotado
-            GameObject bossInstance = battleManager.GetBossInstance();
-            if (bossInstance == null)
+            // Verificar si el boss está realmente muerto
+            if (!battleManager.IsBossAlive())
             {
                 // Boss fue derrotado
                 battleManager.BossDerrotado();

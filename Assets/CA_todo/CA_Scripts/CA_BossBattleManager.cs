@@ -143,19 +143,23 @@ public class CA_BossBattleManager : MonoBehaviour
 
     public void BossDerrotado()
     {
-        enfrentamientoActivo = false;
-        bossDerrotado = true;
+        // SOLO marcar como derrotado si el enfrentamiento estaba activo
+        if (enfrentamientoActivo)
+        {
+            enfrentamientoActivo = false;
+            bossDerrotado = true;
 
-        // Limpiar referencia del boss
-        bossInstance = null;
+            // Limpiar referencia del boss
+            bossInstance = null;
 
-        Debug.Log("¡Boss derrotado! Encuentro completado.");
+            Debug.Log("¡Boss derrotado! Encuentro completado.");
+        }
     }
 
     public void ResetearBossBattle()
     {
-        // SOLO resetear si el enfrentamiento estaba activo
-        if (enfrentamientoActivo)
+        // SOLO resetear si el enfrentamiento estaba activo y el boss NO fue derrotado
+        if (enfrentamientoActivo && !bossDerrotado)
         {
             StartCoroutine(ResetearCoroutine());
         }
@@ -168,7 +172,7 @@ public class CA_BossBattleManager : MonoBehaviour
         // Esperar un frame para asegurar que la muerte del player se procesó
         yield return null;
 
-        // 1. Resetear estado interno
+        // 1. Resetear estado interno (PERO NO marcar como derrotado)
         enfrentamientoActivo = false;
 
         // 2. Desactivar paredes a través del activador
@@ -230,6 +234,19 @@ public class CA_BossBattleManager : MonoBehaviour
     public GameObject GetBossInstance()
     {
         return bossInstance;
+    }
+
+    // 🔹 NUEVO: Método para verificar si el boss está vivo
+    public bool IsBossAlive()
+    {
+        if (esMiniBoss)
+        {
+            return miniBossController != null && miniBossController.hongosVivos > 0;
+        }
+        else
+        {
+            return bossInstance != null;
+        }
     }
 
     void OnDestroy()
