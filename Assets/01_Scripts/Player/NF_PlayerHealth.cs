@@ -1,123 +1,204 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.UI;
-using System;
 
 public class NF_PlayerHealth : MonoBehaviour
 {
     [Header("Player Health Settings")]
-    public int currentHealth = 3;
     public int maxHealth = 3;
+    public int currentHealth = 3;
+
+    [Header("Healing Animation")]
+    [SerializeField] private float healDuration = 0.8f;
+
+    private float displayedHealth;
+    private Coroutine healRoutine;
 
     private NF_GameController gameController;
     private NF_Knockback knockback;
     private CinemachineImpulseSource impulseSource;
 
-    [Header("References")]
-    [SerializeField] private Image healthFill;   
-    [SerializeField] private Animator uiAnimator;  
+    [Header("UI References")]
+    [SerializeField] private Image healthFill;
+    [SerializeField] private Animator uiAnimator;
     [SerializeField] private bool useUI = true;
 
-    // 🔹 NUEVO: Evento para notificar la muerte del jugador
+    // 🔹 Evento de muerte
     public event Action OnPlayerDeath;
 
+    private bool isHitStopping = false;
+
+    // =========================
+    // 🔊 AUDIO DAÑO PLAYER
+    // =========================
+    [Header("🔊 Audio Daño")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hitPlayerClip;
+    [Range(0f, 1f)]
+    [SerializeField] private float hitVolume = 1f;
+
+    // =========================
+    // UNITY
+    // =========================
     private void Awake()
     {
-        // Busca el GameController en la escena
-        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
+        GameObject gc = GameObject.FindGameObjectWithTag("GameController");
+        if (gc != null)
+            gameController = gc.GetComponent<NF_GameController>();
+
+        // Audio seguro
+        if (!audioSource)
+            audioSource = GetComponent<AudioSource>();
+
+        if (audioSource)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            audioSource.spatialBlend = 0f; // 2D
+        }
     }
 
     private void Start()
     {
-        // Inicializa la vida al máximo y obtiene el componente Knockback
         currentHealth = maxHealth;
+        displayedHealth = currentHealth;
+
         knockback = GetComponent<NF_Knockback>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
 
-        UpdateHealthUI();
+        UpdateHealthUIImmediate();
         UpdateWeakState();
     }
 
-    private void Update()
-    {
-        UpdateHealthUI();
-        UpdateWeakState();
-    }
-
+    // =========================
+    // DAÑO
+    // =========================
     public void TakeDamage(int damage, Vector2 hitDirection)
     {
-        NF_CameraShakeManager.instance.CameraShake(impulseSource);
-        // Resta vida
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        // 🔊 SONIDO DE GOLPE
+        PlayHitSound();
 
-        UpdateHealthUI();
-        UpdateWeakState();
-        // Direccion del input (no usada directamente, pero mantenida por compatibilidad)
-        float inputDirection = Mathf.Sign(CA_PlayerController.Instance.transform.localScale.x);
-
-        // Si la vida llega a cero -> morir
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
-            Die();
-            return; // 🔹 IMPORTANTE: Salir para evitar ejecución adicional
-        }
-
-        // 🧠 HITSTOP (ralentiza el tiempo brevemente)
-        StartCoroutine(HitStop(0.05f));
-
-        // 💫 KNOCKBACK (retroceso físico del jugador)
-        knockback.CallKnockback(hitDirection);
-    }
-
-    // 💀 Versión sin knockback (para daño pasivo o atrapamientos tipo moho)
-    public void TakeDamageWithoutKnockback(int damage)
-    {
-        if (NF_CameraShakeManager.instance != null && impulseSource != null)
+        if (NF_CameraShakeManager.instance != null)
             NF_CameraShakeManager.instance.CameraShake(impulseSource);
 
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        UpdateHealthUI();
+        displayedHealth = currentHealth;
+        UpdateHealthUIImmediate();
         UpdateWeakState();
 
         if (currentHealth <= 0)
         {
-            currentHealth = 0;
             Die();
-            return; // 🔹 IMPORTANTE: Salir para evitar ejecución adicional
+            return;
         }
 
-        // 🔹 Solo efecto de impacto (no knockback)
+        StartCoroutine(HitStop(0.05f));
+
+        if (knockback != null)
+            knockback.CallKnockback(hitDirection);
+    }
+
+    public void TakeDamageWithoutKnockback(int damage)
+    {
+        // 🔊 SONIDO DE GOLPE
+        PlayHitSound();
+
+        if (NF_CameraShakeManager.instance != null)
+            NF_CameraShakeManager.instance.CameraShake(impulseSource);
+
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        displayedHealth = currentHealth;
+        UpdateHealthUIImmediate();
+        UpdateWeakState();
+
+        if (currentHealth <= 0)
+        {
+            Die();
+            return;
+        }
+
         StartCoroutine(HitStop(0.05f));
     }
 
+    // =========================
+    // 🔊 AUDIO MÉTODO
+    // =========================
+    private void PlayHitSound()
+    {
+        if (hitPlayerClip && audioSource)
+            audioSource.PlayOneShot(hitPlayerClip, hitVolume);
+    }
+
+    // =========================
+    // CURACIÓN
+    // =========================
+    public void HealToFullAnimated()
+    {
+        if (healRoutine != null)
+            StopCoroutine(healRoutine);
+
+        healRoutine = StartCoroutine(HealRoutine(maxHealth));
+    }
+
+    private IEnumerator HealRoutine(int targetHealth)
+    {
+        float startHealth = displayedHealth;
+        float elapsed = 0f;
+
+        while (elapsed < healDuration)
+        {
+            elapsed += Time.deltaTime;
+            displayedHealth = Mathf.Lerp(startHealth, targetHealth, elapsed / healDuration);
+            UpdateHealthUIImmediate();
+            yield return null;
+        }
+
+        displayedHealth = targetHealth;
+        currentHealth = targetHealth;
+        UpdateHealthUIImmediate();
+        UpdateWeakState();
+    }
+
+    // =========================
+    // MÉTODOS LEGACY
+    // =========================
     public void HealToFull()
     {
-        currentHealth = maxHealth;
+        HealToFullAnimated();
     }
 
     public void UpdateHealthUI()
     {
-        if (!useUI || healthFill == null) return;
-        healthFill.fillAmount = (float)currentHealth / (float)maxHealth;
+        UpdateHealthUIImmediate();
+    }
+
+    // =========================
+    // UI
+    // =========================
+    private void UpdateHealthUIImmediate()
+    {
+        if (!useUI || healthFill == null || maxHealth <= 0) return;
+        healthFill.fillAmount = displayedHealth / maxHealth;
     }
 
     public void UpdateWeakState()
     {
         if (!useUI || uiAnimator == null) return;
-        bool isWeak = currentHealth <= Mathf.CeilToInt(maxHealth * 0.25f); // ≤25% de vida
+        bool isWeak = currentHealth <= Mathf.CeilToInt(maxHealth * 0.25f);
         uiAnimator.SetBool("isWeak", isWeak);
     }
 
-    private bool isHitStopping = false;
-
+    // =========================
+    // HIT STOP
+    // =========================
     private IEnumerator HitStop(float duration)
     {
-        // 🚫 Evita que se ejecute más de un hitstop simultáneo
         if (isHitStopping)
             yield break;
 
@@ -132,30 +213,30 @@ public class NF_PlayerHealth : MonoBehaviour
         isHitStopping = false;
     }
 
+    // =========================
+    // MUERTE
+    // =========================
     private void Die()
     {
-        Debug.Log("☠️ El jugador ha muerto. Respawn en Zone.");
-        
-        // 🔹 NUEVO: Disparar evento de muerte ANTES de resetear la salud
+        Debug.Log("☠️ El jugador ha muerto.");
+
         OnPlayerDeath?.Invoke();
 
         currentHealth = maxHealth;
+        displayedHealth = maxHealth;
 
-        // 💡 2️⃣ Actualizar UI inmediatamente
-        UpdateHealthUI();
+        UpdateHealthUIImmediate();
         UpdateWeakState();
-        
+
         if (NF_CameraManager.instance != null)
             NF_CameraManager.instance.ForceResetToDefaultCamera();
-            
-        //StartCoroutine(gameController.Respawn(1f, "Zone"));
-        CA_PlayerController.Instance.Die();
+
+        if (CA_PlayerController.Instance != null)
+            CA_PlayerController.Instance.Die();
     }
 
-    // 🔹 NUEVO: Método para limpiar suscripciones
     private void OnDestroy()
     {
-        // Limpiar todas las suscripciones al evento
         OnPlayerDeath = null;
     }
 }

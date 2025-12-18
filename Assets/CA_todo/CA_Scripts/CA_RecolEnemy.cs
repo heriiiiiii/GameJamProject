@@ -25,10 +25,24 @@ public class CA_RecolEnemy : MonoBehaviour
     public List<GameObject> grupoEnemigos;
     private List<GameObject> enemigosMuertos = new List<GameObject>();
 
+    // ===============================
+    // 🔊 AUDIO
+    // ===============================
+    [Header("🔊 Audio Enemigo")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip idleClip;
+    [SerializeField] private AudioClip hitClip;
+    [SerializeField] private AudioClip finalHitClip;
+    [SerializeField] private float audioDistance = 6f;
+
+    private Transform player;
+    private bool isAudioPlaying = false;
+    private bool deathSoundPlayed = false;
+
     private float recoilTimer;
     private Rigidbody2D rb;
     private NF_DamageFlash _damageFlash;
-    Animator animator;
+    private Animator animator;
 
     private Dictionary<string, string> deathAnimations = new Dictionary<string, string>()
     {
@@ -40,33 +54,39 @@ public class CA_RecolEnemy : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         _damageFlash = GetComponent<NF_DamageFlash>();
         animator = GetComponent<Animator>();
+
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
     {
-        // Inicializar lista de grupo si es necesario
         if (grupoEnemigos == null)
-        {
             grupoEnemigos = new List<GameObject>();
-        }
 
         if (!grupoEnemigos.Contains(gameObject))
-        {
             grupoEnemigos.Add(gameObject);
-        }
 
-        Debug.Log("Boss inicializado - Salud: " + health);
+        if (audioSource)
+        {
+            audioSource.loop = true;
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f; // 🔥 2D
+        }
     }
 
     void Update()
     {
         if (health <= 0) return;
 
+        HandleAudioProximity();
+
         if (isRecoiling)
         {
-            if (recoilTimer < recoilLength)
-                recoilTimer += Time.deltaTime;
-            else
+            recoilTimer += Time.deltaTime;
+            if (recoilTimer >= recoilLength)
             {
                 isRecoiling = false;
                 recoilTimer = 0;
@@ -74,6 +94,32 @@ public class CA_RecolEnemy : MonoBehaviour
         }
     }
 
+    // ===============================
+    // 🔊 AUDIO POR PROXIMIDAD (IDLE)
+    // ===============================
+    void HandleAudioProximity()
+    {
+        if (!player || !audioSource || !idleClip || deathSoundPlayed)
+            return;
+
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        if (distance <= audioDistance && !isAudioPlaying)
+        {
+            audioSource.clip = idleClip;
+            audioSource.Play();
+            isAudioPlaying = true;
+        }
+        else if (distance > audioDistance && isAudioPlaying)
+        {
+            audioSource.Stop();
+            isAudioPlaying = false;
+        }
+    }
+
+    // ===============================
+    // 💥 RECIBIR DAÑO
+    // ===============================
     public void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
     {
         if (health <= 0) return;
@@ -82,6 +128,10 @@ public class CA_RecolEnemy : MonoBehaviour
 
         if (_damageFlash != null)
             _damageFlash.CallDamageFlash();
+
+        // 🔊 Golpe normal
+        if (hitClip && audioSource && health > 0)
+            audioSource.PlayOneShot(hitClip, 0.8f);
 
         if (health <= 0)
         {
@@ -97,97 +147,85 @@ public class CA_RecolEnemy : MonoBehaviour
 
         if (hitParticles != null)
         {
-            Vector3 spawnPos = particleSpawnPoint != null ? particleSpawnPoint.position : transform.position;
-            ParticleSystem ps = Instantiate(hitParticles, spawnPos, Quaternion.identity);
-            ps.Play();
+            Vector3 pos = particleSpawnPoint ? particleSpawnPoint.position : transform.position;
+            var ps = Instantiate(hitParticles, pos, Quaternion.identity);
             Destroy(ps.gameObject, ps.main.duration + ps.main.startLifetime.constantMax);
         }
     }
 
+    // ===============================
+    // ☠️ MUERTE
+    // ===============================
     void ActivarMuerte()
     {
+        if (deathSoundPlayed) return;
+        deathSoundPlayed = true;
+
+        // Cortar cualquier loop
+        if (audioSource && audioSource.isPlaying)
+            audioSource.Stop();
+
+        // 🔥 AUDIO DE MUERTE 2D REAL (FUERTE)
+        if (finalHitClip)
+        {
+            GameObject audioGO = new GameObject("EnemyDeathSound");
+            AudioSource src = audioGO.AddComponent<AudioSource>();
+
+            src.clip = finalHitClip;
+            src.volume = 1f;
+            src.spatialBlend = 0f; // 🔊 2D
+            src.playOnAwake = false;
+            src.loop = false;
+
+            src.Play();
+            Destroy(audioGO, finalHitClip.length + 0.1f);
+        }
+
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
             rb.isKinematic = true;
         }
 
-        Collider2D[] colliders = GetComponents<Collider2D>();
-        foreach (Collider2D col in colliders)
+        foreach (Collider2D col in GetComponents<Collider2D>())
             col.enabled = false;
 
         string deathParam = ObtenerParametroMuertePorTag();
-        if (animator != null && !string.IsNullOrEmpty(deathParam))
+        if (animator && !string.IsNullOrEmpty(deathParam))
             animator.SetBool(deathParam, true);
 
         DesactivarComportamientosEnemigo();
         VerificarMuerteGrupo();
-
         StartCoroutine(DestruirDespuesDeAnimacion());
     }
 
     void VerificarMuerteGrupo()
     {
-        if (grupoEnemigos == null || grupoEnemigos.Count == 0) return;
-
         if (!enemigosMuertos.Contains(gameObject))
-        {
             enemigosMuertos.Add(gameObject);
-        }
 
-        bool todosMuertos = true;
-        foreach (GameObject enemigo in grupoEnemigos)
+        foreach (GameObject e in grupoEnemigos)
         {
-            if (enemigo != null)
-            {
-                CA_RecolEnemy enemyScript = enemigo.GetComponent<CA_RecolEnemy>();
-                if (enemyScript != null && !enemyScript.EstaMuerto())
-                {
-                    todosMuertos = false;
-                    break;
-                }
-            }
+            if (e && e.GetComponent<CA_RecolEnemy>()?.EstaMuerto() == false)
+                return;
         }
 
-        if (todosMuertos)
-        {
-            if (activador != null)
-            {
-                activador.DesactivarParedesBloqueo();
-                activador.gameObject.SetActive(false);
-            }
-
-            if (battleManager != null)
-            {
-                battleManager.BossDerrotado();
-            }
-
-            Debug.Log("¡Todos los enemigos del grupo han sido derrotados!");
-        }
+        activador?.DesactivarParedesBloqueo();
+        battleManager?.BossDerrotado();
     }
 
     string ObtenerParametroMuertePorTag()
     {
-        foreach (string tag in deathAnimations.Keys)
-        {
-            if (gameObject.CompareTag(tag))
-                return deathAnimations[tag];
-        }
+        foreach (var kv in deathAnimations)
+            if (CompareTag(kv.Key)) return kv.Value;
         return "IsDead";
     }
 
     void DesactivarComportamientosEnemigo()
     {
-        MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
-        foreach (MonoBehaviour script in scripts)
-        {
-            if (script != this && script != animator &&
-                script.GetType() != typeof(SpriteRenderer) &&
-                script.GetType() != typeof(Transform))
-            {
-                script.enabled = false;
-            }
-        }
+        foreach (var m in GetComponents<MonoBehaviour>())
+            if (m != this && m != animator)
+                m.enabled = false;
     }
 
     IEnumerator DestruirDespuesDeAnimacion()
@@ -202,6 +240,7 @@ public class CA_RecolEnemy : MonoBehaviour
         ActivarMuerte();
     }
 
+    // 🔴 MÉTODOS USADOS POR OTROS SISTEMAS
     public float GetHealth() => health;
     public bool EstaMuerto() => health <= 0;
 }

@@ -5,8 +5,8 @@ public class MohoSensorial : MonoBehaviour
 {
     [Header("Daño y duración")]
     public int danoPorSegundo = 1;
-    public float duracionInmovilizacion = 2f; // tiempo total atrapado
-    public float fuerzaEmpuje = 10f;          // fuerza al soltar
+    public float duracionInmovilizacion = 2f;
+    public float fuerzaEmpuje = 10f;
 
     [Header("Animaciones")]
     private Animator animator;
@@ -14,7 +14,25 @@ public class MohoSensorial : MonoBehaviour
     [Header("Referencias")]
     public Transform puntoAtraccion;
 
-    // Parámetros del Animator
+    // ===============================
+    // 🔊 AUDIO (POR INSTANCIA)
+    // ===============================
+    [Header("🔊 Clips")]
+    [SerializeField] private AudioClip idleClip;
+    [SerializeField] private AudioClip grabClip;
+    [SerializeField] private AudioClip attackClip;
+    [SerializeField] private AudioClip releaseClip;
+
+    [SerializeField] private float audioDistance = 6f;
+
+    private AudioSource idleSource; // SOLO idle
+    private AudioSource sfxSource;  // SOLO efectos
+
+    private Transform player;
+    private bool idlePlaying = false;
+    private bool grabSoundPlayed = false;
+
+    // Animator params
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsInmovilizing = Animator.StringToHash("IsInmovilizing");
     private static readonly int IsDead = Animator.StringToHash("IsDead");
@@ -23,21 +41,87 @@ public class MohoSensorial : MonoBehaviour
     private GameObject jugador;
     private Coroutine danioCoroutine;
     private Coroutine inmovilizacionCoroutine;
-    private Vector3 posicionCentro;
     private bool estaMuerto = false;
+
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+
+        // 🔥 TOMAR LOS AUDIOSOURCE DE ESTA INSTANCIA
+        AudioSource[] sources = GetComponents<AudioSource>();
+
+        if (sources.Length < 2)
+        {
+            Debug.LogError($"[{name}] Necesita 2 AudioSource (Idle + SFX)");
+            return;
+        }
+
+        idleSource = sources[0];
+        sfxSource = sources[1];
+
+        // Config segura
+        idleSource.loop = true;
+        idleSource.playOnAwake = false;
+        idleSource.spatialBlend = 0f;
+
+        sfxSource.loop = false;
+        sfxSource.playOnAwake = false;
+        sfxSource.spatialBlend = 0f;
+    }
 
     void Start()
     {
-        animator = GetComponent<Animator>();
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, false);
         animator.SetBool(IsDead, false);
-        posicionCentro = transform.position;
+
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+    }
+
+    void Update()
+    {
+        if (!estaMuerto)
+            HandleIdleAudio();
+    }
+
+    // ===============================
+    // 🔊 IDLE POR PROXIMIDAD
+    // ===============================
+    void HandleIdleAudio()
+    {
+        if (!player || !idleClip) return;
+
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        if (distance <= audioDistance && !idlePlaying)
+        {
+            idleSource.clip = idleClip;
+            idleSource.enabled = true;
+            idleSource.Play();
+            idlePlaying = true;
+        }
+        else if (distance > audioDistance && idlePlaying)
+        {
+            idleSource.Stop();
+            idlePlaying = false;
+        }
+    }
+
+    // 🔥 FORZADO TOTAL SOLO DE ESTA INSTANCIA
+    void ForzarParadaIdle()
+    {
+        if (idleSource)
+        {
+            idleSource.Stop();
+            idleSource.clip = null;
+            idleSource.enabled = false;
+        }
+
+        idlePlaying = false;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        // Si está muerto, no hacer nada
         if (estaMuerto) return;
 
         if (collision.CompareTag("Player") && !jugadorEnContacto)
@@ -45,119 +129,80 @@ public class MohoSensorial : MonoBehaviour
             jugador = collision.gameObject;
             jugadorEnContacto = true;
 
-            // Atrapar inmediatamente sin esperar
+            if (grabClip && !grabSoundPlayed)
+            {
+                sfxSource.PlayOneShot(grabClip, 1f);
+                grabSoundPlayed = true;
+            }
+
             AtraparJugadorInmediatamente();
         }
     }
 
     void AtraparJugadorInmediatamente()
     {
-        if (estaMuerto || jugador == null) return;
+        if (!jugador) return;
 
-        // Centrar al jugador inmediatamente
-        //jugador.transform.position = posicionCentro;
         jugador.transform.position = puntoAtraccion.position;
 
-        // Cambiar directamente a la animación de inmovilización
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, true);
 
-        // Desactivar movimiento del jugador
         Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
-        if (rb != null)
+        if (rb)
         {
             rb.velocity = Vector2.zero;
             rb.gravityScale = 0f;
         }
 
         CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
-        if (movimiento != null)
-            movimiento.enabled = false;
+        if (movimiento) movimiento.enabled = false;
 
-        // Daño periódico
         danioCoroutine = StartCoroutine(DanioConstante());
-
-        // Iniciar fase de inmovilización
         inmovilizacionCoroutine = StartCoroutine(FaseInmovilizacion());
     }
 
     IEnumerator FaseInmovilizacion()
     {
-        // Si está muerto, cancelar
-        if (estaMuerto) yield break;
-
-        // Tiempo que estará atrapado (duración total menos un pequeño tiempo para la transición)
         float tiempoIdlePrevio = 0.5f;
         float tiempoAtrapado = Mathf.Max(0f, duracionInmovilizacion - tiempoIdlePrevio);
 
-        // Mantener animación de atrapado durante la mayor parte del tiempo
         yield return new WaitForSeconds(tiempoAtrapado);
-
-        // Si está muerto durante la espera, cancelar
         if (estaMuerto) yield break;
 
-        // Cambiar a Idle un poco antes de liberar
         animator.SetBool(IsInmovilizing, false);
-
-        // Esperar un poco más (Idle visible mientras aún está atrapado)
         yield return new WaitForSeconds(tiempoIdlePrevio);
 
-        // Si está muerto durante la espera, cancelar
-        if (estaMuerto) yield break;
-
-        // Liberar al jugador
         SoltarJugador();
     }
 
     void SoltarJugador()
     {
-        if (jugador != null)
+        if (releaseClip)
+            sfxSource.PlayOneShot(releaseClip, 1f);
+
+        if (jugador)
         {
             Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
-            if (rb != null)
+            if (rb)
             {
                 rb.gravityScale = 1f;
-                Vector2 direccionEmpuje = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
                 rb.velocity = Vector2.zero;
-                rb.AddForce(direccionEmpuje * fuerzaEmpuje, ForceMode2D.Impulse);
+                rb.AddForce(Vector2.up * fuerzaEmpuje, ForceMode2D.Impulse);
             }
 
             CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
-            if (movimiento != null)
-                movimiento.enabled = true;
+            if (movimiento) movimiento.enabled = true;
         }
 
         jugadorEnContacto = false;
+        grabSoundPlayed = false;
 
-        if (danioCoroutine != null)
-            StopCoroutine(danioCoroutine);
-        if (inmovilizacionCoroutine != null)
-            StopCoroutine(inmovilizacionCoroutine);
+        if (danioCoroutine != null) StopCoroutine(danioCoroutine);
+        if (inmovilizacionCoroutine != null) StopCoroutine(inmovilizacionCoroutine);
 
-        // Volver a estado normal
         animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, false);
-    }
-
-    void OnTriggerExit2D(Collider2D collision)
-    {
-        // Si está muerto, no hacer nada
-        if (estaMuerto) return;
-
-        // Solo permitir salir si no ha comenzado la inmovilización
-        if (collision.CompareTag("Player") && jugadorEnContacto)
-        {
-            if (!animator.GetBool(IsInmovilizing))
-            {
-                jugadorEnContacto = false;
-
-                if (danioCoroutine != null)
-                    StopCoroutine(danioCoroutine);
-
-                animator.SetBool(IsAttacking, false);
-                animator.SetBool(IsInmovilizing, false);
-            }
-        }
     }
 
     IEnumerator DanioConstante()
@@ -166,48 +211,39 @@ public class MohoSensorial : MonoBehaviour
 
         while (jugadorEnContacto && animator.GetBool(IsInmovilizing) && !estaMuerto)
         {
-            if (salud != null)
-                salud.TakeDamageWithoutKnockback(danoPorSegundo);
+            if (attackClip)
+                sfxSource.PlayOneShot(attackClip, 0.8f);
 
+            salud?.TakeDamageWithoutKnockback(danoPorSegundo);
             yield return new WaitForSeconds(1f);
         }
     }
 
-    // Método para activar la muerte del enemigo
     public void Morir()
     {
         if (estaMuerto) return;
 
         estaMuerto = true;
 
-        // Liberar al jugador si estaba atrapado
+        // 🔥 SOLO ESTE ENEMIGO SE CALLA
+        ForzarParadaIdle();
+
         if (jugadorEnContacto)
-        {
             SoltarJugador();
-        }
 
-        // Detener todas las corrutinas
-        if (danioCoroutine != null)
-            StopCoroutine(danioCoroutine);
-        if (inmovilizacionCoroutine != null)
-            StopCoroutine(inmovilizacionCoroutine);
-
-        // Activar animación de muerte
         animator.SetBool(IsDead, true);
-        animator.SetBool(IsAttacking, false);
-        animator.SetBool(IsInmovilizing, false);
 
-        // Opcional: Deshabilitar colisiones
-        Collider2D collider = GetComponent<Collider2D>();
-        if (collider != null)
-            collider.enabled = false;
+        Collider2D col = GetComponent<Collider2D>();
+        if (col) col.enabled = false;
     }
 
-    void Update()
+    void OnDisable()
     {
-        if (jugadorEnContacto && !estaMuerto)
-        {
-            Debug.Log("Jugador atrapado: " + animator.GetBool(IsInmovilizing));
-        }
+        ForzarParadaIdle();
+    }
+
+    void OnDestroy()
+    {
+        ForzarParadaIdle();
     }
 }

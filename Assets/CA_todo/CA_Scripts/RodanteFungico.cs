@@ -16,6 +16,18 @@ public class RodanteFungico : MonoBehaviour
     [Header("Detección del jugador")]
     public float rangoDeteccion = 5f;
 
+    // ===============================
+    // 🔊 AUDIO (ATAQUE + PROXIMIDAD)
+    // ===============================
+    [Header("🔊 Audio Ataque")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip ataqueClip;
+    [Range(0f, 1f)][SerializeField] private float volAtaque = 1f;
+    [SerializeField] private float rangoAudio = 6f;
+    [SerializeField] private string tagJugador = "Player";
+
+    private Transform jugador;
+
     private Rigidbody2D rb;
     private Animator animator;
     private bool jugadorDetectado = false;
@@ -26,6 +38,21 @@ public class RodanteFungico : MonoBehaviour
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsIdleAttack = Animator.StringToHash("IsIdleAttack");
     private static readonly int IsReturning = Animator.StringToHash("IsReturning");
+
+    private void Awake()
+    {
+        // audio source seguro
+        if (!audioSource) audioSource = GetComponent<AudioSource>();
+        if (audioSource)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            audioSource.spatialBlend = 0f; // 2D
+        }
+
+        GameObject p = GameObject.FindGameObjectWithTag(tagJugador);
+        if (p) jugador = p.transform;
+    }
 
     void Start()
     {
@@ -65,6 +92,8 @@ public class RodanteFungico : MonoBehaviour
             if (col.CompareTag("Player"))
             {
                 jugadorDetectado = true;
+                // cache jugador si no estaba
+                if (!jugador) jugador = col.transform;
                 break;
             }
         }
@@ -116,12 +145,23 @@ public class RodanteFungico : MonoBehaviour
         }
     }
 
+    // ✅ Proximidad audio
+    bool PlayerEnRangoAudio()
+    {
+        if (!jugador) return false;
+        return Vector2.Distance(transform.position, jugador.position) <= rangoAudio;
+    }
+
     // Método para activar el ataque de mordida
     public void IniciarAtaque()
     {
         estaAtacando = true;
         animator.SetBool(IsAttacking, true);
         animator.SetBool(IsIdleAttack, false);
+
+        // 🔊 SONIDO DE ATAQUE (solo si player está cerca)
+        if (ataqueClip && audioSource && PlayerEnRangoAudio())
+            audioSource.PlayOneShot(ataqueClip, volAtaque);
     }
 
     // Método para finalizar el ataque de mordida
@@ -135,6 +175,10 @@ public class RodanteFungico : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, rangoDeteccion);
+
+        // (opcional) rango audio para debug visual
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, rangoAudio);
 
         if (puntoA != null && puntoB != null)
         {

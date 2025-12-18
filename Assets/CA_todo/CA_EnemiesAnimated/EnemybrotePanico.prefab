@@ -1789,6 +1789,7 @@ GameObject:
   - component: {fileID: 1496586105777935716}
   - component: {fileID: 966733555579054010}
   - component: {fileID: 5963259991782514109}
+  - component: {fileID: 5478286065621766091}
   m_Layer: 7
   m_Name: EnemybrotePanico
   m_TagString: Enemy
@@ -1846,8 +1847,14 @@ MonoBehaviour:
   hitParticles: {fileID: 4888326188288633987, guid: 5752c285a9e1b1649a079c0b24969f3c, type: 3}
   particleSpawnPoint: {fileID: 4284500868255529776}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
   grupoController: {fileID: 0}
   grupoEnemigos: []
+  audioSource: {fileID: 5478286065621766091}
+  idleClip: {fileID: 0}
+  hitClip: {fileID: 8300000, guid: ce1525a9de2dd414aa6cc66aa333ac52, type: 3}
+  finalHitClip: {fileID: 8300000, guid: 8ebe3ba6228a4984b888d5fca6c09b1e, type: 3}
+  audioDistance: 6
 --- !u!114 &2805353808833720684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1867,6 +1874,8 @@ MonoBehaviour:
   puntoDisparo: {fileID: 6598299319721928604}
   danoContacto: 1
   knockbackForce: 6
+  sfxSource: {fileID: 5478286065621766091}
+  attackClip: {fileID: 8300000, guid: b6860f682f6e66e49896241701d3b916, type: 3}
   jugadorDetectado: 0
 --- !u!212 &5835424724318029865
 SpriteRenderer:
@@ -2031,6 +2040,102 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 1
   attackCooldown: 0.7
+--- !u!82 &5478286065621766091
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9069888056707622797}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &7613577506982941440
 PrefabInstance:
   m_ObjectHideFlags: 0

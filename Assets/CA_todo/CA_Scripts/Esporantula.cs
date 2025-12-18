@@ -27,10 +27,10 @@ public class CA_Esporantula : MonoBehaviour
     public float tiempoMostrarTela = 0.3f;
 
     [Header("Ajustes del tejido extremo (abanico)")]
-    public int ringCount = 4;            // más anillos
-    public int ringSegments = 12;        // más segmentos
-    public float ringSpacing = 0.2f;     // más separados y largos
-    public float fanAngle = 160f;        // abanico más abierto
+    public int ringCount = 4;
+    public int ringSegments = 12;
+    public float ringSpacing = 0.2f;
+    public float fanAngle = 160f;
     public int puntosCurvaCentral = 15;
 
     [Header("Nudos de telaraña")]
@@ -67,6 +67,28 @@ public class CA_Esporantula : MonoBehaviour
     private float tiempoTranscurridoSalto;
     private float alturaMaximaSalto;
 
+    // ===============================
+    // 🔊 AUDIO TELARAÑA (CON PROXIMIDAD)
+    // ===============================
+    [Header("🔊 Audio Ataque (Telaraña)")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip telaranaLanzarClip;
+    [SerializeField] private AudioClip telaranaSaltoClip;
+    [Range(0f, 1f)][SerializeField] private float volLanzar = 1f;
+    [Range(0f, 1f)][SerializeField] private float volSalto = 1f;
+    [SerializeField] private float rangoAudio = 6f; // 🔥 NUEVO
+
+    private void Awake()
+    {
+        if (!audioSource) audioSource = GetComponent<AudioSource>();
+        if (audioSource)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            audioSource.spatialBlend = 0f;
+        }
+    }
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -75,6 +97,13 @@ public class CA_Esporantula : MonoBehaviour
         if (TryGetComponent<Rigidbody2D>(out Rigidbody2D rb)) rb.freezeRotation = true;
         ResetearAnimaciones();
         StartCoroutine(MovimientoAleatorio());
+    }
+
+    // 🔹 PROXIMIDAD AUDIO
+    bool PlayerEnRangoAudio()
+    {
+        if (!jugador) return false;
+        return Vector2.Distance(transform.position, jugador.position) <= rangoAudio;
     }
 
     void ResetearAnimaciones()
@@ -121,7 +150,6 @@ public class CA_Esporantula : MonoBehaviour
 
         jugador = jugadorObj.transform;
         float distancia = Vector2.Distance(transform.position, jugador.position);
-
         jugadorDetectado = distancia <= rangoDeteccion;
 
         animator.SetBool(IsDetectingPlayer, jugadorDetectado);
@@ -132,10 +160,11 @@ public class CA_Esporantula : MonoBehaviour
         if (jugador == null) return;
 
         Vector3 direccion = jugador.position - transform.position;
-        if (direccion.x > 0)
-            transform.localScale = new Vector3(Mathf.Abs(escalaOriginal.x), escalaOriginal.y, escalaOriginal.z);
-        else
-            transform.localScale = new Vector3(-Mathf.Abs(escalaOriginal.x), escalaOriginal.y, escalaOriginal.z);
+        transform.localScale = new Vector3(
+            direccion.x > 0 ? Mathf.Abs(escalaOriginal.x) : -Mathf.Abs(escalaOriginal.x),
+            escalaOriginal.y,
+            escalaOriginal.z
+        );
     }
 
     IEnumerator MovimientoAleatorio()
@@ -200,6 +229,10 @@ public class CA_Esporantula : MonoBehaviour
 
         animator.SetBool(IsJumping, true);
 
+        // 🔊 AUDIO SALTO ATAQUE (CON PROXIMIDAD)
+        if (esAtaqueAlJugador && telaranaSaltoClip && audioSource && PlayerEnRangoAudio())
+            audioSource.PlayOneShot(telaranaSaltoClip, volSalto);
+
         StartCoroutine(MostrarTelaArana(destino));
 
         while (tiempoTranscurridoSalto < duracionSaltoActual)
@@ -229,24 +262,16 @@ public class CA_Esporantula : MonoBehaviour
     {
         if (jugador == null) yield break;
         animator.SetBool(IsAttackingPlayer, true);
-
-        float distancia = Vector2.Distance(transform.position, jugador.position);
-        if (distancia < 1.5f)
-        {
-            Rigidbody2D rbPlayer = jugador.GetComponent<Rigidbody2D>();
-            if (rbPlayer != null)
-            {
-                Vector2 dir = (jugador.position - transform.position).normalized;
-                rbPlayer.AddForce(dir * knockbackForce, ForceMode2D.Impulse);
-            }
-        }
-
         yield return new WaitForSeconds(0.6f);
         animator.SetBool(IsAttackingPlayer, false);
     }
 
     IEnumerator MostrarTelaArana(Vector3 destino)
     {
+        // 🔊 AUDIO TELARAÑA (CON PROXIMIDAD)
+        if (telaranaLanzarClip && audioSource && PlayerEnRangoAudio())
+            audioSource.PlayOneShot(telaranaLanzarClip, volLanzar);
+
         lineRendererTela.enabled = true;
         posicionesNudos.Clear();
 
@@ -264,13 +289,9 @@ public class CA_Esporantula : MonoBehaviour
             if (i % 4 == 0) posicionesNudos.Add(punto);
         }
 
-        // Generar abanico en el inicio
         List<List<Vector3>> abanicoInicio = GenerarTejidoFanHilos(inicio);
-
-        // Generar abanico en el fin
         List<List<Vector3>> abanicoFin = GenerarTejidoFanHilos(fin);
 
-        // Combinar todos los puntos para el LineRenderer
         List<Vector3> puntosFinales = new List<Vector3>();
 
         foreach (var hilo in abanicoInicio)
@@ -294,7 +315,6 @@ public class CA_Esporantula : MonoBehaviour
         lineRendererTela.enabled = false;
     }
 
-    // Genera hilos para un abanico centrado en 'centro'
     List<List<Vector3>> GenerarTejidoFanHilos(Vector3 centro)
     {
         List<List<Vector3>> hilos = new List<List<Vector3>>();
@@ -302,30 +322,21 @@ public class CA_Esporantula : MonoBehaviour
 
         for (int s = 0; s < ringSegments; s++)
         {
-            // Ángulo entre -halfAngle y +halfAngle
             float a = Mathf.Lerp(-halfAngle, halfAngle, s / (float)(ringSegments - 1));
 
-            // Base vertical (hacia arriba)
-            Vector3 baseDirDerecha = Quaternion.AngleAxis(a, Vector3.forward) * Vector3.up;
-            List<Vector3> hiloDerecha = new List<Vector3>();
+            Vector3 dirD = Quaternion.AngleAxis(a, Vector3.forward) * Vector3.up;
+            List<Vector3> hiloD = new List<Vector3>();
             for (int r = 1; r <= ringCount; r++)
-            {
-                float radio = ringSpacing * r * 1.5f;
-                Vector3 punto = centro + baseDirDerecha.normalized * radio;
-                hiloDerecha.Add(punto);
-            }
-            hilos.Add(hiloDerecha);
+                hiloD.Add(centro + dirD.normalized * ringSpacing * r * 1.5f);
 
-            // Hilo simétrico hacia arriba (lado izquierdo)
-            Vector3 baseDirIzquierda = Quaternion.AngleAxis(-a, Vector3.forward) * Vector3.up;
-            List<Vector3> hiloIzquierda = new List<Vector3>();
+            hilos.Add(hiloD);
+
+            Vector3 dirI = Quaternion.AngleAxis(-a, Vector3.forward) * Vector3.up;
+            List<Vector3> hiloI = new List<Vector3>();
             for (int r = 1; r <= ringCount; r++)
-            {
-                float radio = ringSpacing * r * 1.5f;
-                Vector3 punto = centro + baseDirIzquierda.normalized * radio;
-                hiloIzquierda.Add(punto);
-            }
-            hilos.Add(hiloIzquierda);
+                hiloI.Add(centro + dirI.normalized * ringSpacing * r * 1.5f);
+
+            hilos.Add(hiloI);
         }
 
         return hilos;

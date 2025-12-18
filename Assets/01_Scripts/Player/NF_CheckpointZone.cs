@@ -6,20 +6,39 @@ public class NF_CheckpointZone : MonoBehaviour
     private NF_PlayerHealth playerHealth;
     private bool playerInRange = false;
 
+    [Header("🔊 Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip checkpointClip;
+
     private void Awake()
     {
-        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<NF_GameController>();
-        playerHealth = GameObject.FindGameObjectWithTag("Player").GetComponent<NF_PlayerHealth>();
+        gameController = GameObject.FindGameObjectWithTag("GameController")
+            .GetComponent<NF_GameController>();
+
+        playerHealth = GameObject.FindGameObjectWithTag("Player")
+            .GetComponent<NF_PlayerHealth>();
+
+        // 🔒 Seguridad por si se olvidan asignarlo
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
-        // Si el jugador está dentro del área y presiona E, guarda el checkpoint
+        // Si el jugador está dentro del área y presiona F
         if (playerInRange && Input.GetKeyDown(KeyCode.F))
         {
+            // 🔊 SONIDO
+            if (checkpointClip && audioSource)
+                audioSource.PlayOneShot(checkpointClip);
+
+            // 📍 Guardar checkpoint
             gameController.UpdateCheckpoint(transform.position, "Zone");
-            playerHealth.HealToFull(); // Cura al guardar
-            Debug.Log("💖 Checkpoint Zone guardado y vida restaurada.");
+
+            // ❤️ Curar al guardar
+            playerHealth.HealToFull();
+
+            Debug.Log("💖 Checkpoint Zone guardado, vida restaurada y sonido reproducido.");
         }
     }
 

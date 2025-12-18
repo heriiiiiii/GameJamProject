@@ -10,6 +10,8 @@ public class NF_GameController : MonoBehaviour
     private Vector2 checkpointParkourPos;
     public int lifeRespawn;
 
+    private NF_CheckpointParkour currentCheckpoint;
+
     private void Awake()
     {
         playerHealth = player.GetComponent<NF_PlayerHealth>();
@@ -98,4 +100,20 @@ public class NF_GameController : MonoBehaviour
         if (controller != null)
             controller.enabled = true;
     }
+
+    public void SetActiveCheckpoint(NF_CheckpointParkour newCheckpoint)
+    {
+        // Si es el mismo, no hacer nada
+        if (currentCheckpoint == newCheckpoint)
+            return;
+
+        // Desactivar el anterior
+        if (currentCheckpoint != null)
+            currentCheckpoint.Deactivate();
+
+        // Activar el nuevo
+        currentCheckpoint = newCheckpoint;
+        currentCheckpoint.Activate();
+    }
+
 }

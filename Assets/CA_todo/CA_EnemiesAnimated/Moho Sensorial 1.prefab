@@ -975,8 +975,14 @@ MonoBehaviour:
   hitParticles: {fileID: 4888326188288633987, guid: 5752c285a9e1b1649a079c0b24969f3c, type: 3}
   particleSpawnPoint: {fileID: 377194182972053086}
   activador: {fileID: 0}
+  battleManager: {fileID: 0}
   grupoController: {fileID: 0}
   grupoEnemigos: []
+  audioSource: {fileID: 0}
+  idleClip: {fileID: 0}
+  hitClip: {fileID: 8300000, guid: a9fb0d0f1fe7e4645b3823ea0d793ca6, type: 3}
+  finalHitClip: {fileID: 8300000, guid: f948d5097948fa841a68bc2ad1381496, type: 3}
+  audioDistance: 6
 --- !u!114 &4505371428611540376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -993,6 +999,11 @@ MonoBehaviour:
   duracionInmovilizacion: 3
   fuerzaEmpuje: 30
   puntoAtraccion: {fileID: 6257310381140853825}
+  idleClip: {fileID: 8300000, guid: e06c9671f1807004db25580d335edd23, type: 3}
+  grabClip: {fileID: 8300000, guid: 38c9c4b77c7f3194fad6731e79766e19, type: 3}
+  attackClip: {fileID: 8300000, guid: b4c78e35feeba984dba59f6d218178e5, type: 3}
+  releaseClip: {fileID: 8300000, guid: 924034b09d844ba4784e1d57a0cd36dd, type: 3}
+  audioDistance: 6
 --- !u!95 &3779289936410552009
 Animator:
   serializedVersion: 5

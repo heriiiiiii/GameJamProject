@@ -7,14 +7,22 @@ using UnityEngine;
 public class CA_PlayerController : MonoBehaviour
 {
     [Header("🔊 Audio del Jugador")]
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioSource loopSource; // caminar
+    [SerializeField] private AudioSource fxSource;   // jump, attack, dash
 
     [SerializeField] private AudioClip walkClip;
     [SerializeField] private AudioClip dashClip;
     [SerializeField] private AudioClip attackClip;
     [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip landClip;        // aterrizaje
+    [SerializeField] private AudioClip hurtClip;        // golpe recibido
+    [SerializeField] private AudioClip wallSlideClip;   // fricción pared
 
     private bool isWalkingSoundPlaying = false;
+    private bool landSoundPlayed = false;
+    private bool wallSlideSoundPlaying = false;
+
+
 
     [Header("Movimiento Horizontal")]
     private Rigidbody2D rb;
@@ -175,10 +183,25 @@ public class CA_PlayerController : MonoBehaviour
         gravity = rb.gravityScale;
         _cameraFollowObject = _cameraFollowGO.GetComponent<NF_CameraFollowOBJECT>();
         _fallSpeedYDampingChangeThreshold = NF_CameraManager.instance._fallSpeedYDampingChangeThreshold;
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
 
+        // ✅ AUDIO: fallback robusto
+        if (loopSource == null || fxSource == null)
+        {
+            var sources = GetComponents<AudioSource>();
+            if (sources.Length >= 2)
+            {
+                if (loopSource == null) loopSource = sources[0];
+                if (fxSource == null) fxSource = sources[1];
+            }
+            else if (sources.Length == 1)
+            {
+                if (loopSource == null) loopSource = sources[0];
+                // Si no hay segundo AudioSource, usamos el mismo para fx para evitar nulls
+                if (fxSource == null) fxSource = sources[0];
+            }
+        }
     }
+
 
     private void OnDrawGizmos()
     {
@@ -194,6 +217,7 @@ public class CA_PlayerController : MonoBehaviour
         {
 
         }
+
         GetInputs();
         UpdateJumpVariables();
 
@@ -265,7 +289,9 @@ public class CA_PlayerController : MonoBehaviour
 
         if (!isWallSliding && wallJumpLockTimer <= 0f && !pState.recoillingX)
             Flip();
+
         UpdateAnimatorState();
+
         // ================== 💤 LONG IDLE HANDLER ==================
         AnimatorStateInfo currentState = anim.GetCurrentAnimatorStateInfo(0);
 
@@ -315,7 +341,6 @@ public class CA_PlayerController : MonoBehaviour
             anim.ResetTrigger("LongIdle");
             anim.Play("HV_idle 0", 0, 0f);
         }
-
 
         var st = anim.GetCurrentAnimatorStateInfo(0);
         isInAttack = IsAttackState(st);
@@ -368,11 +393,15 @@ public class CA_PlayerController : MonoBehaviour
                 isAttacking = false;
             }
         }
+
         if (wallJumpLockTimer > 0f) wallJumpLockTimer -= Time.deltaTime;
         if (wallRegrabBlockTimer > 0f) wallRegrabBlockTimer -= Time.deltaTime;
+
         anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
+
         bool grounded = Grounded();
         bool falling = !grounded && rb.velocity.y < -0.1f;
+
         if (anim != null)
         {
             anim.SetBool("IsFalling", falling);
@@ -385,10 +414,24 @@ public class CA_PlayerController : MonoBehaviour
             anim.ResetTrigger("DoubleJump");
             anim.SetBool("IsFalling", false);
             anim.SetTrigger("Land");
-        }
-        wasGrounded = grounded;
 
+            // 🔊 AUDIO ATERRIZAJE (solo si estuvo en el aire un mínimo)
+            if (!landSoundPlayed && airTime >= landingMinAirTime)
+            {
+                if (landClip && fxSource)
+                    fxSource.PlayOneShot(landClip, 1f);
+
+                landSoundPlayed = true;
+            }
+        }
+
+        // ✅ Reset para permitir el sonido en la siguiente caída
+        if (!grounded)
+            landSoundPlayed = false;
+
+        wasGrounded = grounded;
     }
+
     // 🔓 Habilita o deshabilita TODAS las mecánicas relacionadas con pared
     public void SetWallJumpAbilities(bool enabled)
     {
@@ -424,9 +467,9 @@ public class CA_PlayerController : MonoBehaviour
         anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
         bool grounded = Grounded();
 
+        // ===================== EN AIRE =====================
         if (!grounded)
         {
-            // 🪂 Si no está en el suelo, controla salto y caída
             if (wasGrounded)
             {
                 wasGrounded = false;
@@ -435,47 +478,57 @@ public class CA_PlayerController : MonoBehaviour
 
             airTime += Time.deltaTime;
 
-            if (rb.velocity.y < -0.05f && !anim.GetBool("IsFalling"))
+            // Activar estado de caída
+            if (rb.velocity.y < fallThreshold && !anim.GetBool("IsFalling"))
             {
                 anim.SetBool("IsFalling", true);
             }
         }
+        // ===================== EN SUELO =====================
         else
         {
-            // ⬇️ Aterrizaje (solo si estaba en el aire antes)
-            if (!wasGrounded && airTime > 0.05f)
+            // 🟫 ATERRIZAJE
+            if (!wasGrounded)
             {
                 anim.SetBool("IsFalling", false);
                 anim.ResetTrigger("Jump");
                 anim.SetTrigger("Land");
+
+                // 🔊 CAÍDA FUERTE (solo si estuvo mucho tiempo en el aire)
+                if (airTime >= 0.35f)
+                {
+                    if (landClip && fxSource)
+                        fxSource.PlayOneShot(landClip, 1f);
+                }
             }
 
-            // 🧍‍♂️ Si está en el suelo, decide entre idle o walk
+            // Movimiento / Idle
             if (Mathf.Abs(rb.velocity.x) < 0.05f)
-            {
-                // Detenido en el suelo = Idle0
                 anim.SetFloat("Speed", 0f);
-            }
             else
-            {
-                // En movimiento = Idle (caminar)
                 anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
-            }
 
             wasGrounded = true;
             airTime = 0f;
         }
 
-        if (rb.velocity.y < _fallSpeedYDampingChangeThreshold && !NF_CameraManager.instance.IsLerpingYDamping && !NF_CameraManager.instance.LerpedFromPlayerFalling)
+        // ===================== CÁMARA =====================
+        if (rb.velocity.y < _fallSpeedYDampingChangeThreshold &&
+            !NF_CameraManager.instance.IsLerpingYDamping &&
+            !NF_CameraManager.instance.LerpedFromPlayerFalling)
         {
             NF_CameraManager.instance.LerpYDamping(true);
         }
-        if (rb.velocity.y >= 0f && !NF_CameraManager.instance.IsLerpingYDamping && NF_CameraManager.instance.LerpedFromPlayerFalling)
+
+        if (rb.velocity.y >= 0f &&
+            !NF_CameraManager.instance.IsLerpingYDamping &&
+            NF_CameraManager.instance.LerpedFromPlayerFalling)
         {
             NF_CameraManager.instance.LerpedFromPlayerFalling = false;
             NF_CameraManager.instance.LerpYDamping(false);
         }
     }
+
     private void FixedUpdate()
     {
         // 🚫 No sobrescribir velocidad si está dashing o en recoil lateral
@@ -484,35 +537,45 @@ public class CA_PlayerController : MonoBehaviour
 
         // ✅ Movimiento horizontal normal
         if (!isWallSliding && wallJumpLockTimer <= 0f)
-        {
             rb.velocity = new Vector2(xAxis * walkSpeed, rb.velocity.y);
-        }
 
-        // 🔽 Deslizamiento por pared (mantiene la caída controlada)
+        // 🔽 Deslizamiento por pared
         if (isWallSliding)
-        {
             rb.velocity = new Vector2(rb.velocity.x, -wallSlidingSpeed);
+
+        // ===================== 🔊 AUDIO DE CAMINAR =====================
+
+        // ❌ Si está atacando, NO reproducir sonido de caminar
+        if (isAttacking)
+        {
+            if (isWalkingSoundPlaying && loopSource != null)
+            {
+                loopSource.Stop();
+                isWalkingSoundPlaying = false;
+            }
+            return;
         }
 
         bool isMovingOnGround = Grounded() && Mathf.Abs(rb.velocity.x) > 0.1f;
 
         if (isMovingOnGround && !isWalkingSoundPlaying)
         {
-            if (walkClip != null)
+            if (walkClip != null && loopSource != null)
             {
-                audioSource.clip = walkClip;
-                audioSource.loop = true;
-                audioSource.Play();
+                loopSource.clip = walkClip;
+                loopSource.loop = true;
+                loopSource.Play();
                 isWalkingSoundPlaying = true;
             }
         }
         else if (!isMovingOnGround && isWalkingSoundPlaying)
         {
-            audioSource.Stop();
+            if (loopSource != null) loopSource.Stop();
             isWalkingSoundPlaying = false;
         }
-
     }
+
+
 
 
     void GetInputs()
@@ -520,22 +583,36 @@ public class CA_PlayerController : MonoBehaviour
         xAxis = Input.GetAxisRaw("Horizontal");
         yAxis = Input.GetAxisRaw("Vertical");
 
+        // ⛔ No permitir input de ataque en estados críticos
+        if (isDead || pState.dashing || pState.recoillingX || pState.recoillingY)
+            return;
+
+        // 🎯 ATAQUE CONTROLADO (ANTI SPAM)
         if (Input.GetKeyDown(KeyCode.X))
         {
-            // Si estamos libres para atacar: atacar YA
-            if (canAttack && (!isInAttack || canChainWindow))
+            // Si no está atacando → ataque normal
+            if (canAttack && !isInAttack)
             {
                 attackPressed = true;
+                return;
             }
-            else
+
+            // Si está atacando PERO dentro de ventana de combo → encadenar
+            if (isInAttack && canChainWindow)
             {
-                // Guardar input para el siguiente hueco (buffer)
+                attackPressed = true;
+                return;
+            }
+
+            // ❌ Si NO puede atacar todavía → buffer 1 solo input
+            if (!queuedAttack)
+            {
                 queuedAttack = true;
-                bufferTimer = comboBufferWindow;   // ya lo tienes declarado
+                bufferTimer = comboBufferWindow;
             }
         }
-
     }
+
 
     // --- FX flags ---
     private bool _doubleJumpFXFlag = false;
@@ -579,33 +656,41 @@ public class CA_PlayerController : MonoBehaviour
     IEnumerator Dash()
     {
         pState.dashing = true;
-        if (dashClip) audioSource.PlayOneShot(dashClip, 1f);
+
+        // 🔇 Cortar caminar
+        if (isWalkingSoundPlaying)
+        {
+            if (loopSource) loopSource.Stop();
+            isWalkingSoundPlaying = false;
+        }
+
+        // 🔊 AUDIO DASH (UNA SOLA VEZ)
+        if (dashClip && fxSource)
+            fxSource.PlayOneShot(dashClip, 1f);
+
         float prevGrav = rb.gravityScale;
         rb.gravityScale = 0f;
 
-        // Dirección del dash (usa input o facing)
+        // Dirección del dash
         float dir = Mathf.Sign(xAxis == 0 ? transform.localScale.x : xAxis);
         rb.velocity = new Vector2(dir * dashSpeed, 0f);
 
-        // 🎬 Activar animación solo una vez
+        // 🎬 Animación
         anim.ResetTrigger("Dash");
         anim.SetTrigger("Dash");
 
-        // ✨ Instanciar dashEffect detrás del jugador, orientado correctamente
+        // ✨ Efecto visual
         if (dashEffect)
         {
-            float offsetX = -0.6f * dir; // 🔹 retrasa el efecto detrás del jugador
+            float offsetX = -0.6f * dir;
             Vector3 spawnPos = transform.position + new Vector3(offsetX, 0f, 0f);
 
-            // Crear el efecto
             GameObject effect = Instantiate(dashEffect, spawnPos, Quaternion.identity);
 
-            // 🔄 Alinear su escala según la dirección del dash
             Vector3 scale = effect.transform.localScale;
             scale.x = Mathf.Abs(scale.x) * dir;
             effect.transform.localScale = scale;
 
-            // 🔥 (Opcional) destruir efecto después de 1s para evitar acumulación
             Destroy(effect, 1f);
         }
 
@@ -617,6 +702,7 @@ public class CA_PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+
 
     public void ResetMovementState()
     {
@@ -637,8 +723,11 @@ public class CA_PlayerController : MonoBehaviour
         yAxis = 0f;
 
         // 2) Frenar la física
-        rb.velocity = Vector2.zero;
-        rb.angularVelocity = 0f;
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
 
         // 3) Forzar animación Idle base
         if (anim != null)
@@ -654,99 +743,113 @@ public class CA_PlayerController : MonoBehaviour
             anim.SetBool("IsFalling", false);
         }
 
-        // 4) Apagar sonido de caminar
-        if (audioSource != null && audioSource.isPlaying)
-            audioSource.Stop();
+        // ===============================
+        // 🔊 CORTAR AUDIO DE CAMINAR (CLAVE)
+        // ===============================
+        if (loopSource != null && loopSource.isPlaying)
+        {
+            loopSource.Stop();
+        }
 
         isWalkingSoundPlaying = false;
-
     }
+
 
 
 
     // ====== Ataque ======
     void Attack()
     {
-        // 🚫 Si no presionó ataque o está en cooldown, salir
         if (!attackPressed || !canAttack) return;
         attackPressed = false;
 
-        // 🔄 Reinicia el combo si pasó demasiado tiempo sin atacar
+        // 🔇 Detener sonido de caminar antes de atacar
+        if (isWalkingSoundPlaying)
+        {
+            if (loopSource) loopSource.Stop();
+            isWalkingSoundPlaying = false;
+        }
+
         if (Time.time - lastAttackTime > comboResetTime)
             attackIndex = 0;
 
-        // Avanza al siguiente golpe del combo
         attackIndex++;
         if (attackIndex > 3) attackIndex = 1;
 
         // 🔹 Ataque hacia arriba
         if (yAxis > 0)
         {
-            // 🧠 Daño a enemigos
-            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(UpAttackTransform.position, UpAttackArea, 0, attackableLayer);
+            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
+                UpAttackTransform.position, UpAttackArea, 0, attackableLayer);
+
             foreach (Collider2D obj in hitObjects)
             {
                 CA_RecolEnemy enemy = obj.GetComponent<CA_RecolEnemy>();
                 if (enemy != null)
-                    enemy.EnemyHit(damage, (transform.position - obj.transform.position).normalized, recoilYSpeed);
+                    enemy.EnemyHit(damage,
+                        (transform.position - obj.transform.position).normalized,
+                        recoilYSpeed);
             }
 
-            // ⚙️ Retroceso del jugador
             Hit(UpAttackTransform, UpAttackArea, ref pState.recoillingY, recoilYSpeed);
-
-            // ✨ Efecto visual
             SlashEffectAtAngle(slashEffect, 80, UpAttackTransform, true);
         }
-
-        // 🔹 Ataque hacia abajo (pogo)
+        // 🔹 Ataque hacia abajo
         else if (yAxis < 0 && !Grounded())
         {
-            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(DownAttackTransform.position, DownAttackArea, 0, attackableLayer);
+            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
+                DownAttackTransform.position, DownAttackArea, 0, attackableLayer);
+
             foreach (Collider2D obj in hitObjects)
             {
                 CA_RecolEnemy enemy = obj.GetComponent<CA_RecolEnemy>();
                 if (enemy != null)
-                    enemy.EnemyHit(damage, (transform.position - obj.transform.position).normalized, recoilYSpeed);
+                    enemy.EnemyHit(damage,
+                        (transform.position - obj.transform.position).normalized,
+                        recoilYSpeed);
             }
 
             Hit(DownAttackTransform, DownAttackArea, ref pState.recoillingY, recoilYSpeed);
             SlashEffectAtAngle(slashEffect, -80, DownAttackTransform, true);
         }
-
-        // 🔹 Ataque lateral (frontal)
+        // 🔹 Ataque lateral
         else
         {
-            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(SideAttackTransform.position, SideAttackArea, 0, attackableLayer);
+            Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
+                SideAttackTransform.position, SideAttackArea, 0, attackableLayer);
+
             foreach (Collider2D obj in hitObjects)
             {
                 CA_RecolEnemy enemy = obj.GetComponent<CA_RecolEnemy>();
                 if (enemy != null)
-                    enemy.EnemyHit(damage, (transform.position - obj.transform.position).normalized, recoilXSpeed);
+                    enemy.EnemyHit(damage,
+                        (transform.position - obj.transform.position).normalized,
+                        recoilXSpeed);
             }
 
-            // ⚙️ Recoil del jugador (retroceso lateral)
             Hit(SideAttackTransform, SideAttackArea, ref pState.recoillingX, recoilXSpeed);
-
-            Instantiate(slashEffect, SideAttackTransform.position, Quaternion.identity, SideAttackTransform);
+            Instantiate(slashEffect, SideAttackTransform.position,
+                Quaternion.identity, SideAttackTransform);
         }
 
-        // 🎬 Animaciones del combo
+        // 🎬 Animación
         anim.ResetTrigger("Attack");
         anim.SetInteger("AttackIndex", attackIndex);
         anim.SetTrigger("Attack");
 
-        if (attackClip) audioSource.PlayOneShot(attackClip, 0.8f);
+        // 🔊 AUDIO DE ATAQUE
+        if (attackClip && fxSource)
+            fxSource.PlayOneShot(attackClip, 1f);
 
-        // ⚙️ Estado interno
         canAttack = false;
         isAttacking = true;
         attackIdleTimer = 0f;
 
-        // 🕒 Cooldown para siguiente ataque
         StartCoroutine(ResetAttackCooldown());
-
         lastAttackTime = Time.time;
     }
+
+
 
 
 
@@ -768,35 +871,60 @@ public class CA_PlayerController : MonoBehaviour
         canAttack = true;
     }
 
-    void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
+    void Hit(
+     Transform _attackTransform,
+     Vector2 _attackArea,
+     ref bool _recoilDir,
+     float _recoilStrength)
     {
-        Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0, attackableLayer);
+        Collider2D[] objectsToHit = Physics2D.OverlapBoxAll(
+            _attackTransform.position,
+            _attackArea,
+            0,
+            attackableLayer
+        );
 
-        if (objectsToHit.Length > 0)
+        // ❌ No se golpeó nada
+        if (objectsToHit.Length == 0)
+            return;
+
+        // 🔊 HIT CONFIRM (UNA SOLA VEZ)
+        if (fxSource && attackClip)
         {
-            _recoilDir = true;
-
-            // ⚡ Si el ataque fue hacia abajo, restaurar el doble salto
-            if (yAxis < 0 && !Grounded())
-            {
-                airJumpCounter = 0;
-                rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(rb.velocity.y, 8f));
-            }
-
-            // ✅ Guardar dirección de recoil en base al enemigo golpeado
-            float hitDirection = Mathf.Sign(transform.position.x - objectsToHit[0].transform.position.x);
-            lastRecoilDirection = hitDirection;
+            // volumen bajo para no pisar otros sonidos
+            fxSource.PlayOneShot(attackClip, 0.4f);
         }
 
+        _recoilDir = true;
+
+        // ⚡ Si el ataque fue hacia abajo, restaurar el doble salto
+        if (yAxis < 0 && !Grounded())
+        {
+            airJumpCounter = 0;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(rb.velocity.y, 8f));
+        }
+
+        // Guardar dirección del primer enemigo golpeado
+        float hitDirection = Mathf.Sign(
+            transform.position.x - objectsToHit[0].transform.position.x
+        );
+        lastRecoilDirection = hitDirection;
+
+        // 💥 Aplicar daño a todos
         for (int i = 0; i < objectsToHit.Length; i++)
         {
             CA_RecolEnemy enemy = objectsToHit[i].GetComponent<CA_RecolEnemy>();
             if (enemy != null)
             {
-                enemy.EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
+                enemy.EnemyHit(
+                    damage,
+                    (transform.position - objectsToHit[i].transform.position).normalized,
+                    _recoilStrength
+                );
             }
         }
     }
+
 
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform, bool resetScale = false)
     {
@@ -856,6 +984,7 @@ public class CA_PlayerController : MonoBehaviour
     void WallSlide()
     {
         if (!canUseWallJump) return;
+
         bool enteringSlide = false;
 
         // ✅ Detectar si está tocando pared y no está en el suelo
@@ -871,9 +1000,9 @@ public class CA_PlayerController : MonoBehaviour
             RaycastHit2D hitL = Physics2D.Raycast(pos, Vector2.left, dist, wallLayer);
 
             if (hitR.collider != null)
-                lastWallSide = +1; // pared a la derecha
+                lastWallSide = +1;
             else if (hitL.collider != null)
-                lastWallSide = -1; // pared a la izquierda
+                lastWallSide = -1;
             else
                 lastWallSide = 0;
 
@@ -881,18 +1010,29 @@ public class CA_PlayerController : MonoBehaviour
             if (lastWallSide != 0)
             {
                 Vector3 ls = transform.localScale;
-                ls.x = Mathf.Abs(ls.x) * -lastWallSide; // mira hacia la pared
+                ls.x = Mathf.Abs(ls.x) * -lastWallSide;
                 transform.localScale = ls;
                 isFacingRight = (ls.x > 0);
             }
 
             isWallSliding = true;
             rb.velocity = new Vector2(rb.velocity.x, -wallSlidingSpeed);
-            rb.gravityScale = 0f; // evita caída rápida
+            rb.gravityScale = 0f;
 
-            // 🔹 Notificar animación
             anim.SetBool("OnWall", true);
             anim.SetBool("Climb", false);
+
+            // 🔊 AUDIO FRICCIÓN PARED (LOOP)
+            if (!wallSlideSoundPlaying)
+            {
+                if (wallSlideClip && fxSource)
+                {
+                    fxSource.clip = wallSlideClip;
+                    fxSource.loop = true;
+                    fxSource.Play();
+                    wallSlideSoundPlaying = true;
+                }
+            }
 
             // --- Gate del wall-jump al ENTRAR ---
             if (enteringSlide)
@@ -903,7 +1043,7 @@ public class CA_PlayerController : MonoBehaviour
         }
         else
         {
-            // ⛔ Dejar de deslizar
+            // ⛔ Salir del wall slide
             if (isWallSliding)
             {
                 anim.SetBool("OnWall", false);
@@ -912,10 +1052,18 @@ public class CA_PlayerController : MonoBehaviour
 
             isWallSliding = false;
             rb.gravityScale = gravity;
+
+            // 🔇 CORTAR AUDIO DE FRICCIÓN
+            if (wallSlideSoundPlaying)
+            {
+                if (fxSource) fxSource.Stop();
+                wallSlideSoundPlaying = false;
+            }
         }
 
         wasWallSliding = isWallSliding;
     }
+
     void WallJump()
     {
         if (!canUseWallJump) return;
@@ -1015,10 +1163,10 @@ public class CA_PlayerController : MonoBehaviour
 
     void Jump()
     {
-
+        // 🚫 Bloquear salto normal si está en pared
         if (isWallSliding || (IsWalled() && !Grounded())) return;
 
-
+        // 🔹 Corte de salto
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
@@ -1027,54 +1175,65 @@ public class CA_PlayerController : MonoBehaviour
 
         if (!pState.jumping)
         {
-            // 🔹 Primer salto desde el suelo
+            // 🦘 SALTO DESDE SUELO
             if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
             {
+                // 🔇 Detener caminar
+                if (isWalkingSoundPlaying)
+                {
+                    if (loopSource) loopSource.Stop();
+                    isWalkingSoundPlaying = false;
+                }
+
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-                if (jumpClip) audioSource.PlayOneShot(jumpClip, 0.9f);
+
+                // 🔊 AUDIO SALTO
+                if (jumpClip && fxSource)
+                    fxSource.PlayOneShot(jumpClip, 0.9f);
+
                 pState.jumping = true;
                 jumpBufferCounter = 0;
 
-                if (anim != null)
-                {
-                    anim.ResetTrigger("DoubleJump");
-                    anim.ResetTrigger("Land");
-                    anim.ResetTrigger("Jump");
-                    anim.SetTrigger("Jump"); // animación normal
-                    anim.SetBool("IsFalling", false);
-                }
+                anim.ResetTrigger("DoubleJump");
+                anim.ResetTrigger("Land");
+                anim.ResetTrigger("Jump");
+                anim.SetTrigger("Jump");
+                anim.SetBool("IsFalling", false);
 
                 wasGrounded = false;
                 airTime = 0f;
-
             }
-
-            // 🔹 Segundo salto (doble salto)
+            // 🦘 DOBLE SALTO
             else if (canUseDoubleJump && !Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
             {
-                airJumpCounter++;
+                if (isWalkingSoundPlaying)
+                {
+                    if (loopSource) loopSource.Stop();
+                    isWalkingSoundPlaying = false;
+                }
 
+                airJumpCounter++;
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-                if (jumpClip) audioSource.PlayOneShot(jumpClip, 0.9f);
+
+                if (jumpClip && fxSource)
+                    fxSource.PlayOneShot(jumpClip, 0.9f);
+
                 pState.jumping = true;
 
-                if (anim != null)
-                {
-                    anim.ResetTrigger("Jump");
-                    anim.ResetTrigger("Land");
-                    anim.ResetTrigger("DoubleJump");
-                    anim.SetTrigger("DoubleJump"); // 🎯 doble salto
-                    anim.SetBool("IsFalling", false);
-                }
+                anim.ResetTrigger("Jump");
+                anim.ResetTrigger("Land");
+                anim.ResetTrigger("DoubleJump");
+                anim.SetTrigger("DoubleJump");
+                anim.SetBool("IsFalling", false);
 
                 wasGrounded = false;
                 airTime = 0f;
-                _doubleJumpFXFlag = true;  // <- avisar al ParticleController que hubo doble salto
-
+                _doubleJumpFXFlag = true;
             }
-
         }
     }
+
+
 
     void UpdateJumpVariables()
     {
@@ -1316,6 +1475,12 @@ public class CA_PlayerController : MonoBehaviour
         Vector2 hitDirection = (transform.position - obstacle.transform.position).normalized;
         bool willDie = playerHealthScript.currentHealth <= 1;
         playerHealthScript.TakeDamage(1, hitDirection);
+        // 🔊 AUDIO GOLPE RECIBIDO
+        if (hurtClip && fxSource)
+        {
+            fxSource.PlayOneShot(hurtClip, 1f);
+        }
+
 
         // 💀 Si muere, delegar a Die()
         if (willDie)
