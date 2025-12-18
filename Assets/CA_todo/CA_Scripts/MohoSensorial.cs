@@ -8,65 +8,58 @@ public class MohoSensorial : MonoBehaviour
     public float duracionInmovilizacion = 2f;
     public float fuerzaEmpuje = 10f;
 
-    [Header("Animaciones")]
-    private Animator animator;
-
     [Header("Referencias")]
     public Transform puntoAtraccion;
 
-    // ===============================
-    // 🔊 AUDIO (POR INSTANCIA)
-    // ===============================
-    [Header("🔊 Clips")]
+    [Header("🔊 Audio")]
     [SerializeField] private AudioClip idleClip;
     [SerializeField] private AudioClip grabClip;
     [SerializeField] private AudioClip attackClip;
     [SerializeField] private AudioClip releaseClip;
-
     [SerializeField] private float audioDistance = 6f;
 
-    private AudioSource idleSource; // SOLO idle
-    private AudioSource sfxSource;  // SOLO efectos
+    private AudioSource idleSource;
+    private AudioSource sfxSource;
 
+    private Animator animator;
     private Transform player;
+    private GameObject jugador;
+
+    private bool jugadorEnContacto = false;
+    private bool estaMuerto = false;
     private bool idlePlaying = false;
     private bool grabSoundPlayed = false;
+
+    private Coroutine danioCoroutine;
+    private Coroutine inmovilizacionCoroutine;
 
     // Animator params
     private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
     private static readonly int IsInmovilizing = Animator.StringToHash("IsInmovilizing");
     private static readonly int IsDead = Animator.StringToHash("IsDead");
 
-    private bool jugadorEnContacto = false;
-    private GameObject jugador;
-    private Coroutine danioCoroutine;
-    private Coroutine inmovilizacionCoroutine;
-    private bool estaMuerto = false;
-
     void Awake()
     {
         animator = GetComponent<Animator>();
 
-        // 🔥 TOMAR LOS AUDIOSOURCE DE ESTA INSTANCIA
         AudioSource[] sources = GetComponents<AudioSource>();
+        if (sources.Length >= 2)
+        {
+            idleSource = sources[0];
+            sfxSource = sources[1];
 
-        if (sources.Length < 2)
+            idleSource.loop = true;
+            idleSource.playOnAwake = false;
+            idleSource.spatialBlend = 0f;
+
+            sfxSource.loop = false;
+            sfxSource.playOnAwake = false;
+            sfxSource.spatialBlend = 0f;
+        }
+        else
         {
             Debug.LogError($"[{name}] Necesita 2 AudioSource (Idle + SFX)");
-            return;
         }
-
-        idleSource = sources[0];
-        sfxSource = sources[1];
-
-        // Config segura
-        idleSource.loop = true;
-        idleSource.playOnAwake = false;
-        idleSource.spatialBlend = 0f;
-
-        sfxSource.loop = false;
-        sfxSource.playOnAwake = false;
-        sfxSource.spatialBlend = 0f;
     }
 
     void Start()
@@ -89,14 +82,13 @@ public class MohoSensorial : MonoBehaviour
     // ===============================
     void HandleIdleAudio()
     {
-        if (!player || !idleClip) return;
+        if (!player || !idleClip || !idleSource) return;
 
         float distance = Vector2.Distance(transform.position, player.position);
 
         if (distance <= audioDistance && !idlePlaying)
         {
             idleSource.clip = idleClip;
-            idleSource.enabled = true;
             idleSource.Play();
             idlePlaying = true;
         }
@@ -107,45 +99,39 @@ public class MohoSensorial : MonoBehaviour
         }
     }
 
-    // 🔥 FORZADO TOTAL SOLO DE ESTA INSTANCIA
     void ForzarParadaIdle()
     {
         if (idleSource)
-        {
             idleSource.Stop();
-            idleSource.clip = null;
-            idleSource.enabled = false;
-        }
 
         idlePlaying = false;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (estaMuerto) return;
+        if (estaMuerto || jugadorEnContacto) return;
 
-        if (collision.CompareTag("Player") && !jugadorEnContacto)
+        if (collision.CompareTag("Player"))
         {
             jugador = collision.gameObject;
             jugadorEnContacto = true;
 
-            if (grabClip && !grabSoundPlayed)
+            if (grabClip && !grabSoundPlayed && sfxSource)
             {
                 sfxSource.PlayOneShot(grabClip, 1f);
                 grabSoundPlayed = true;
             }
 
-            AtraparJugadorInmediatamente();
+            AtraparJugador();
         }
     }
 
-    void AtraparJugadorInmediatamente()
+    void AtraparJugador()
     {
         if (!jugador) return;
 
         jugador.transform.position = puntoAtraccion.position;
 
-        animator.SetBool(IsAttacking, false);
         animator.SetBool(IsInmovilizing, true);
 
         Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
@@ -159,59 +145,22 @@ public class MohoSensorial : MonoBehaviour
         if (movimiento) movimiento.enabled = false;
 
         danioCoroutine = StartCoroutine(DanioConstante());
-        inmovilizacionCoroutine = StartCoroutine(FaseInmovilizacion());
+        inmovilizacionCoroutine = StartCoroutine(TemporizadorLiberacion());
     }
 
-    IEnumerator FaseInmovilizacion()
+    IEnumerator TemporizadorLiberacion()
     {
-        float tiempoIdlePrevio = 0.5f;
-        float tiempoAtrapado = Mathf.Max(0f, duracionInmovilizacion - tiempoIdlePrevio);
-
-        yield return new WaitForSeconds(tiempoAtrapado);
-        if (estaMuerto) yield break;
-
-        animator.SetBool(IsInmovilizing, false);
-        yield return new WaitForSeconds(tiempoIdlePrevio);
-
+        yield return new WaitForSeconds(duracionInmovilizacion);
         SoltarJugador();
-    }
-
-    void SoltarJugador()
-    {
-        if (releaseClip)
-            sfxSource.PlayOneShot(releaseClip, 1f);
-
-        if (jugador)
-        {
-            Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
-            if (rb)
-            {
-                rb.gravityScale = 1f;
-                rb.velocity = Vector2.zero;
-                rb.AddForce(Vector2.up * fuerzaEmpuje, ForceMode2D.Impulse);
-            }
-
-            CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
-            if (movimiento) movimiento.enabled = true;
-        }
-
-        jugadorEnContacto = false;
-        grabSoundPlayed = false;
-
-        if (danioCoroutine != null) StopCoroutine(danioCoroutine);
-        if (inmovilizacionCoroutine != null) StopCoroutine(inmovilizacionCoroutine);
-
-        animator.SetBool(IsAttacking, false);
-        animator.SetBool(IsInmovilizing, false);
     }
 
     IEnumerator DanioConstante()
     {
         NF_PlayerHealth salud = jugador.GetComponent<NF_PlayerHealth>();
 
-        while (jugadorEnContacto && animator.GetBool(IsInmovilizing) && !estaMuerto)
+        while (jugadorEnContacto && !estaMuerto)
         {
-            if (attackClip)
+            if (attackClip && sfxSource)
                 sfxSource.PlayOneShot(attackClip, 0.8f);
 
             salud?.TakeDamageWithoutKnockback(danoPorSegundo);
@@ -219,13 +168,38 @@ public class MohoSensorial : MonoBehaviour
         }
     }
 
+    void SoltarJugador()
+    {
+        if (!jugador) return;
+
+        if (releaseClip && sfxSource)
+            sfxSource.PlayOneShot(releaseClip, 1f);
+
+        Rigidbody2D rb = jugador.GetComponent<Rigidbody2D>();
+        if (rb)
+        {
+            rb.gravityScale = 1f;
+            rb.velocity = Vector2.zero;
+            rb.AddForce(Vector2.up * fuerzaEmpuje, ForceMode2D.Impulse);
+        }
+
+        CA_PlayerController movimiento = jugador.GetComponent<CA_PlayerController>();
+        if (movimiento) movimiento.enabled = true;
+
+        jugadorEnContacto = false;
+        grabSoundPlayed = false;
+
+        if (danioCoroutine != null) StopCoroutine(danioCoroutine);
+        if (inmovilizacionCoroutine != null) StopCoroutine(inmovilizacionCoroutine);
+
+        animator.SetBool(IsInmovilizing, false);
+    }
+
     public void Morir()
     {
         if (estaMuerto) return;
 
         estaMuerto = true;
-
-        // 🔥 SOLO ESTE ENEMIGO SE CALLA
         ForzarParadaIdle();
 
         if (jugadorEnContacto)
@@ -237,13 +211,6 @@ public class MohoSensorial : MonoBehaviour
         if (col) col.enabled = false;
     }
 
-    void OnDisable()
-    {
-        ForzarParadaIdle();
-    }
-
-    void OnDestroy()
-    {
-        ForzarParadaIdle();
-    }
+    void OnDisable() => ForzarParadaIdle();
+    void OnDestroy() => ForzarParadaIdle();
 }

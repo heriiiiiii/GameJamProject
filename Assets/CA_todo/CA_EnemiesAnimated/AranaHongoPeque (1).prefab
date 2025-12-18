@@ -418,7 +418,7 @@ MonoBehaviour:
   idleClip: {fileID: 8300000, guid: 6fa650661450abb4698b4c270eaf3c39, type: 3}
   hitClip: {fileID: 8300000, guid: 0fee190a9c4481741932443ea8f64abb, type: 3}
   finalHitClip: {fileID: 8300000, guid: 565649a7a8aec2241be4b7c2962d61a9, type: 3}
-  audioDistance: 7
+  audioDistance: 7.5
 --- !u!114 &3066478144679405129
 MonoBehaviour:
   m_ObjectHideFlags: 0
